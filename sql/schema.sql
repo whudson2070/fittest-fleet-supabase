@@ -79,3 +79,10 @@ end $$;
 
 -- Optional: ensure REPLICA IDENTITY FULL so UPDATE/DELETE payloads include old row
 alter table public.comments replica identity full;
+
+-- ---------------------------------------------------------------------------
+-- Privileges (required; RLS alone is not enough)
+-- ---------------------------------------------------------------------------
+grant usage on schema public to anon, authenticated;
+grant select on table public.comments to anon, authenticated;
+grant insert, update, delete on table public.comments to authenticated;
