@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fittest Fleet • Weight Loss • Exercise • Nutritional Discipline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/brand.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Arial:wght@400;700&display=swap');
+
+        :root {
+            --ruan-red: #BE0F34;
+            --bright-red: #D7153A;
+            --dark-red: #AC1E2F;
+            --dark-grey: #414042;
+            --light-grey: #E6E7E8;
+            --accent-blue: #5594CF;
+            --accent-chartreuse: #D9E364;
+        }
+
+        body {
+            font-family: Arial, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .brand-heading {
+            font-family: Arial, sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        .section-heading {
+            font-family: Arial, sans-serif;
+            font-weight: 700;
+            color: #414042;
+        }
+
+        .ruan-red { color: #BE0F34; }
+        .bg-ruan-red { background-color: #BE0F34; }
+        .bg-bright-red { background-color: #D7153A; }
+        .text-ruan-red { color: #BE0F34; }
+        .border-ruan-red { border-color: #BE0F34; }
+
+        .nav-link { transition: color 0.2s ease; }
+        .nav-link:hover { color: #BE0F34; }
+
+        .pillar-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .pillar-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        .comment-card { transition: all 0.2s ease; }
+
+        .encourage-btn { transition: all 0.2s ease; }
+        .encourage-btn:hover { transform: scale(1.05); }
+        .encourage-btn:active { transform: scale(0.95); }
+
+        .category-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            letter-spacing: 0.025em;
+        }
+
+        .filter-btn { transition: all 0.2s ease; }
+        .filter-btn.active {
+            background-color: #BE0F34;
+            color: white;
+            border-color: #BE0F34;
+        }
+
+        .motivation-quote {
+            font-style: italic;
+            border-left: 4px solid #BE0F34;
+        }
+
+        .fitness-hero {
+            background: linear-gradient(135deg, #BE0F34 0%, #AC1E2F 100%);
+        }
+
+        .brand-logo {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+
+        .success-story { transition: transform 0.2s ease; }
+        .success-story:hover { transform: translateY(-2px); }
+
+        .modal {
+            animation: modalPopIn 0.2s ease-out forwards;
+        }
+
+        @keyframes modalPopIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .tip-bullet { position: relative; padding-left: 1.5rem; }
+        .tip-bullet:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #BE0F34;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-white text-[#414042]">
+    <!-- NAVIGATION -->
+    <nav class="bg-white border-b border-[#E6E7E8] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-x-3">
+                    <a href="#" class="flex items-center group">
+                        <div class="brand-logo text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                        <div class="ml-3">
+                            <div class="font-bold text-lg tracking-tight text-[#414042]">Fittest Fleet</div>
+                            <div class="text-[10px] text-[#414042]/60 -mt-1">Community Wellness</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center gap-x-9 text-sm font-medium">
+                    <a href="#pillars" class="nav-link text-[#414042] hover:text-[#BE0F34]">Our Pillars</a>
+                    <a href="#stories" class="nav-link text-[#414042] hover:text-[#BE0F34]">Success Stories</a>
+                    <a href="#community" class="nav-link text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                </div>
+
+                <div class="flex items-center gap-x-3">
+                    <!-- Auth: signed out -->
+                    <div id="auth-signed-out" class="hidden sm:flex items-center gap-x-2">
+                        <button type="button" id="auth-open-signin"
+                                class="px-4 py-2 text-sm font-semibold text-[#414042] hover:text-[#BE0F34] transition-colors">
+                            Sign in
+                        </button>
+                        <button type="button" id="auth-open-signup"
+                                class="inline-flex items-center justify-center px-5 py-2.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full transition-all active:scale-[0.985]">
+                            Join
+                        </button>
+                    </div>
+                    <!-- Auth: signed in -->
+                    <div id="auth-signed-in" class="hidden flex items-center gap-x-3">
+                        <span class="hidden sm:inline text-sm text-[#414042]/80">
+                            <i class="fa-solid fa-user-circle text-[#BE0F34] mr-1"></i>
+                            <span id="auth-user-label" class="font-semibold"></span>
+                        </span>
+                        <button type="button" id="auth-signout-btn"
+                                class="px-4 py-2 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full transition-all">
+                            Sign out
+                        </button>
+                    </div>
+
+                    <button id="mobile-menu-btn"
+                            class="md:hidden w-10 h-10 flex items-center justify-center text-[#414042] hover:text-[#BE0F34]">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden border-t border-[#E6E7E8] bg-white">
+            <div class="px-6 py-4 flex flex-col gap-y-3 text-sm font-medium">
+                <a href="#pillars" class="py-2 text-[#414042] hover:text-[#BE0F34]">Our Pillars</a>
+                <a href="#stories" class="py-2 text-[#414042] hover:text-[#BE0F34]">Success Stories</a>
+                <a href="#community" class="py-2 text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                <button type="button" id="auth-mobile-signin" class="py-2 text-left text-[#414042] hover:text-[#BE0F34]">Sign in</button>
+                <button type="button" id="auth-mobile-signup" class="mt-1 w-full text-center py-3 bg-[#BE0F34] text-white rounded-full font-semibold">Join the Community</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="fitness-hero text-white">
+        <div class="max-w-5xl mx-auto px-6 pt-16 pb-20 text-center">
+            <div class="inline-flex items-center gap-x-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full mb-6">
+                <div class="w-2 h-2 bg-[#D9E364] rounded-full animate-pulse"></div>
+                <span class="text-sm font-semibold tracking-wide">5,872 members strong • 47,300+ pounds lost together</span>
+            </div>
+
+            <h1 class="text-6xl md:text-7xl font-black tracking-tighter leading-none mb-6">
+                Stronger.<br>
+                Healthier.<br>
+                <span class="text-[#D9E364]">Together.</span>
+            </h1>
+
+            <p class="max-w-2xl mx-auto text-xl md:text-2xl text-white/90 font-light mb-10">
+                Welcome to Fittest Fleet — where every step forward is celebrated,
+                every challenge is shared, and encouragement is our greatest strength.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#community"
+                   class="group inline-flex items-center justify-center gap-x-3 bg-white text-[#BE0F34] hover:bg-[#D9E364] hover:text-[#414042] font-bold text-lg px-10 py-4 rounded-full transition-all active:scale-[0.985]">
+                    <span>Share Your Journey</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <a href="#pillars"
+                   class="inline-flex items-center justify-center gap-x-3 border-2 border-white/70 hover:bg-white/10 font-semibold text-lg px-8 py-4 rounded-full transition-all">
+                    Explore Our Pillars
+                </a>
+            </div>
+
+            <div class="mt-12 flex items-center justify-center gap-x-8 text-sm">
+                <div class="flex -space-x-3">
+                    <div class="w-8 h-8 bg-white/30 rounded-full border-2 border-white overflow-hidden"><img src="https://i.pravatar.cc/32?img=28" alt=""></div>
+                    <div class="w-8 h-8 bg-white/30 rounded-full border-2 border-white overflow-hidden"><img src="https://i.pravatar.cc/32?img=47" alt=""></div>
+                    <div class="w-8 h-8 bg-white/30 rounded-full border-2 border-white overflow-hidden"><img src="https://i.pravatar.cc/32?img=12" alt=""></div>
+                </div>
+                <div class="text-white/80 text-sm font-medium">Join 5,872 others on the journey</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- TRUST / STATS BAR -->
+    <div class="border-b border-[#E6E7E8] bg-[#E6E7E8]/40">
+        <div class="max-w-6xl mx-auto px-6 py-5">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-y-6 text-center">
+                <div>
+                    <div class="text-3xl font-black text-[#BE0F34]">5,872</div>
+                    <div class="text-sm text-[#414042]/70 font-medium tracking-wide">COMMUNITY MEMBERS</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-black text-[#BE0F34]">47,312</div>
+                    <div class="text-sm text-[#414042]/70 font-medium tracking-wide">POUNDS LOST TOGETHER</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-black text-[#BE0F34]">1,284</div>
+                    <div class="text-sm text-[#414042]/70 font-medium tracking-wide">WORKOUTS COMPLETED THIS MONTH</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-black text-[#BE0F34]">98%</div>
+                    <div class="text-sm text-[#414042]/70 font-medium tracking-wide">REPORT FEELING SUPPORTED</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OUR PILLARS SECTION -->
+    <section id="pillars" class="max-w-7xl mx-auto px-6 pt-16 pb-12">
+        <div class="text-center mb-12">
+            <div class="inline-block px-4 py-1 bg-[#E6E7E8] text-[#414042] text-xs font-bold tracking-[2px] rounded-full mb-4">OUR FOUNDATION</div>
+            <h2 class="section-heading text-5xl tracking-tighter">Three Pillars.<br>One Supportive Community.</h2>
+            <p class="mt-4 max-w-2xl mx-auto text-lg text-[#414042]/80">
+                Real, lasting change happens when we focus on the whole picture.
+                Our community walks alongside you in each of these areas with encouragement, accountability, and practical tools.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="pillar-card bg-white border border-[#E6E7E8] rounded-3xl p-8 flex flex-col h-full">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-14 h-14 bg-[#BE0F34]/10 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-weight-hanging text-3xl text-[#BE0F34]"></i>
+                    </div>
+                    <div class="category-badge bg-[#BE0F34] text-white">WEIGHT LOSS</div>
+                </div>
+                <h3 class="text-3xl font-bold tracking-tight mb-3">Sustainable Weight Loss</h3>
+                <p class="text-[#414042]/80 mb-6 flex-grow">
+                    We focus on habits that last — not crash diets. Celebrate every non-scale victory and lean on the community when motivation dips.
+                </p>
+                <div class="space-y-3 mb-8">
+                    <div class="tip-bullet text-sm">Track progress weekly, not daily</div>
+                    <div class="tip-bullet text-sm">Honor your body’s natural pace</div>
+                    <div class="tip-bullet text-sm">Share wins — big or small — here first</div>
+                </div>
+                <button type="button" onclick="scrollToCommunityWithFilter('Weight Loss')"
+                        class="mt-auto w-full py-3.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-semibold rounded-2xl flex items-center justify-center gap-x-2 transition-all active:scale-[0.985]">
+                    <span>Post in Weight Loss</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="pillar-card bg-white border border-[#E6E7E8] rounded-3xl p-8 flex flex-col h-full">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-14 h-14 bg-[#5594CF]/10 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-dumbbell text-3xl text-[#5594CF]"></i>
+                    </div>
+                    <div class="category-badge bg-[#5594CF] text-white">EXERCISE</div>
+                </div>
+                <h3 class="text-3xl font-bold tracking-tight mb-3">Purposeful Movement</h3>
+                <p class="text-[#414042]/80 mb-6 flex-grow">
+                    Movement is medicine. Whether you’re just starting or training for a goal, we meet you where you are with zero judgment — only support.
+                </p>
+                <div class="space-y-3 mb-8">
+                    <div class="tip-bullet text-sm">Mix strength, cardio &amp; mobility</div>
+                    <div class="tip-bullet text-sm">Listen to your body every session</div>
+                    <div class="tip-bullet text-sm">Accountability partners available</div>
+                </div>
+                <button type="button" onclick="scrollToCommunityWithFilter('Exercise')"
+                        class="mt-auto w-full py-3.5 bg-[#5594CF] hover:bg-[#4a84b8] text-white font-semibold rounded-2xl flex items-center justify-center gap-x-2 transition-all active:scale-[0.985]">
+                    <span>Post in Exercise</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="pillar-card bg-white border border-[#E6E7E8] rounded-3xl p-8 flex flex-col h-full">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-14 h-14 bg-[#D9E364]/20 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-apple-alt text-3xl text-[#D9E364]"></i>
+                    </div>
+                    <div class="category-badge bg-[#D9E364] text-[#414042]">NUTRITION</div>
+                </div>
+                <h3 class="text-3xl font-bold tracking-tight mb-3">Nutritional Discipline</h3>
+                <p class="text-[#414042]/80 mb-6 flex-grow">
+                    Fuel your body like the high-performance machine it is. We emphasize consistency, balance, and enjoying food without guilt.
+                </p>
+                <div class="space-y-3 mb-8">
+                    <div class="tip-bullet text-sm">Whole foods over perfection</div>
+                    <div class="tip-bullet text-sm">Meal prep tips from real members</div>
+                    <div class="tip-bullet text-sm">Mindful eating practices shared daily</div>
+                </div>
+                <button type="button" onclick="scrollToCommunityWithFilter('Nutritional Discipline')"
+                        class="mt-auto w-full py-3.5 bg-[#D9E364] hover:bg-[#c5d15a] text-[#414042] font-semibold rounded-2xl flex items-center justify-center gap-x-2 transition-all active:scale-[0.985]">
+                    <span>Post in Nutrition</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <p class="text-sm text-[#414042]/70 italic">"You don’t have to be perfect. You just have to keep showing up for yourself — and we’ll be right here with you."</p>
+        </div>
+    </section>
+
+    <!-- SUCCESS STORIES -->
+    <section id="stories" class="bg-[#E6E7E8]/40 py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-10">
+                <div>
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34] mb-2">REAL PEOPLE. REAL RESULTS.</div>
+                    <h2 class="section-heading text-5xl tracking-tighter">Voices of Victory</h2>
+                </div>
+                <p class="mt-3 md:mt-0 max-w-md text-[#414042]/80">These are your neighbors, colleagues, and friends. Their stories could be yours.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="success-story bg-white rounded-3xl p-7 border border-[#E6E7E8]">
+                    <div class="flex items-center gap-x-4 mb-5">
+                        <img src="https://i.pravatar.cc/48?img=28" alt="Maria Torres" class="w-12 h-12 rounded-full ring-2 ring-[#BE0F34]/20">
+                        <div>
+                            <div class="font-bold">Maria Torres</div>
+                            <div class="text-xs text-[#414042]/60">T352 Fleet Coordinator • 8 months in community</div>
+                        </div>
+                    </div>
+                    <div class="motivation-quote pl-4 text-[#414042]/90">
+                        “I’ve lost 52 pounds since joining. The daily encouragement from this group kept me going when I wanted to quit.
+                        You all became my second family. Thank you for believing in me when I didn’t.”
+                    </div>
+                    <div class="mt-5 flex items-center gap-x-2 text-xs font-semibold text-[#BE0F34]">
+                        <i class="fa-solid fa-tachometer-alt"></i>
+                        <span>52 lbs down • Still going strong</span>
+                    </div>
+                </div>
+
+                <div class="success-story bg-white rounded-3xl p-7 border border-[#E6E7E8]">
+                    <div class="flex items-center gap-x-4 mb-5">
+                        <img src="https://i.pravatar.cc/48?img=47" alt="James Rivera" class="w-12 h-12 rounded-full ring-2 ring-[#5594CF]/20">
+                        <div>
+                            <div class="font-bold">James Rivera</div>
+                            <div class="text-xs text-[#414042]/60">T352 Driver • 5 months in community</div>
+                        </div>
+                    </div>
+                    <div class="motivation-quote pl-4 text-[#414042]/90">
+                        “After years of back pain from sitting, the exercise challenges got me moving again.
+                        I’m now pain-free and training for my first 10K. This community gave me my life back.”
+                    </div>
+                    <div class="mt-5 flex items-center gap-x-2 text-xs font-semibold text-[#5594CF]">
+                        <i class="fa-solid fa-running"></i>
+                        <span>Completed first 10K • Energy through the roof</span>
+                    </div>
+                </div>
+
+                <div class="success-story bg-white rounded-3xl p-7 border border-[#E6E7E8]">
+                    <div class="flex items-center gap-x-4 mb-5">
+                        <img src="https://i.pravatar.cc/48?img=12" alt="Elena Patel" class="w-12 h-12 rounded-full ring-2 ring-[#D9E364]/40">
+                        <div>
+                            <div class="font-bold">Elena Patel</div>
+                            <div class="text-xs text-[#414042]/60">T352 Safety Lead • 11 months in community</div>
+                        </div>
+                    </div>
+                    <div class="motivation-quote pl-4 text-[#414042]/90">
+                        “I used to skip meals or grab fast food. The nutritional discipline tips and accountability here changed everything.
+                        I now prep meals I actually enjoy and feel incredible. My kids even notice the difference!”
+                    </div>
+                    <div class="mt-5 flex items-center gap-x-2 text-xs font-semibold text-[#D9E364]">
+                        <i class="fa-solid fa-heart"></i>
+                        <span>Whole family eating better • More energy at work</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-10">
+                <button type="button" onclick="document.getElementById('community').scrollIntoView({ behavior: 'smooth' })"
+                        class="text-sm font-semibold text-[#BE0F34] hover:underline flex items-center justify-center gap-x-2 mx-auto">
+                    <span>Read more stories in the Community Hub</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMMUNITY HUB SECTION -->
+    <section id="community" class="max-w-5xl mx-auto px-6 pt-16 pb-20">
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-x-2 bg-[#BE0F34]/10 text-[#BE0F34] px-4 py-1 rounded-full text-xs font-bold tracking-widest mb-4">
+                <i class="fa-solid fa-users"></i>
+                <span>COMMUNITY ENCOURAGEMENT HUB</span>
+            </div>
+            <h2 class="section-heading text-5xl tracking-tighter">This is Your Space</h2>
+            <p class="mt-3 max-w-xl mx-auto text-lg text-[#414042]/80">
+                Share wins. Ask for support. Celebrate others. Every post here builds someone up — including you.
+            </p>
+        </div>
+
+        <div class="bg-gradient-to-r from-[#BE0F34] to-[#AC1E2F] rounded-3xl p-8 md:p-10 text-white mb-10">
+            <div class="flex flex-col md:flex-row md:items-center gap-y-6">
+                <div class="flex-1">
+                    <div class="uppercase tracking-[2px] text-xs font-bold text-white/70 mb-2">TODAY'S ENCOURAGEMENT</div>
+                    <div class="text-3xl font-bold leading-tight">"You are capable of more than you know. <br class="hidden md:block">The only way to fail is to stop trying. We believe in you."</div>
+                </div>
+                <div class="md:ml-8">
+                    <button type="button" onclick="acceptDailyChallenge()"
+                            class="whitespace-nowrap bg-white text-[#BE0F34] hover:bg-[#D9E364] hover:text-[#414042] font-bold px-8 py-3.5 rounded-2xl flex items-center gap-x-3 transition-all active:scale-[0.985]">
+                        <i class="fa-solid fa-handshake"></i>
+                        <span>Accept Today’s Challenge</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Form -->
+        <div class="bg-white border border-[#E6E7E8] rounded-3xl p-8 mb-10 shadow-sm relative">
+            <h3 class="font-bold text-2xl tracking-tight mb-1">Share with the Community</h3>
+            <p class="text-sm text-[#414042]/70 mb-6">Your story could be the encouragement someone needs today.</p>
+
+            <div id="post-auth-gate" class="mb-5 rounded-2xl border border-[#BE0F34]/20 bg-[#BE0F34]/5 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p class="text-sm text-[#414042]/80">
+                    <i class="fa-solid fa-lock text-[#BE0F34] mr-2"></i>
+                    Sign in to post. You can still browse comments while signed out.
+                </p>
+                <button type="button" onclick="FFAuth.openAuthModal('signin')"
+                        class="shrink-0 px-5 py-2 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full transition-all">
+                    Sign in to post
+                </button>
+            </div>
+
+            <form id="comment-form" class="opacity-50 pointer-events-none">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">YOUR NAME</label>
+                        <input type="text" id="comment-name" placeholder="Maria T. or Anonymous"
+                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">CATEGORY</label>
+                        <select id="comment-category"
+                                class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none bg-white">
+                            <option value="General">General Encouragement</option>
+                            <option value="Weight Loss">Weight Loss</option>
+                            <option value="Exercise">Exercise</option>
+                            <option value="Nutritional Discipline">Nutritional Discipline</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">YOUR MESSAGE</label>
+                    <textarea id="comment-message" rows="3" required
+                              placeholder="Share a win, a struggle, a tip, or words of encouragement for others..."
+                              class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-3xl px-5 py-4 text-sm outline-none resize-y min-h-[100px]"></textarea>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <p class="text-xs text-[#414042]/60">Live shared posts via Supabase. Be kind and encouraging.</p>
+                    <button type="submit"
+                            class="px-10 py-3.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl flex items-center gap-x-2 transition-all active:scale-[0.985]">
+                        <span>Post to Community</span>
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+            <div class="text-sm font-semibold text-[#414042]/70 mr-2">Filter posts:</div>
+            <button type="button" onclick="filterComments('all')" id="filter-all"
+                    class="filter-btn active px-5 py-1.5 text-sm font-semibold border border-[#BE0F34] bg-[#BE0F34] text-white rounded-full">All</button>
+            <button type="button" onclick="filterComments('Weight Loss')" id="filter-Weight Loss"
+                    class="filter-btn px-5 py-1.5 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full">Weight Loss</button>
+            <button type="button" onclick="filterComments('Exercise')" id="filter-Exercise"
+                    class="filter-btn px-5 py-1.5 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full">Exercise</button>
+            <button type="button" onclick="filterComments('Nutritional Discipline')" id="filter-Nutritional Discipline"
+                    class="filter-btn px-5 py-1.5 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full">Nutritional Discipline</button>
+            <button type="button" onclick="filterComments('General')" id="filter-General"
+                    class="filter-btn px-5 py-1.5 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full">General</button>
+        </div>
+
+        <div id="comments-list" class="space-y-4">
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="text-center mt-8">
+            <p class="text-xs text-[#414042]/50">Showing live community posts. Every voice matters here.</p>
+        </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <div class="bg-[#E6E7E8]/60 border-t border-[#E6E7E8]">
+        <div class="max-w-4xl mx-auto px-6 py-14 text-center">
+            <h3 class="text-4xl font-bold tracking-tight mb-3">You’re not on this journey alone.</h3>
+            <p class="text-xl text-[#414042]/80 mb-8">Thousands of Fittest Fleet members are walking the same path — cheering each other on every single day.</p>
+            <a href="#community" class="inline-flex items-center justify-center gap-x-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold text-lg px-12 py-4 rounded-full transition-all active:scale-[0.985]">
+                Add Your Voice to the Community
+            </a>
+            <p class="mt-6 text-xs text-[#414042]/60">Small steps. Shared victories. Lifelong change.</p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#414042] text-white/80 text-sm">
+        <div class="max-w-7xl mx-auto px-6 pt-12 pb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-y-6">
+                <div>
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="brand-logo text-4xl italic font-black text-white tracking-[-2px]" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                        <div class="text-xs text-white/60">FITTEST FLEET</div>
+                    </div>
+                    <div class="text-xs">A fitness initiative for the T352 Fittest Fleet</div>
+                </div>
+
+                <div class="text-xs md:text-right space-y-1">
+                    <div>Professional design • Community-first wellness experience</div>
+                    <div>Typography: Arial • Colors: Approved Ruan Red palette (#BE0F34)</div>
+                    <div class="pt-1">© 2026 Fittest Fleet | T352 Wellness Initiative. All rights reserved.</div>
+                </div>
+            </div>
+
+            <div class="border-t border-white/20 mt-8 pt-6 text-[10px] flex flex-col md:flex-row gap-y-2 justify-between text-white/50">
+                <div>People first. Always. • Built with encouragement at the core.</div>
+                <div>For questions: <span class="text-white/70">hello@fittestfleet.com</span></div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-[110] items-center justify-center p-4">
+        <div id="auth-modal-backdrop" class="absolute inset-0 bg-black/40"></div>
+        <div class="modal relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-[#E6E7E8]">
+            <button type="button" id="auth-close-btn" class="absolute top-4 right-4 w-9 h-9 rounded-full hover:bg-[#E6E7E8] text-[#414042]" aria-label="Close">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <h3 id="auth-modal-title" class="text-2xl font-bold tracking-tight mb-1">Welcome back</h3>
+            <p class="text-sm text-[#414042]/70 mb-6">Join the live Fittest Fleet community.</p>
+
+            <div id="auth-error" class="hidden mb-4 text-sm text-[#BE0F34] bg-[#BE0F34]/10 rounded-2xl px-4 py-3"></div>
+
+            <form id="auth-form" class="space-y-4">
+                <div id="auth-name-wrap" class="hidden">
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">DISPLAY NAME</label>
+                    <input type="text" id="auth-display-name" placeholder="Maria T."
+                           class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">EMAIL</label>
+                    <input type="email" id="auth-email" required autocomplete="email" placeholder="you@example.com"
+                           class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">PASSWORD</label>
+                    <input type="password" id="auth-password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"
+                           class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                </div>
+                <button type="submit" id="auth-submit-btn"
+                        class="w-full py-3.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl transition-all active:scale-[0.985]">
+                    Sign in
+                </button>
+            </form>
+            <p id="auth-toggle-hint" class="mt-5 text-center text-sm text-[#414042]/70"></p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#414042] text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-x-3 text-sm font-medium z-[100]">
+        <i class="fa-solid fa-check-circle text-[#D9E364]"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Supabase CDN + app modules -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/comments.js"></script>
+    <script>
+        function initTailwind() {
+            if (typeof tailwind !== 'undefined') {
+                tailwind.config = {
+                    theme: {
+                        extend: {
+                            colors: {
+                                'ruan-red': '#BE0F34',
+                                'bright-red': '#D7153A',
+                                'dark-red': '#AC1E2F',
+                                'dark-grey': '#414042',
+                                'light-grey': '#E6E7E8',
+                                'accent-blue': '#5594CF',
+                                'accent-chartreuse': '#D9E364'
+                            }
+                        }
+                    }
+                };
+            }
+        }
+
+        function initMobileMenu() {
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+            if (!btn || !menu) return;
+
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+                const icon = btn.querySelector('i');
+                if (menu.classList.contains('hidden')) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                }
+            });
+
+            menu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    menu.classList.add('hidden');
+                    btn.querySelector('i').classList.remove('fa-times');
+                    btn.querySelector('i').classList.add('fa-bars');
+                });
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            if (!toast || !toastMsg) return;
+
+            toastMsg.textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+
+            setTimeout(() => {
+                toast.classList.remove('flex');
+                toast.classList.add('hidden');
+            }, 4200);
+        }
+        window.showToast = showToast;
+
+        async function initializeWebsite() {
+            initTailwind();
+            initMobileMenu();
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            await FFAuth.initAuth();
+            await FFComments.initComments();
+
+            console.log('%c[Fittest Fleet] Supabase auth + realtime comments ready.', 'color:#BE0F34');
+        }
+
+        window.onload = initializeWebsite;
+    </script>
+</body>
+</html>

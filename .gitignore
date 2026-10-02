@@ -1,0 +1,12 @@
+# Local Supabase keys (keep config.example.js in git)
+js/config.js
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.log
+node_modules/
