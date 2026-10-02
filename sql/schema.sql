@@ -77,8 +77,8 @@ begin
   end if;
 end $$;
 
--- Optional: ensure REPLICA IDENTITY FULL so UPDATE/DELETE payloads include old row
-alter table public.comments replica identity full;
+-- DEFAULT is enough for Realtime INSERT/UPDATE; FULL can break some triggers
+alter table public.comments replica identity default;
 
 -- ---------------------------------------------------------------------------
 -- Privileges (required; RLS alone is not enough)
