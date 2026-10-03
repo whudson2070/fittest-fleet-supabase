@@ -3,10 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#414042">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Run Runner</title>
 <link rel="stylesheet" href="t352-brand.css">
 <style>
@@ -23,42 +19,34 @@
     font-family: Arial, Helvetica, sans-serif;
     touch-action: none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
     user-select: none;
   }
   #wrap {
-    position: fixed;
+    position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     background: var(--dark-grey);
+    padding:
+      env(safe-area-inset-top)
+      env(safe-area-inset-right)
+      env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
   }
   canvas {
     display: block;
+    max-width: 100%;
+    max-height: 100%;
     background: var(--light-grey);
     cursor: pointer;
     touch-action: none;
   }
-  #home-link {
-    position: fixed;
-    z-index: 5;
-    top: calc(8px + env(safe-area-inset-top));
-    left: calc(8px + env(safe-area-inset-left));
-    color: #fff;
-    font: 700 13px Arial, sans-serif;
-    text-decoration: none;
-    background: rgba(0,0,0,.4);
-    padding: 6px 12px;
-    border-radius: 999px;
-  }
 </style>
 </head>
 <body>
-<a id="home-link" href="../index.html">Fittest Fleet</a>
 <div id="wrap">
   <canvas id="game" width="960" height="540"></canvas>
 </div>
@@ -1008,7 +996,11 @@ function createMidiBgm(getBytes) {
   });
 
   function pointerDown(e) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     e.preventDefault();
+    if (e.pointerId != null && canvas.setPointerCapture) {
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    }
     ensureBgm();
     const pos = canvasPosFromEvent(e);
     if (state.mode === "start") {
@@ -1045,11 +1037,10 @@ function createMidiBgm(getBytes) {
     e.preventDefault();
     endJump();
   }
-  canvas.addEventListener("mousedown", pointerDown);
-  canvas.addEventListener("mouseup", pointerUp);
-  canvas.addEventListener("touchstart", pointerDown, { passive: false });
-  canvas.addEventListener("touchend", pointerUp, { passive: false });
-  canvas.addEventListener("touchcancel", pointerUp, { passive: false });
+  canvas.addEventListener("pointerdown", pointerDown);
+  canvas.addEventListener("pointerup", pointerUp);
+  canvas.addEventListener("pointercancel", pointerUp);
+  canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
   function spawnObstacle() {
     if (state.tractorSpawned || state.bonus) return;
@@ -1971,39 +1962,52 @@ function createMidiBgm(getBytes) {
 
   function drawHUD() {
     const score = Math.floor(state.score);
+    const m = uiMetrics();
+    const s = m.s;
+    const scoreSize = Math.min(34, Math.max(20, 16 / s));
+    const bestSize = Math.min(24, Math.max(14, 13 / s));
+    const pad = Math.max(12, Math.min(28, 12 / s));
+    ctx.textBaseline = "alphabetic";
+    ctx.font = "bold " + scoreSize + "px Arial, sans-serif";
+    const scoreText = "Score  " + score;
+    const panelW = Math.min(W * 0.5, Math.max(168, ctx.measureText(scoreText).width + 28));
+    const panelH = scoreSize + bestSize + 22;
 
-    // Score panel
     ctx.fillStyle = "rgba(255,255,255,0.92)";
-    roundRect(14, 12, 160, 58, 8);
+    roundRect(pad, pad, panelW, panelH, 8);
     ctx.fill();
     ctx.strokeStyle = C.red;
     ctx.lineWidth = 2;
-    roundRect(14, 12, 160, 58, 8);
+    roundRect(pad, pad, panelW, panelH, 8);
     ctx.stroke();
 
     ctx.fillStyle = C.darkGrey;
-    ctx.font = "bold 20px Arial, sans-serif";
+    ctx.font = "bold " + scoreSize + "px Arial, sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Score  " + score, 26, 36);
+    ctx.fillText(scoreText, pad + 12, pad + scoreSize + 2);
 
     ctx.fillStyle = C.red;
-    ctx.font = "14px Arial, sans-serif";
-    ctx.fillText("Best  " + highScore, 26, 56);
+    ctx.font = bestSize + "px Arial, sans-serif";
+    ctx.fillText("Best  " + highScore, pad + 12, pad + scoreSize + bestSize + 8);
 
-    // Level badge
+    const badgeSize = Math.min(26, Math.max(16, 15 / s));
+    ctx.font = "bold " + badgeSize + "px Arial, sans-serif";
+    const badgeLabel = state.bonus ? "Bonus" : "Level " + state.level;
+    const badgeW = Math.max(112, ctx.measureText(badgeLabel).width + 28);
+    const badgeH = badgeSize + 18;
+    const badgeX = W - pad - badgeW;
     ctx.fillStyle = C.red;
-    roundRect(W - 130, 14, 112, 36, 8);
+    roundRect(badgeX, pad, badgeW, badgeH, 8);
     ctx.fill();
     ctx.fillStyle = C.white;
-    ctx.font = "bold 18px Arial, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(state.bonus ? "Bonus" : "Level " + state.level, W - 74, 38);
+    ctx.fillText(badgeLabel, badgeX + badgeW / 2, pad + badgeSize + 2);
 
     if (state.bonus && state.mode === "play") {
       ctx.fillStyle = C.darkGrey;
-      ctx.font = "bold 14px Arial, sans-serif";
+      ctx.font = "bold " + bestSize + "px Arial, sans-serif";
       ctx.textAlign = "left";
-      ctx.fillText("Packages  " + state.bonusCollected, 26, 90);
+      ctx.fillText("Packages  " + state.bonusCollected, pad + 12, pad + panelH + bestSize + 8);
     }
 
     // Distance / progress to tractor
@@ -2021,7 +2025,7 @@ function createMidiBgm(getBytes) {
         ctx.fill();
       }
       ctx.fillStyle = C.darkGrey;
-      ctx.font = "11px Arial, sans-serif";
+      ctx.font = Math.max(14, Math.min(22, 13 / s)) + "px Arial, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(
         state.bonus
@@ -2031,53 +2035,160 @@ function createMidiBgm(getBytes) {
     }
   }
 
+  function cssPerCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    return rect.width > 0 ? rect.width / W : 1;
+  }
+
+  function uiMetrics() {
+    const s = cssPerCanvas();
+    const tap = Math.min(H * 0.2, Math.max(46, 48 / s));
+    const font = Math.min(40, Math.max(16, 17 / s));
+    const fontSm = Math.min(30, Math.max(14, 14 / s));
+    const title = Math.min(52, Math.max(28, 26 / s));
+    const gap = Math.max(10, Math.min(28, 12 / s));
+    const margin = Math.max(16, Math.min(40, 14 / s));
+    const cardW = Math.min(W - margin * 2, W - margin * 2);
+    return { s: s, tap: tap, font: font, fontSm: fontSm, title: title, gap: gap, margin: margin, cardW: cardW };
+  }
+
+  function layoutTouchButtons(m) {
+    const bw = Math.min(m.cardW - m.margin, W - m.margin * 2);
+    const bx = (W - bw) / 2;
+    START_BTN.w = Math.min(bw, Math.max(260, bw * 0.82));
+    START_BTN.h = m.tap;
+    START_BTN.x = (W - START_BTN.w) / 2;
+
+    BONUS_BTNS.yes.w = bw;
+    BONUS_BTNS.yes.h = m.tap;
+    BONUS_BTNS.yes.x = bx;
+    BONUS_BTNS.no.w = bw;
+    BONUS_BTNS.no.h = m.tap;
+    BONUS_BTNS.no.x = bx;
+
+    OVER_BTNS.yes.w = bw;
+    OVER_BTNS.yes.h = m.tap;
+    OVER_BTNS.yes.x = bx;
+    OVER_BTNS.no.w = bw;
+    OVER_BTNS.no.h = m.tap;
+    OVER_BTNS.no.x = bx;
+
+    OVER_BTNS.restartOnly.w = Math.min(bw, Math.max(300, bw * 0.86));
+    OVER_BTNS.restartOnly.h = m.tap;
+    OVER_BTNS.restartOnly.x = (W - OVER_BTNS.restartOnly.w) / 2;
+  }
+
+  function wrapLines(text, maxW) {
+    const words = String(text).split(" ");
+    const lines = [];
+    let line = "";
+    for (let i = 0; i < words.length; i++) {
+      const trial = line ? line + " " + words[i] : words[i];
+      if (line && ctx.measureText(trial).width > maxW) {
+        lines.push(line);
+        line = words[i];
+      } else {
+        line = trial;
+      }
+    }
+    if (line) lines.push(line);
+    return lines.length ? lines : [""];
+  }
+
+  function drawButtonLabel(btn, label, color) {
+    const maxW = btn.w - 24;
+    let size = Math.max(16, Math.min(28, btn.h * 0.42));
+    ctx.font = "bold " + size + "px Arial, sans-serif";
+    while (size > 14 && ctx.measureText(label).width > maxW) {
+      size -= 1;
+      ctx.font = "bold " + size + "px Arial, sans-serif";
+    }
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(label, btn.x + btn.w / 2, btn.y + btn.h / 2);
+    ctx.textBaseline = "alphabetic";
+  }
+
   function drawOverlay() {
+    const m = uiMetrics();
+    layoutTouchButtons(m);
+    ctx.textBaseline = "alphabetic";
+
     if (state.mode === "start") {
       ctx.fillStyle = "rgba(65, 64, 66, 0.55)";
       ctx.fillRect(0, 0, W, H);
 
-      // Title card
+      const inner = Math.min(m.cardW - m.margin * 2, START_BTN.w + 36);
+      ctx.font = "bold " + m.title + "px Arial, sans-serif";
+      const titleLines = wrapLines("Run Runner", inner);
+      ctx.font = m.font + "px Arial, sans-serif";
+      const subLines = wrapLines("Dodge hazards · Reach the tractor", inner);
+      ctx.font = m.fontSm + "px Arial, sans-serif";
+      const hintLines = wrapLines("Hold jump for a higher leap", inner);
+      const lineT = m.title * 1.15;
+      const lineF = m.font * 1.28;
+      const lineS = m.fontSm * 1.35;
+      const bestH = highScore > 0 ? lineS + 6 : 0;
+      const contentH = titleLines.length * lineT + 10 + subLines.length * lineF + 18 + m.tap + 14 + hintLines.length * lineS + bestH;
+      const cardW = Math.min(W - m.margin * 2, inner + m.margin * 2);
+      const cardH = Math.min(H - m.margin * 2, contentH + m.margin * 2);
+      const cardX = (W - cardW) / 2;
+      const cardY = Math.max(m.margin / 2, (H - cardH) / 2);
+
       ctx.fillStyle = C.white;
-      roundRect(W / 2 - 230, H / 2 - 130, 460, 250, 16);
+      roundRect(cardX, cardY, cardW, cardH, 16);
       ctx.fill();
       ctx.strokeStyle = C.red;
       ctx.lineWidth = 4;
-      roundRect(W / 2 - 230, H / 2 - 130, 460, 250, 16);
+      roundRect(cardX, cardY, cardW, cardH, 16);
       ctx.stroke();
 
-      // Red header bar
+      const headH = titleLines.length * lineT + 18;
       ctx.fillStyle = C.red;
-      roundRect(W / 2 - 230, H / 2 - 130, 460, 58, 16);
+      roundRect(cardX, cardY, cardW, Math.min(headH, cardH * 0.4), 16);
       ctx.fill();
-      ctx.fillRect(W / 2 - 230, H / 2 - 88, 460, 16);
+      ctx.fillRect(cardX, cardY + Math.min(headH, cardH * 0.4) - 16, cardW, 16);
 
       ctx.textAlign = "center";
       ctx.fillStyle = C.white;
-      ctx.font = "bold 36px Arial, sans-serif";
-      ctx.fillText("Run Runner", W / 2, H / 2 - 92);
+      ctx.font = "bold " + m.title + "px Arial, sans-serif";
+      let y = cardY + 8 + lineT * 0.85;
+      for (let i = 0; i < titleLines.length; i++) {
+        ctx.fillText(titleLines[i], W / 2, y);
+        y += lineT;
+      }
 
+      y = cardY + headH + lineF;
       ctx.fillStyle = C.darkGrey;
-      ctx.font = "16px Arial, sans-serif";
-      ctx.fillText("Dodge hazards · Reach the tractor", W / 2, H / 2 - 40);
+      ctx.font = m.font + "px Arial, sans-serif";
+      for (let i = 0; i < subLines.length; i++) {
+        ctx.fillText(subLines[i], W / 2, y);
+        y += lineF;
+      }
 
+      START_BTN.y = y + 8;
+      START_BTN.x = (W - START_BTN.w) / 2;
       const pulse = 0.65 + Math.sin(performance.now() / 400) * 0.35;
       ctx.fillStyle = C.red;
       ctx.globalAlpha = 0.7 + pulse * 0.3;
-      roundRect(W / 2 - 140, H / 2 - 10, 280, 44, 8);
+      roundRect(START_BTN.x, START_BTN.y, START_BTN.w, START_BTN.h, 8);
       ctx.fill();
       ctx.globalAlpha = 1;
-      ctx.fillStyle = C.white;
-      ctx.font = "bold 18px Arial, sans-serif";
-      ctx.fillText("Press Space / Tap to start", W / 2, H / 2 + 18);
+      drawButtonLabel(START_BTN, "Press Space / Tap to start", C.white);
 
+      y = START_BTN.y + START_BTN.h + lineS;
       ctx.fillStyle = "rgba(65,64,66,0.7)";
-      ctx.font = "14px Arial, sans-serif";
-      ctx.fillText("Hold jump for a higher leap", W / 2, H / 2 + 58);
-
+      ctx.font = m.fontSm + "px Arial, sans-serif";
+      ctx.textAlign = "center";
+      for (let i = 0; i < hintLines.length; i++) {
+        ctx.fillText(hintLines[i], W / 2, y);
+        y += lineS;
+      }
       if (highScore > 0) {
         ctx.fillStyle = C.red;
-        ctx.font = "bold 15px Arial, sans-serif";
-        ctx.fillText("Best score: " + highScore, W / 2, H / 2 + 90);
+        ctx.font = "bold " + m.fontSm + "px Arial, sans-serif";
+        ctx.fillText("Best score: " + highScore, W / 2, y + 4);
       }
     }
 
@@ -2085,48 +2196,76 @@ function createMidiBgm(getBytes) {
       ctx.fillStyle = "rgba(65, 64, 66, 0.55)";
       ctx.fillRect(0, 0, W, H);
 
+      const yes = BONUS_BTNS.yes;
+      const no = BONUS_BTNS.no;
+      const inner = yes.w - 16;
+      ctx.font = "bold " + m.title + "px Arial, sans-serif";
+      const titleLines = wrapLines("Bonus load", inner);
+      ctx.font = m.font + "px Arial, sans-serif";
+      const bodyLines = wrapLines("Your dispatcher has a bonus load.", inner)
+        .concat(wrapLines("Want to run it?", inner));
+      ctx.font = m.fontSm + "px Arial, sans-serif";
+      const hintLines = wrapLines("Y to take it  ·  N to pass", inner);
+      const lineT = m.title * 1.15;
+      const lineF = m.font * 1.3;
+      const lineS = m.fontSm * 1.35;
+      const contentH = titleLines.length * lineT + 16 + bodyLines.length * lineF + 16 + m.tap + m.gap + m.tap + 14 + hintLines.length * lineS;
+      const cardW = Math.min(W - m.margin * 2, yes.w + m.margin * 2);
+      const cardH = Math.min(H - m.margin, contentH + m.margin * 2);
+      const cardX = (W - cardW) / 2;
+      const cardY = Math.max(m.margin / 2, (H - cardH) / 2);
+
       ctx.fillStyle = C.white;
-      roundRect(W / 2 - 270, H / 2 - 140, 540, 280, 14);
+      roundRect(cardX, cardY, cardW, cardH, 14);
       ctx.fill();
       ctx.strokeStyle = C.red;
       ctx.lineWidth = 4;
-      roundRect(W / 2 - 270, H / 2 - 140, 540, 280, 14);
+      roundRect(cardX, cardY, cardW, cardH, 14);
       ctx.stroke();
 
+      const headH = titleLines.length * lineT + 16;
       ctx.fillStyle = C.red;
-      roundRect(W / 2 - 270, H / 2 - 140, 540, 52, 14);
+      roundRect(cardX, cardY, cardW, headH, 14);
       ctx.fill();
-      ctx.fillRect(W / 2 - 270, H / 2 - 104, 540, 16);
+      ctx.fillRect(cardX, cardY + headH - 14, cardW, 14);
 
       ctx.textAlign = "center";
       ctx.fillStyle = C.white;
-      ctx.font = "bold 28px Arial, sans-serif";
-      ctx.fillText("Bonus load", W / 2, H / 2 - 106);
+      ctx.font = "bold " + m.title + "px Arial, sans-serif";
+      let y = cardY + lineT * 0.9;
+      for (let i = 0; i < titleLines.length; i++) {
+        ctx.fillText(titleLines[i], W / 2, y);
+        y += lineT;
+      }
 
+      y = cardY + headH + lineF;
       ctx.fillStyle = C.darkGrey;
-      ctx.font = "18px Arial, sans-serif";
-      ctx.fillText("Your dispatcher has a bonus load.", W / 2, H / 2 - 58);
-      ctx.fillText("Want to run it?", W / 2, H / 2 - 34);
+      ctx.font = m.font + "px Arial, sans-serif";
+      for (let i = 0; i < bodyLines.length; i++) {
+        ctx.fillText(bodyLines[i], W / 2, y);
+        y += lineF;
+      }
 
-      const yes = BONUS_BTNS.yes;
+      yes.y = y + 8;
+      no.y = yes.y + m.tap + m.gap;
       ctx.fillStyle = C.chartreuse;
       roundRect(yes.x, yes.y, yes.w, yes.h, 8);
       ctx.fill();
-      ctx.fillStyle = C.darkGrey;
-      ctx.font = "bold 16px Arial, sans-serif";
-      ctx.fillText("Yes. I'll take the bonus.", yes.x + yes.w / 2, yes.y + 27);
+      drawButtonLabel(yes, "Yes. I'll take the bonus.", C.darkGrey);
 
-      const no = BONUS_BTNS.no;
       ctx.fillStyle = C.red;
       roundRect(no.x, no.y, no.w, no.h, 8);
       ctx.fill();
-      ctx.fillStyle = C.white;
-      ctx.font = "bold 16px Arial, sans-serif";
-      ctx.fillText("No. I'll pass.", no.x + no.w / 2, no.y + 27);
+      drawButtonLabel(no, "No. I'll pass.", C.white);
 
+      y = no.y + no.h + lineS;
       ctx.fillStyle = "rgba(65,64,66,0.65)";
-      ctx.font = "13px Arial, sans-serif";
-      ctx.fillText("Y to take it  ·  N to pass", W / 2, H / 2 + 122);
+      ctx.font = m.fontSm + "px Arial, sans-serif";
+      ctx.textAlign = "center";
+      for (let i = 0; i < hintLines.length; i++) {
+        ctx.fillText(hintLines[i], W / 2, y);
+        y += lineS;
+      }
     }
 
     if (state.mode === "over") {
@@ -2134,69 +2273,109 @@ function createMidiBgm(getBytes) {
       ctx.fillRect(0, 0, W, H);
 
       if (state.continueCharges > 0) {
+        const yes = OVER_BTNS.yes;
+        const no = OVER_BTNS.no;
+        const inner = yes.w - 20;
+        const prompt = "You must take a qualifying 10-hour rest break to continue.";
+        ctx.font = "bold " + m.font + "px Arial, sans-serif";
+        const promptLines = wrapLines(prompt, inner);
+        ctx.font = m.fontSm + "px Arial, sans-serif";
+        const hintLines = wrapLines("Y to continue  ·  N to end the run", inner);
+        const lineF = m.font * 1.28;
+        const lineS = m.fontSm * 1.35;
+        const contentH = promptLines.length * lineF + 18 + m.tap + m.gap + m.tap + 14 + hintLines.length * lineS;
+        const cardW = Math.min(W - m.margin * 2, yes.w + m.margin * 2);
+        const cardH = Math.min(H - m.margin, contentH + m.margin * 2);
+        const cardX = (W - cardW) / 2;
+        const cardY = Math.max(m.margin / 2, (H - cardH) / 2);
+
         ctx.fillStyle = C.white;
-        roundRect(W / 2 - 270, H / 2 - 130, 540, 260, 14);
+        roundRect(cardX, cardY, cardW, cardH, 14);
         ctx.fill();
         ctx.strokeStyle = C.red;
         ctx.lineWidth = 4;
-        roundRect(W / 2 - 270, H / 2 - 130, 540, 260, 14);
+        roundRect(cardX, cardY, cardW, cardH, 14);
         ctx.stroke();
 
         ctx.textAlign = "center";
         ctx.fillStyle = C.darkGrey;
-        ctx.font = "bold 15px Arial, sans-serif";
-        ctx.fillText("You must take a qualifying 10-hour rest break to continue.", W / 2, H / 2 - 64);
+        ctx.font = "bold " + m.font + "px Arial, sans-serif";
+        let y = cardY + m.margin + lineF * 0.35;
+        for (let i = 0; i < promptLines.length; i++) {
+          ctx.fillText(promptLines[i], W / 2, y);
+          y += lineF;
+        }
 
-        const yes = OVER_BTNS.yes;
+        yes.y = y + 8;
+        no.y = yes.y + m.tap + m.gap;
         ctx.fillStyle = C.chartreuse;
         roundRect(yes.x, yes.y, yes.w, yes.h, 8);
         ctx.fill();
-        ctx.fillStyle = C.darkGrey;
-        ctx.font = "bold 15px Arial, sans-serif";
-        ctx.fillText("Yes. I'll take the rest break.", yes.x + yes.w / 2, yes.y + 27);
+        drawButtonLabel(yes, "Yes. I'll take the rest break.", C.darkGrey);
 
-        const no = OVER_BTNS.no;
         ctx.fillStyle = C.red;
         roundRect(no.x, no.y, no.w, no.h, 8);
         ctx.fill();
-        ctx.fillStyle = C.white;
-        ctx.font = "bold 15px Arial, sans-serif";
-        ctx.fillText("No. I'll end the run.", no.x + no.w / 2, no.y + 27);
+        drawButtonLabel(no, "No. I'll end the run.", C.white);
 
+        y = no.y + no.h + lineS;
         ctx.fillStyle = "rgba(65,64,66,0.6)";
-        ctx.font = "13px Arial, sans-serif";
-        ctx.fillText("Y to continue  ·  N to end the run", W / 2, H / 2 + 120);
+        ctx.font = m.fontSm + "px Arial, sans-serif";
+        ctx.textAlign = "center";
+        for (let i = 0; i < hintLines.length; i++) {
+          ctx.fillText(hintLines[i], W / 2, y);
+          y += lineS;
+        }
       } else {
+        const rb = OVER_BTNS.restartOnly;
+        const inner = Math.min(m.cardW - m.margin * 2, rb.w + 80);
+        ctx.font = "bold " + m.font + "px Arial, sans-serif";
+        const ouch = wrapLines("Ouch! Call your fleet supervisor", inner)
+          .concat(wrapLines("to report this workplace injury.", inner));
+        const lineF = m.font * 1.28;
+        const lineS = m.fontSm * 1.3;
+        const contentH = ouch.length * lineF + 16 + m.font * 1.4 + lineS + 16 + m.tap;
+        const cardW = Math.min(W - m.margin * 2, Math.max(inner + m.margin * 2, rb.w + m.margin * 2));
+        const cardH = Math.min(H - m.margin, contentH + m.margin * 2);
+        const cardX = (W - cardW) / 2;
+        const cardY = Math.max(m.margin / 2, (H - cardH) / 2);
+
         ctx.fillStyle = C.white;
-        roundRect(W / 2 - 260, H / 2 - 130, 520, 260, 14);
+        roundRect(cardX, cardY, cardW, cardH, 14);
         ctx.fill();
         ctx.strokeStyle = C.darkRed;
         ctx.lineWidth = 4;
-        roundRect(W / 2 - 260, H / 2 - 130, 520, 260, 14);
+        roundRect(cardX, cardY, cardW, cardH, 14);
         ctx.stroke();
 
         ctx.textAlign = "center";
         ctx.fillStyle = C.darkRed;
-        ctx.font = "bold 18px Arial, sans-serif";
-        ctx.fillText("Ouch! Call your fleet supervisor", W / 2, H / 2 - 78);
-        ctx.fillText("to report this workplace injury.", W / 2, H / 2 - 54);
+        ctx.font = "bold " + m.font + "px Arial, sans-serif";
+        let y = cardY + m.margin + lineF * 0.4;
+        for (let i = 0; i < ouch.length; i++) {
+          ctx.fillText(ouch[i], W / 2, y);
+          y += lineF;
+        }
 
         ctx.fillStyle = C.darkGrey;
-        ctx.font = "bold 24px Arial, sans-serif";
-        ctx.fillText("Score  " + Math.floor(state.score), W / 2, H / 2 - 10);
-
+        ctx.font = "bold " + Math.min(40, m.font + 4) + "px Arial, sans-serif";
+        ctx.fillText("Score  " + Math.floor(state.score), W / 2, y + 8);
+        y += m.font + 16;
         ctx.fillStyle = C.red;
-        ctx.font = "16px Arial, sans-serif";
-        ctx.fillText("Best  " + highScore + "  ·  Level " + state.level, W / 2, H / 2 + 22);
+        ctx.font = m.fontSm + "px Arial, sans-serif";
+        const bestLine = wrapLines("Best  " + highScore + "  ·  Level " + state.level, inner);
+        for (let i = 0; i < bestLine.length; i++) {
+          ctx.fillText(bestLine[i], W / 2, y);
+          y += lineS;
+        }
 
+        rb.y = y + 10;
+        rb.x = (W - rb.w) / 2;
         const pulse = 0.65 + Math.sin(performance.now() / 400) * 0.35;
-        const rb = OVER_BTNS.restartOnly;
-        ctx.fillStyle = `rgba(190,15,52,${0.75 + pulse * 0.25})`;
+        ctx.fillStyle = "rgba(190,15,52," + (0.75 + pulse * 0.25) + ")";
         roundRect(rb.x, rb.y, rb.w, rb.h, 8);
         ctx.fill();
-        ctx.fillStyle = C.white;
-        ctx.font = "bold 16px Arial, sans-serif";
-        ctx.fillText("Press Space / Tap to restart", W / 2, rb.y + 26);
+        drawButtonLabel(rb, "Press Space / Tap to restart", C.white);
       }
     }
 
@@ -2269,36 +2448,28 @@ function createMidiBgm(getBytes) {
   }
   requestAnimationFrame(frame);
 
-  function viewportBox() {
-    const vv = window.visualViewport;
-    const w = vv ? vv.width : window.innerWidth;
-    const h = vv ? vv.height : window.innerHeight;
-    return { w: w, h: h, top: vv ? vv.offsetTop : 0, left: vv ? vv.offsetLeft : 0 };
-  }
   function fitCanvas() {
-    const box = viewportBox();
-    const wrap = document.getElementById("wrap");
-    wrap.style.top = box.top + "px";
-    wrap.style.left = box.left + "px";
-    wrap.style.width = box.w + "px";
-    wrap.style.height = box.h + "px";
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const scale = Math.min(box.w / W, box.h / H);
-    const cssW = Math.ceil(W * scale);
-    const cssH = Math.ceil(H * scale);
+    const box = document.getElementById("wrap");
+    const maxW = Math.max(1, box.clientWidth);
+    const maxH = Math.max(1, box.clientHeight);
+    const scale = Math.min(maxW / W, maxH / H);
+    const cssW = Math.max(1, Math.floor(W * scale));
+    const cssH = Math.max(1, Math.floor(H * scale));
     canvas.style.width = cssW + "px";
     canvas.style.height = cssH + "px";
-    canvas.width = Math.floor(W * dpr);
-    canvas.height = Math.floor(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    ctx.setTransform((cssW * dpr) / W, 0, 0, (cssH * dpr) / H, 0, 0);
+    try { window.scrollTo(0, 0); } catch (_) {}
   }
   window.addEventListener("resize", fitCanvas);
   window.addEventListener("orientationchange", fitCanvas);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener("resize", fitCanvas);
-    window.visualViewport.addEventListener("scroll", fitCanvas);
-  }
-  document.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", fitCanvas);
+  document.addEventListener("touchmove", (e) => {
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  document.addEventListener("gesturestart", (e) => e.preventDefault());
   fitCanvas();
   ensureBgm();
 })();
