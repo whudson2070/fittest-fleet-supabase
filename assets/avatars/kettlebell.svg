@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Kettlebell avatar">
   <circle cx="64" cy="64" r="64" fill="#AC1E2F"/>
-  <path d="M48 58c0-18 32-18 32 0" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
-  <circle cx="64" cy="80" r="26" fill="#fff"/>
-  <rect x="52" y="54" width="24" height="12" rx="3" fill="#fff"/>
+  <circle cx="64" cy="88" r="26" fill="#fff"/>
+  <path d="M46 76C46 42 82 42 82 76" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
 </svg>

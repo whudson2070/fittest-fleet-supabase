@@ -1,5 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Runner avatar">
   <circle cx="64" cy="64" r="64" fill="#5594CF"/>
-  <circle cx="78" cy="30" r="10" fill="#fff"/>
-  <path fill="#fff" d="M70 40c8 4 12 12 10 20l16 6c5 2 7 8 4 12l-7 5-14-7-2 14 18 20-11 7-20-22-6 8-18-7 12-16 6-2-8-18c-10-2-18 4-22 12l-9-7c8-16 24-22 38-16z"/>
+  
+  <g fill="#fff" stroke="#fff" stroke-linejoin="round" stroke-linecap="round">
+    <circle cx="86" cy="34" r="9" stroke="none"/>
+    <path d="M78 44 L58 62 L46 54" fill="none" stroke-width="8"/>
+    <path d="M62 58 L74 86 L92 104" fill="none" stroke-width="8"/>
+    <path d="M66 78 L42 96" fill="none" stroke-width="8"/>
+    <path d="M70 48 L96 58" fill="none" stroke-width="8"/>
+  </g>
 </svg>
