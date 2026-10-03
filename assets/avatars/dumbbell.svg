@@ -1,8 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Dumbbell avatar">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Strong arm avatar">
   <circle cx="64" cy="64" r="64" fill="#BE0F34"/>
-  <rect x="50" y="58" width="28" height="12" rx="3" fill="#fff"/>
-  <rect x="18" y="46" width="16" height="36" rx="5" fill="#fff"/>
-  <rect x="34" y="50" width="12" height="28" rx="4" fill="#fff"/>
-  <rect x="82" y="50" width="12" height="28" rx="4" fill="#fff"/>
-  <rect x="94" y="46" width="16" height="36" rx="5" fill="#fff"/>
+  <g fill="#fff">
+    <rect x="22" y="78" width="52" height="18" rx="9" transform="rotate(-32 48 87)"/>
+    <ellipse cx="62" cy="68" rx="18" ry="16"/>
+    <rect x="58" y="30" width="18" height="50" rx="9" transform="rotate(16 67 55)"/>
+    <circle cx="90" cy="32" r="13"/>
+  </g>
 </svg>

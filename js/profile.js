@@ -6,9 +6,9 @@
   'use strict';
 
   const PRESET_AVATARS = [
-    { id: 'dumbbell', url: 'assets/avatars/dumbbell.svg', label: 'Dumbbell' },
-    { id: 'treadmill', url: 'assets/avatars/treadmill.svg', label: 'Treadmill' },
-    { id: 'jumprope', url: 'assets/avatars/jumprope.svg', label: 'Jump rope' },
+    { id: 'dumbbell', url: 'assets/avatars/dumbbell.svg', label: 'Strong arm' },
+    { id: 'treadmill', url: 'assets/avatars/treadmill.svg', label: 'Runner' },
+    { id: 'jumprope', url: 'assets/avatars/jumprope.svg', label: 'Heart' },
     { id: 'kettlebell', url: 'assets/avatars/kettlebell.svg', label: 'Kettlebell' },
     { id: 'bike', url: 'assets/avatars/bike.svg', label: 'Bike' },
     { id: 'stopwatch', url: 'assets/avatars/stopwatch.svg', label: 'Stopwatch' },
@@ -497,7 +497,13 @@
       btn.classList.add(active ? 'ring-[#BE0F34]' : 'ring-transparent', 'hover:ring-[#5594CF]');
       btn.setAttribute('aria-label', preset.label);
       btn.dataset.url = preset.url;
-      btn.innerHTML = `<img src="${preset.url}" alt="${preset.label}" class="w-16 h-16 object-cover">`;
+      btn.innerHTML = `<img src="${preset.url}" alt="" class="w-16 h-16 object-cover">`;
+      const wrap = document.createElement('div');
+      wrap.className = 'preset-avatar-wrap';
+      const tip = document.createElement('span');
+      tip.className = 'preset-avatar-tip';
+      tip.textContent = preset.label;
+      wrap.appendChild(btn);
       btn.addEventListener('click', () => {
         selectedAvatarUrl = preset.url;
         updatePreview(preset.url);
@@ -508,7 +514,8 @@
         btn.classList.add('ring-[#BE0F34]');
         btn.classList.remove('ring-transparent');
       });
-      grid.appendChild(btn);
+      wrap.appendChild(tip);
+      grid.appendChild(wrap);
     });
   }
 

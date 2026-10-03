@@ -17,6 +17,30 @@
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
         .preset-avatar-btn img { display: block; }
+        .preset-avatar-wrap { position: relative; }
+        .preset-avatar-tip {
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            transform: translateX(-50%) translateY(4px);
+            background: #414042;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1;
+            padding: 6px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.12s ease, transform 0.12s ease;
+            z-index: 20;
+        }
+        .preset-avatar-wrap:hover .preset-avatar-tip,
+        .preset-avatar-wrap:focus-within .preset-avatar-tip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
         .avatar-crop-stage {
             position: relative;
             width: min(320px, 100%);

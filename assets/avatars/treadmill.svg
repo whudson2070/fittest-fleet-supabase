@@ -1,9 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Treadmill avatar">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Runner avatar">
   <circle cx="64" cy="64" r="64" fill="#5594CF"/>
-  <rect x="18" y="70" width="92" height="16" rx="5" fill="#fff"/>
-  <rect x="24" y="75" width="80" height="6" rx="3" fill="#5594CF" opacity="0.4"/>
-  <rect x="82" y="34" width="8" height="40" rx="3" fill="#fff"/>
-  <rect x="64" y="26" width="36" height="16" rx="4" fill="#fff"/>
-  <circle cx="28" cy="92" r="7" fill="#fff"/>
-  <circle cx="100" cy="92" r="7" fill="#fff"/>
+  <circle cx="78" cy="30" r="10" fill="#fff"/>
+  <path fill="#fff" d="M70 40c8 4 12 12 10 20l16 6c5 2 7 8 4 12l-7 5-14-7-2 14 18 20-11 7-20-22-6 8-18-7 12-16 6-2-8-18c-10-2-18 4-22 12l-9-7c8-16 24-22 38-16z"/>
 </svg>
