@@ -70,8 +70,8 @@ Sign up with email/password, then post in the Community Hub. Open another browse
 
 Signed-in users can open **Profile** (header name / mobile menu) to:
 
-1. Upload an image (stored in Supabase Storage bucket `avatars`, path `{user_id}/avatar.ext`)
-2. Or pick a preset SVG under [`assets/avatars/`](assets/avatars/)
+1. Upload an image. A crop step lets you drag and zoom so the photo fits the circular avatar, then saves a 512×512 JPEG (not the original) to Supabase Storage bucket `avatars` at `{user_id}/avatar.jpg`
+2. Or pick a preset SVG under [`assets/avatars/`](assets/avatars/) (presets skip cropping)
 
 Choices persist in `public.profiles` (`avatar_url`, optional `display_name`). Avatars appear in the header and on community comments.
 

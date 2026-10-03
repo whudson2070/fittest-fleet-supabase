@@ -244,6 +244,243 @@
     }
   }
 
+  const CROP_VIEW = 320;
+  const CROP_EXPORT = 512;
+  const CROP_MAX_SOURCE = 15 * 1024 * 1024;
+
+  function loadImageElement(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(img);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Could not read that image.'));
+      };
+      img.src = url;
+    });
+  }
+
+  function loadImageSource(file) {
+    if (typeof createImageBitmap === 'function') {
+      return createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => loadImageElement(file));
+    }
+    return loadImageElement(file);
+  }
+
+  /**
+   * Drag + zoom crop. Resolves to a square JPEG File, or null if cancelled.
+   * Does not upload or change the saved avatar.
+   */
+  function openAvatarCropper(file) {
+    const modal = document.getElementById('avatar-crop-modal');
+    const canvas = document.getElementById('avatar-crop-canvas');
+    const stage = document.getElementById('avatar-crop-stage');
+    const zoomInput = document.getElementById('avatar-crop-zoom');
+    const confirmBtn = document.getElementById('avatar-crop-confirm');
+    const cancelBtn = document.getElementById('avatar-crop-cancel');
+    const backdrop = document.getElementById('avatar-crop-backdrop');
+    if (!modal || !canvas || !stage || !zoomInput || !confirmBtn || !cancelBtn) {
+      return Promise.reject(new Error('Crop tool is not available on this page.'));
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    return loadImageSource(file).then((loaded) => {
+      if (!loaded || !loaded.width || !loaded.height) {
+        throw new Error('Could not read that image.');
+      }
+
+      let img = loaded;
+      let scale = Math.max(CROP_VIEW / img.width, CROP_VIEW / img.height);
+      let originX = (CROP_VIEW - img.width * scale) / 2;
+      let originY = (CROP_VIEW - img.height * scale) / 2;
+      let dragging = false;
+      let lastX = 0;
+      let lastY = 0;
+      let settled = false;
+
+      function coverScale() {
+        return Math.max(CROP_VIEW / img.width, CROP_VIEW / img.height);
+      }
+
+      function clamp() {
+        const w = img.width * scale;
+        const h = img.height * scale;
+        if (w <= CROP_VIEW) originX = (CROP_VIEW - w) / 2;
+        else originX = Math.min(0, Math.max(CROP_VIEW - w, originX));
+        if (h <= CROP_VIEW) originY = (CROP_VIEW - h) / 2;
+        else originY = Math.min(0, Math.max(CROP_VIEW - h, originY));
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, CROP_VIEW, CROP_VIEW);
+        ctx.fillStyle = '#E6E7E8';
+        ctx.fillRect(0, 0, CROP_VIEW, CROP_VIEW);
+        ctx.drawImage(img, originX, originY, img.width * scale, img.height * scale);
+      }
+
+      function applyZoom(zoom, anchorX, anchorY) {
+        const next = coverScale() * zoom;
+        const ax = anchorX == null ? CROP_VIEW / 2 : anchorX;
+        const ay = anchorY == null ? CROP_VIEW / 2 : anchorY;
+        const ix = (ax - originX) / scale;
+        const iy = (ay - originY) / scale;
+        scale = next;
+        originX = ax - ix * scale;
+        originY = ay - iy * scale;
+        clamp();
+        draw();
+      }
+
+      function canvasPoint(event) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: ((event.clientX - rect.left) * canvas.width) / rect.width,
+          y: ((event.clientY - rect.top) * canvas.height) / rect.height,
+        };
+      }
+
+      zoomInput.value = '1';
+      clamp();
+      draw();
+
+      return new Promise((resolve, reject) => {
+        function cleanup() {
+          stage.removeEventListener('pointerdown', onPointerDown);
+          stage.removeEventListener('pointermove', onPointerMove);
+          stage.removeEventListener('pointerup', onPointerUp);
+          stage.removeEventListener('pointercancel', onPointerUp);
+          stage.removeEventListener('wheel', onWheel);
+          zoomInput.removeEventListener('input', onZoomInput);
+          confirmBtn.removeEventListener('click', onConfirm);
+          cancelBtn.removeEventListener('click', onCancel);
+          if (backdrop) backdrop.removeEventListener('click', onCancel);
+          document.removeEventListener('keydown', onKey);
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          stage.classList.remove('is-dragging');
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Use this photo';
+          if (img && typeof img.close === 'function') {
+            try { img.close(); } catch (e) { /* bitmap already closed */ }
+          }
+          img = null;
+        }
+
+        function finish(value) {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          resolve(value);
+        }
+
+        function fail(err) {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(err);
+        }
+
+        function onPointerDown(event) {
+          if (event.button != null && event.button !== 0) return;
+          dragging = true;
+          stage.classList.add('is-dragging');
+          const pt = canvasPoint(event);
+          lastX = pt.x;
+          lastY = pt.y;
+          if (stage.setPointerCapture) {
+            try { stage.setPointerCapture(event.pointerId); } catch (e) { /* ignore */ }
+          }
+        }
+
+        function onPointerMove(event) {
+          if (!dragging) return;
+          const pt = canvasPoint(event);
+          originX += pt.x - lastX;
+          originY += pt.y - lastY;
+          lastX = pt.x;
+          lastY = pt.y;
+          clamp();
+          draw();
+        }
+
+        function onPointerUp() {
+          dragging = false;
+          stage.classList.remove('is-dragging');
+        }
+
+        function onZoomInput() {
+          applyZoom(Number(zoomInput.value) || 1);
+        }
+
+        function onWheel(event) {
+          event.preventDefault();
+          const current = Number(zoomInput.value) || 1;
+          const next = Math.min(3, Math.max(1, current + (event.deltaY < 0 ? 0.06 : -0.06)));
+          zoomInput.value = String(next);
+          const pt = canvasPoint(event);
+          applyZoom(next, pt.x, pt.y);
+        }
+
+        function onKey(event) {
+          if (event.key === 'Escape') finish(null);
+        }
+
+        function onCancel() {
+          finish(null);
+        }
+
+        async function onConfirm() {
+          if (settled) return;
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = 'Preparing…';
+          try {
+            const out = document.createElement('canvas');
+            out.width = CROP_EXPORT;
+            out.height = CROP_EXPORT;
+            const octx = out.getContext('2d');
+            const ratio = CROP_EXPORT / CROP_VIEW;
+            octx.fillStyle = '#ffffff';
+            octx.fillRect(0, 0, CROP_EXPORT, CROP_EXPORT);
+            octx.drawImage(
+              img,
+              originX * ratio,
+              originY * ratio,
+              img.width * scale * ratio,
+              img.height * scale * ratio
+            );
+            const blob = await new Promise((res) => out.toBlob(res, 'image/jpeg', 0.9));
+            if (!blob) throw new Error('Could not export the cropped image.');
+            finish(new File([blob], 'avatar.jpg', { type: 'image/jpeg', lastModified: Date.now() }));
+          } catch (err) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Use this photo';
+            fail(err);
+          }
+        }
+
+        stage.addEventListener('pointerdown', onPointerDown);
+        stage.addEventListener('pointermove', onPointerMove);
+        stage.addEventListener('pointerup', onPointerUp);
+        stage.addEventListener('pointercancel', onPointerUp);
+        stage.addEventListener('wheel', onWheel, { passive: false });
+        zoomInput.addEventListener('input', onZoomInput);
+        confirmBtn.addEventListener('click', onConfirm);
+        cancelBtn.addEventListener('click', onCancel);
+        if (backdrop) backdrop.addEventListener('click', onCancel);
+        document.addEventListener('keydown', onKey);
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        confirmBtn.focus();
+      });
+    });
+  }
+
   // ---- Profile page UI ----
   let selectedAvatarUrl = null;
 
@@ -351,10 +588,25 @@
     const fileInput = document.getElementById('profile-avatar-file');
     fileInput?.addEventListener('change', async () => {
       const file = fileInput.files && fileInput.files[0];
+      fileInput.value = '';
       if (!file) return;
-      setStatus('Uploading…');
+      if (!file.type || !file.type.startsWith('image/')) {
+        setStatus('Please choose an image file (JPEG, PNG, WebP, or GIF).', true);
+        return;
+      }
+      if (file.size > CROP_MAX_SOURCE) {
+        setStatus('Image must be 15 MB or smaller.', true);
+        return;
+      }
+      setStatus('Adjust the crop, then confirm. Cancel leaves your avatar unchanged.');
       try {
-        const saved = await uploadAvatarFile(file);
+        const cropped = await openAvatarCropper(file);
+        if (!cropped) {
+          setStatus('');
+          return;
+        }
+        setStatus('Uploading…');
+        const saved = await uploadAvatarFile(cropped);
         selectedAvatarUrl = saved && saved.avatar_url;
         updatePreview(selectedAvatarUrl);
         renderPresetGrid(selectedAvatarUrl);
@@ -365,8 +617,6 @@
         console.error(err);
         setStatus(err.message || 'Upload failed.', true);
         toast(err.message || 'Upload failed.');
-      } finally {
-        fileInput.value = '';
       }
     });
 
