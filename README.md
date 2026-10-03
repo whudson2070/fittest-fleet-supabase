@@ -96,7 +96,7 @@ sql/fix-*.sql             — prior grant / replica identity fixes
 
 ## Migrating from localStorage
 
-The original page stored comments in `localStorage` under `ruanFitnessComments`. That path is removed. Old local comments are not imported automatically; start fresh in Supabase (or insert seed rows manually in the Table Editor).
+The original page stored comments in `localStorage` under `t352FitnessComments`. That path is removed. Old local comments are not imported automatically; start fresh in Supabase (or insert seed rows manually in the Table Editor).
 
 ## Notes
 
