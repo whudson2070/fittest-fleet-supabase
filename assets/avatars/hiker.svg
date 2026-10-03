@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Hiker avatar">
+  <circle cx="64" cy="64" r="64" fill="#D7153A"/>
+  <circle cx="64" cy="48" r="20" fill="#fff" opacity="0.95"/>
+  <path d="M38 108c8-22 22-34 26-34s18 12 26 34" fill="#fff" opacity="0.95"/>
+  <path d="M40 88l24-28 12 14 20-24" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+</svg>

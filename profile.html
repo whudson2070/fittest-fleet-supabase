@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile • Fittest Fleet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/brand.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Arial:wght@400;700&display=swap');
+        body { font-family: Arial, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .brand-logo { font-weight: 900; letter-spacing: -0.05em; line-height: 1; }
+        .modal { animation: modalPopIn 0.2s ease-out forwards; }
+        @keyframes modalPopIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .preset-avatar-btn img { display: block; }
+    </style>
+</head>
+<body class="bg-[#E6E7E8]/40 text-[#414042] min-h-screen flex flex-col">
+    <nav class="bg-white border-b border-[#E6E7E8] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-20">
+                <a href="index.html" class="flex items-center group">
+                    <div class="brand-logo text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                    <div class="ml-3">
+                        <div class="font-bold text-lg tracking-tight text-[#414042]">Fittest Fleet</div>
+                        <div class="text-[10px] text-[#414042]/60 -mt-1">Community Wellness</div>
+                    </div>
+                </a>
+                <div class="flex items-center gap-x-3">
+                    <a href="index.html#community" class="hidden sm:inline text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                    <div id="auth-signed-out" class="hidden sm:flex items-center gap-x-2">
+                        <button type="button" id="auth-open-signin" class="px-4 py-2 text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Sign in</button>
+                        <button type="button" id="auth-open-signup" class="inline-flex items-center justify-center px-5 py-2.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full">Join</button>
+                    </div>
+                    <div id="auth-signed-in" class="hidden flex items-center gap-x-3">
+                        <a href="profile.html" class="hidden sm:inline-flex items-center gap-x-2 text-sm text-[#414042]/80 hover:text-[#BE0F34]">
+                            <img id="auth-user-avatar" class="hidden w-8 h-8 rounded-full object-cover ring-2 ring-[#E6E7E8]" alt="">
+                            <i id="auth-user-icon" class="fa-solid fa-user-circle text-[#BE0F34] text-xl"></i>
+                            <span id="auth-user-label" class="font-semibold"></span>
+                        </a>
+                        <button type="button" id="auth-signout-btn" class="px-4 py-2 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full">Sign out</button>
+                    </div>
+                    <button type="button" id="auth-mobile-signin" class="sm:hidden hidden px-3 py-2 text-sm font-semibold">Sign in</button>
+                    <button type="button" id="auth-mobile-signup" class="sm:hidden hidden px-3 py-2 text-sm font-semibold text-[#BE0F34]">Join</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-3xl mx-auto w-full px-6 py-10">
+        <div class="mb-8">
+            <p class="text-xs font-semibold tracking-wider text-[#BE0F34] mb-2">ACCOUNT</p>
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Your profile</h1>
+            <p class="mt-2 text-[#414042]/70">Set a display name and avatar. Your avatar shows in the header and on community posts.</p>
+        </div>
+
+        <!-- Signed out gate -->
+        <div id="profile-signed-out" class="bg-white border border-[#E6E7E8] rounded-3xl p-8 text-center">
+            <i class="fa-solid fa-lock text-3xl text-[#E6E7E8] mb-4"></i>
+            <h2 class="text-xl font-bold mb-2">Sign in to edit your profile</h2>
+            <p class="text-sm text-[#414042]/70 mb-6">Avatars and display names are saved to your Fittest Fleet account.</p>
+            <button type="button" id="profile-open-signin"
+                    class="inline-flex items-center justify-center px-6 py-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-semibold rounded-full">
+                Sign in
+            </button>
+        </div>
+
+        <!-- Editor -->
+        <div id="profile-editor" class="hidden space-y-6">
+            <section class="bg-white border border-[#E6E7E8] rounded-3xl p-6 sm:p-8">
+                <div class="flex flex-col sm:flex-row items-center gap-6 mb-8">
+                    <img id="profile-avatar-preview" src="assets/avatars/runner.svg" alt="Avatar preview"
+                         class="w-28 h-28 rounded-full object-cover ring-4 ring-[#E6E7E8] bg-white">
+                    <div class="text-center sm:text-left">
+                        <h2 class="text-lg font-bold mb-1">Avatar</h2>
+                        <p class="text-sm text-[#414042]/70 mb-4">Upload a photo or pick a preset below.</p>
+                        <label class="inline-flex items-center gap-x-2 px-5 py-2.5 border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full text-sm font-semibold cursor-pointer transition-all">
+                            <i class="fa-solid fa-upload text-[#BE0F34]"></i>
+                            Upload image
+                            <input type="file" id="profile-avatar-file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden">
+                        </label>
+                        <p class="mt-2 text-xs text-[#414042]/50">JPEG, PNG, WebP, or GIF · max 2 MB</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-3">PRESET AVATARS</label>
+                    <div id="preset-avatars" class="flex flex-wrap gap-3"></div>
+                </div>
+            </section>
+
+            <section class="bg-white border border-[#E6E7E8] rounded-3xl p-6 sm:p-8">
+                <label for="profile-display-name" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">DISPLAY NAME</label>
+                <input type="text" id="profile-display-name" maxlength="60" placeholder="How you appear in the community"
+                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none mb-6">
+
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <button type="button" id="profile-save-btn"
+                            class="inline-flex items-center justify-center px-6 py-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl transition-all active:scale-[0.985]">
+                        Save profile
+                    </button>
+                    <a href="index.html#community" class="text-sm font-semibold text-[#414042] hover:text-[#BE0F34] text-center sm:text-left">Back to Community Hub</a>
+                </div>
+                <p id="profile-status" class="mt-4 text-sm text-[#414042]/70 min-h-[1.25rem]"></p>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-[#414042] text-white mt-auto">
+        <div class="max-w-7xl mx-auto px-6 py-8 text-sm text-white/70 flex flex-col sm:flex-row justify-between gap-2">
+            <div>© 2026 Fittest Fleet · People first. Always.</div>
+            <a href="index.html" class="text-white/80 hover:text-white">Home</a>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (shared ids with auth.js) -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-[110] items-center justify-center p-4">
+        <div id="auth-modal-backdrop" class="absolute inset-0 bg-black/40"></div>
+        <div class="modal relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-[#E6E7E8]">
+            <button type="button" id="auth-close-btn" class="absolute top-4 right-4 w-9 h-9 rounded-full hover:bg-[#E6E7E8] text-[#414042]" aria-label="Close">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <h3 id="auth-modal-title" class="text-2xl font-bold tracking-tight mb-1">Welcome back</h3>
+            <p class="text-sm text-[#414042]/70 mb-6">Join the live Fittest Fleet community.</p>
+            <div id="auth-error" class="hidden mb-4 text-sm text-[#BE0F34] bg-[#BE0F34]/10 rounded-2xl px-4 py-3"></div>
+            <form id="auth-form" class="space-y-4">
+                <div id="auth-name-wrap" class="hidden">
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">DISPLAY NAME</label>
+                    <input type="text" id="auth-display-name" placeholder="Maria T."
+                           class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">EMAIL</label>
+                    <input type="email" id="auth-email" required autocomplete="email" placeholder="you@example.com"
+                           class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">PASSWORD</label>
+                    <input type="password" id="auth-password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"
+                           class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                </div>
+                <button type="submit" id="auth-submit-btn"
+                        class="w-full py-3.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl">
+                    Sign in
+                </button>
+            </form>
+            <p id="auth-toggle-hint" class="mt-5 text-center text-sm text-[#414042]/70"></p>
+        </div>
+    </div>
+
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#414042] text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-x-3 text-sm font-medium z-[100]">
+        <i class="fa-solid fa-check-circle text-[#D9E364]"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            if (!toast || !toastMsg) return;
+            toastMsg.textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            setTimeout(() => {
+                toast.classList.remove('flex');
+                toast.classList.add('hidden');
+            }, 4200);
+        }
+        window.showToast = showToast;
+
+        window.onload = async function () {
+            await FFAuth.initAuth();
+            FFProfile.initProfilePage();
+            FFAuth.onAuthChange(() => FFProfile.refreshAuthAvatar());
+        };
+    </script>
+</body>
+</html>

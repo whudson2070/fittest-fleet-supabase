@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Spark avatar">
+  <circle cx="64" cy="64" r="64" fill="#BE0F34"/>
+  <circle cx="64" cy="64" r="48" fill="#D7153A"/>
+  <path d="M64 28l8 28h28l-22 16 8 28-22-16-22 16 8-28-22-16h28z" fill="#D9E364"/>
+</svg>

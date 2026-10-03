@@ -15,7 +15,8 @@ Browse posts signed out. Sign in to post and encourage (like) others.
 
 1. Open **SQL Editor** → **New query**.
 2. Paste and run the contents of [`sql/schema.sql`](sql/schema.sql).
-3. Confirm the `comments` table exists under **Table Editor**.
+3. Also run [`sql/profiles-and-avatars.sql`](sql/profiles-and-avatars.sql) (profiles table + Storage `avatars` bucket policies). If you already ran an older `schema.sql`, this migration alone is enough for profiles.
+4. Confirm the `comments` and `profiles` tables exist under **Table Editor**, and that Storage has a public **avatars** bucket.
 
 ### 3. Enable Email auth
 
@@ -63,18 +64,34 @@ Sign up with email/password, then post in the Community Hub. Open another browse
 | Post | Authenticated | `INSERT` with `user_id = auth.uid()` |
 | Encourage (like) | Authenticated | `UPDATE` increments `likes` |
 | Live updates | Anyone | Realtime subscription on `INSERT` / `UPDATE` / `DELETE` |
+| Profile / avatar | Authenticated | Upsert own `profiles` row; upload only to `avatars/{uid}/…` |
+
+## Profiles & avatars
+
+Signed-in users can open **Profile** (header name / mobile menu) to:
+
+1. Upload an image (stored in Supabase Storage bucket `avatars`, path `{user_id}/avatar.ext`)
+2. Or pick a preset SVG under [`assets/avatars/`](assets/avatars/)
+
+Choices persist in `public.profiles` (`avatar_url`, optional `display_name`). Avatars appear in the header and on community comments.
+
+**SQL Will must run:** [`sql/profiles-and-avatars.sql`](sql/profiles-and-avatars.sql) in the Supabase SQL Editor (creates `profiles`, trigger, grants/RLS, and Storage bucket + policies). Fresh installs can use updated [`sql/schema.sql`](sql/schema.sql) plus the storage section in the profiles migration.
 
 ## Project layout
 
 ```
-index.html            — page UI (Tailwind CDN + Font Awesome)
-css/brand.css         — T352 brand guide CSS
-js/config.example.js  — placeholder keys (committed)
-js/config.js          — your keys (gitignored; placeholders for local demo)
-js/supabase-client.js — creates the Supabase client
-js/auth.js            — sign up / sign in / sign out + header UI
-js/comments.js        — fetch, post, likes, filters, realtime
-sql/schema.sql        — table + RLS + realtime publication
+index.html                 — main page UI
+profile.html               — profile / avatar editor (login required to edit)
+assets/avatars/            — preset SVG avatars
+css/brand.css              — T352 brand guide CSS
+js/config.js               — Supabase URL + anon key (do not commit service_role)
+js/supabase-client.js      — creates the Supabase client
+js/auth.js                 — sign up / sign in / sign out + header UI
+js/profile.js              — profile load/save, upload, presets
+js/comments.js             — fetch, post, likes, filters, realtime (+ profile avatars)
+sql/schema.sql             — comments + profiles schema, RLS, realtime
+sql/profiles-and-avatars.sql — profiles + Storage avatars bucket/policies (run this)
+sql/fix-*.sql             — prior grant / replica identity fixes
 ```
 
 ## Migrating from localStorage

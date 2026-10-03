@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Swimmer avatar">
+  <circle cx="64" cy="64" r="64" fill="#414042"/>
+  <circle cx="64" cy="46" r="20" fill="#E6E7E8"/>
+  <path d="M38 100c8-18 22-28 26-28s18 10 26 28" fill="#E6E7E8"/>
+  <path d="M28 78c10 6 20 6 30 0s20-6 30 0 20 6 30 0" fill="none" stroke="#5594CF" stroke-width="4" stroke-linecap="round"/>
+</svg>

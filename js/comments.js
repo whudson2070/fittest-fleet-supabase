@@ -9,12 +9,20 @@
   let currentFilter = 'all';
   let realtimeChannel = null;
 
-  function avatarFor(name, userId) {
-    const seed = (userId || name || 'guest').toString();
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-    const img = (hash % 70) + 1;
-    return `https://i.pravatar.cc/40?img=${img}`;
+  function avatarFor(name, userId, profileAvatarUrl) {
+    if (profileAvatarUrl && global.FFProfile) {
+      return global.FFProfile.resolveAvatarUrl(profileAvatarUrl);
+    }
+    if (profileAvatarUrl) return profileAvatarUrl;
+    // Deterministic local preset (no external dependency)
+    const presets = (global.FFProfile && global.FFProfile.PRESET_AVATARS) || [];
+    if (presets.length) {
+      const seed = (userId || name || 'guest').toString();
+      let hash = 0;
+      for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+      return presets[hash % presets.length].url;
+    }
+    return 'assets/avatars/runner.svg';
   }
 
   function formatTimestamp(iso) {
@@ -33,17 +41,19 @@
     return new Date(iso).toLocaleDateString();
   }
 
-  function mapRow(row) {
+  function mapRow(row, profilesById) {
+    const profile = profilesById && row.user_id ? profilesById[row.user_id] : null;
+    const avatarUrl = profile && profile.avatar_url;
     return {
       id: row.id,
       user_id: row.user_id,
-      name: row.display_name,
+      name: (profile && profile.display_name) || row.display_name,
       category: row.category,
       message: row.message,
       likes: row.likes ?? 0,
       created_at: row.created_at,
       timestamp: formatTimestamp(row.created_at),
-      avatar: avatarFor(row.display_name, row.user_id),
+      avatar: avatarFor(row.display_name, row.user_id, avatarUrl),
     };
   }
 
@@ -157,8 +167,12 @@
     applyFilterAndRender();
   }
 
-  function upsertLocal(row) {
-    const mapped = mapRow(row);
+  async function upsertLocal(row) {
+    let profilesById = {};
+    if (row.user_id && global.FFProfile) {
+      profilesById = await global.FFProfile.fetchProfiles([row.user_id]);
+    }
+    const mapped = mapRow(row, profilesById);
     const idx = comments.findIndex((c) => c.id === mapped.id);
     if (idx >= 0) comments[idx] = mapped;
     else comments.unshift(mapped);
@@ -191,7 +205,12 @@
       return;
     }
 
-    comments = (data || []).map(mapRow);
+    const rows = data || [];
+    let profilesById = {};
+    if (global.FFProfile) {
+      profilesById = await global.FFProfile.fetchProfiles(rows.map((r) => r.user_id));
+    }
+    comments = rows.map((row) => mapRow(row, profilesById));
     applyFilterAndRender();
   }
 
@@ -209,16 +228,16 @@
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'comments' },
-        (payload) => {
-          upsertLocal(payload.new);
+        async (payload) => {
+          await upsertLocal(payload.new);
           applyFilterAndRender();
         }
       )
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'comments' },
-        (payload) => {
-          upsertLocal(payload.new);
+        async (payload) => {
+          await upsertLocal(payload.new);
           applyFilterAndRender();
         }
       )

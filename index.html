@@ -117,7 +117,7 @@
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex items-center justify-between h-20">
                 <div class="flex items-center gap-x-3">
-                    <a href="#" class="flex items-center group">
+                    <a href="index.html" class="flex items-center group">
                         <div class="brand-logo text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
                         <div class="ml-3">
                             <div class="font-bold text-lg tracking-tight text-[#414042]">Fittest Fleet</div>
@@ -146,10 +146,13 @@
                     </div>
                     <!-- Auth: signed in -->
                     <div id="auth-signed-in" class="hidden flex items-center gap-x-3">
-                        <span class="hidden sm:inline text-sm text-[#414042]/80">
-                            <i class="fa-solid fa-user-circle text-[#BE0F34] mr-1"></i>
+                        <a href="profile.html" id="auth-profile-link"
+                           class="hidden sm:inline-flex items-center gap-x-2 text-sm text-[#414042]/80 hover:text-[#BE0F34] transition-colors"
+                           title="Edit profile">
+                            <img id="auth-user-avatar" class="hidden w-8 h-8 rounded-full object-cover ring-2 ring-[#E6E7E8]" alt="">
+                            <i id="auth-user-icon" class="fa-solid fa-user-circle text-[#BE0F34] text-xl"></i>
                             <span id="auth-user-label" class="font-semibold"></span>
-                        </span>
+                        </a>
                         <button type="button" id="auth-signout-btn"
                                 class="px-4 py-2 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full transition-all">
                             Sign out
@@ -169,6 +172,7 @@
                 <a href="#pillars" class="py-2 text-[#414042] hover:text-[#BE0F34]">Our Pillars</a>
                 <a href="#stories" class="py-2 text-[#414042] hover:text-[#BE0F34]">Success Stories</a>
                 <a href="#community" class="py-2 text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                <a href="profile.html" class="py-2 text-[#414042] hover:text-[#BE0F34]">Profile</a>
                 <button type="button" id="auth-mobile-signin" class="py-2 text-left text-[#414042] hover:text-[#BE0F34]">Sign in</button>
                 <button type="button" id="auth-mobile-signup" class="mt-1 w-full text-center py-3 bg-[#BE0F34] text-white rounded-full font-semibold">Join the Community</button>
             </div>
@@ -597,6 +601,7 @@
     <script src="js/config.js"></script>
     <script src="js/supabase-client.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
     <script src="js/comments.js"></script>
     <script>
         function initTailwind() {
@@ -676,6 +681,9 @@
             });
 
             await FFAuth.initAuth();
+            FFAuth.onAuthChange(() => {
+                if (window.FFProfile) FFProfile.refreshAuthAvatar();
+            });
             await FFComments.initComments();
 
             console.log('%c[Fittest Fleet] Supabase auth + realtime comments ready.', 'color:#BE0F34');

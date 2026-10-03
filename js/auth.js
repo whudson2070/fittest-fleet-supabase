@@ -72,6 +72,13 @@
       if (commentForm) commentForm.classList.add('opacity-50', 'pointer-events-none');
       if (mobileSignin) mobileSignin.classList.remove('hidden');
       if (mobileSignup) mobileSignup.classList.remove('hidden');
+      const avatarImg = document.getElementById('auth-user-avatar');
+      if (avatarImg) {
+        avatarImg.classList.add('hidden');
+        avatarImg.removeAttribute('src');
+      }
+      const avatarIcon = document.getElementById('auth-user-icon');
+      if (avatarIcon) avatarIcon.classList.remove('hidden');
     }
   }
 

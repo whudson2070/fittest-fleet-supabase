@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Runner avatar">
+  <circle cx="64" cy="64" r="64" fill="#BE0F34"/>
+  <circle cx="64" cy="48" r="22" fill="#fff" opacity="0.95"/>
+  <path d="M36 108c8-22 24-34 28-34s20 12 28 34" fill="#fff" opacity="0.95"/>
+  <path d="M58 72l-10 18M70 72l14 16M64 58v20" stroke="#BE0F34" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.35"/>
+</svg>
