@@ -1,0 +1,451 @@
+/*
+ * T352 BRAND QUICK REFERENCE GUIDE - CUSTOM CSS
+ * ==============================================
+ * Based on: Brand Quick Reference Guide Oct23 (T352 Transportation Management Systems)
+ * 
+ * This CSS translates the official brand guidelines into web-ready styles.
+ * Tailored for a PROFESSIONAL, FRIENDLY, PEOPLE-FIRST FITNESS COMMUNITY website 
+ * built around encouragement, connection, and motivation.
+ *
+ * KEY BRAND PRINCIPLES APPLIED:
+ * - Typography: Aalto Sans family (Light/Regular/Bold) with Arial fallback
+ * - Primary Color: T352 Red (#BE0F34) - rich, dynamic, strong & assured. Use strategically as hero or CTA
+ * - Neutrals: Dark Grey (#414042) for text, Light Grey (#E6E7E8) for backgrounds
+ * - Accents: Blue (#5594CF) for trust/community, Chartreuse (#D9E364) for energy & fresh motivation
+ * - Logo rules honored: Approved color or black/white, proportionate scaling, clear space (staging)
+ * - Voice: Title case for brand name, consistent encouraging language
+ *
+ * FITNESS THEME INTEGRATION:
+ * - Energetic yet professional design system
+ * - Community-focused components (cards, challenges, quotes)
+ * - Encouragement-first buttons and sections
+ * - High contrast, accessible, mobile-friendly
+ *
+ * USAGE NOTES:
+ * - Load Aalto Sans font files via @font-face if licensed, otherwise Arial/sans-serif fallback is per guidelines
+ * - For actual logo files: Contact Communications@T352.com for approved assets
+ * - Logo height min ~1/8" (web: ~40-60px recommended). Always maintain 1/2 height clear space around logo
+ * - Never stretch, outline, or recolor logo beyond approved versions
+ * - Use red as solid element or accent, balanced with neutrals
+ */
+
+/* ============================================
+   CSS CUSTOM PROPERTIES (Brand Tokens)
+   ============================================ */
+:root {
+  /* PRIMARY BRAND COLORS - T352 Red family (use strategically) */
+  --T352-red: #BE0F34;
+  --bright-red: #D7153A;
+  --dark-red: #AC1E2F;
+
+  /* NEUTRALS - Type & Background (recommended for balance) */
+  --dark-grey: #414042;
+  --light-grey: #E6E7E8;
+  --white: #FFFFFF;
+  --black: #000000;
+
+  /* ACCENT COLORS - Use sparingly with primary brand colors */
+  --accent-blue: #5594CF;      /* Trust, community, calm encouragement */
+  --accent-chartreuse: #D9E364; /* Fresh energy, vitality, motivation */
+
+  /* TYPOGRAPHY TOKENS */
+  --font-family: 'Aalto Sans', Arial, sans-serif;
+  --font-light: 300;
+  --font-regular: 400;
+  --font-bold: 700;
+
+  /* SPACING & RADIUS (fitness-friendly, clean & approachable) */
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+/* ============================================
+   BASE STYLES - People First & Encouraging
+   ============================================ */
+body {
+  font-family: var(--font-family);
+  font-weight: var(--font-regular);
+  color: var(--dark-grey);
+  line-height: 1.7;
+  background-color: var(--white);
+  margin: 0;
+  padding: 0;
+}
+
+/* Strong, assured headings (brand tone) */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family);
+  font-weight: var(--font-bold);
+  color: var(--dark-grey);
+  line-height: 1.3;
+  margin-top: 0;
+}
+
+h1 { font-size: 2.75rem; margin-bottom: var(--spacing-lg); }
+h2 { font-size: 2.25rem; margin-bottom: var(--spacing-md); }
+h3 { font-size: 1.75rem; margin-bottom: var(--spacing-md); }
+h4 { font-size: 1.35rem; margin-bottom: var(--spacing-sm); }
+
+/* Light weight for subtitles & supporting text */
+.text-light,
+.subtitle {
+  font-weight: var(--font-light);
+  color: var(--dark-grey);
+}
+
+/* Brand name treatment - Title case only, never all caps */
+.brand-name {
+  font-family: var(--font-family);
+  font-weight: var(--font-bold);
+  /* Always title case per guidelines. Never uppercase. */
+}
+
+/* Links - Red for energy & motivation, friendly hover */
+a {
+  color: var(--T352-red);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover,
+a:focus {
+  color: var(--bright-red);
+  text-decoration: underline;
+}
+
+/* ============================================
+   BUTTONS - Clear CTAs for Community Action
+   ============================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  font-family: var(--font-family);
+  font-weight: var(--font-bold);
+  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 2px solid transparent;
+  /* Friendly, encouraging tone - no all-caps per brand spirit */
+}
+
+.btn-primary {
+  background-color: var(--T352-red);
+  color: var(--white);
+  border-color: var(--T352-red);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--bright-red);
+  border-color: var(--bright-red);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(190, 15, 52, 0.35);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--T352-red);
+  border-color: var(--T352-red);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background-color: var(--T352-red);
+  color: var(--white);
+}
+
+.btn-accent {
+  background-color: var(--accent-chartreuse);
+  color: var(--dark-grey);
+  border-color: var(--accent-chartreuse);
+}
+
+.btn-accent:hover,
+.btn-accent:focus {
+  background-color: #c5d44a;
+  border-color: #c5d44a;
+  transform: translateY(-2px);
+}
+
+.btn-outline-light {
+  background-color: transparent;
+  color: var(--white);
+  border-color: var(--white);
+}
+
+.btn-outline-light:hover {
+  background-color: var(--white);
+  color: var(--T352-red);
+}
+
+/* ============================================
+   CARDS - Community & Encouragement Focused
+   ============================================ */
+.card {
+  background-color: var(--white);
+  border: 1px solid var(--light-grey);
+  border-radius: var(--radius);
+  padding: var(--spacing-lg);
+  box-shadow: 0 4px 12px rgba(65, 64, 66, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(65, 64, 66, 0.12);
+}
+
+.card-header {
+  border-bottom: 4px solid var(--T352-red);
+  padding-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.card-accent {
+  border-left: 5px solid var(--accent-chartreuse);
+}
+
+/* ============================================
+   HERO / BANNER - Strategic Red Use (Bold & Dynamic)
+   ============================================ */
+.hero,
+.banner-red {
+  background-color: var(--T352-red);
+  color: var(--white);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  text-align: center;
+  position: relative;
+}
+
+.hero h1,
+.banner-red h1 {
+  color: var(--white);
+  font-size: 3.25rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.hero .subtitle,
+.banner-red .subtitle {
+  font-weight: var(--font-light);
+  font-size: 1.35rem;
+  max-width: 620px;
+  margin: 0 auto var(--spacing-lg);
+  opacity: 0.95;
+}
+
+/* ============================================
+   SECTIONS - Balanced Use of Neutrals & Accents
+   ============================================ */
+.section {
+  padding: var(--spacing-xl) 0;
+}
+
+.section-light {
+  background-color: var(--light-grey);
+}
+
+.section-white {
+  background-color: var(--white);
+}
+
+.section-blue {
+  background-color: var(--accent-blue);
+  color: var(--white);
+}
+
+.section-blue h2,
+.section-blue h3 {
+  color: var(--white);
+}
+
+/* ============================================
+   LOGO STYLES - Per Brand Guidelines
+   ============================================ */
+/* 
+ * Logo Rules Applied:
+ * - Use approved brand color (red) or black/white versions only
+ * - Minimum height: ~40-60px on web (scales proportionately)
+ * - Clear space (staging): Minimum 1/2 logo height on all sides
+ * - Never stretch, skew, outline, or alter proportions
+ * - For reversing: Use on solid dark backgrounds with white version
+ */
+.T352-logo {
+  height: 52px;           /* Recommended web size - scale proportionately */
+  width: auto;
+  display: block;
+}
+
+.logo-container {
+  /* Staging: Clear space = 1/2 logo height (~26px here) */
+  padding: 26px;
+  display: inline-block;
+}
+
+.logo-reversed {
+  /* For dark/solid color backgrounds - use approved white version */
+  filter: brightness(0) invert(1);
+}
+
+/* Placeholder styling if using text logo treatment */
+.logo-text {
+  font-family: var(--font-family);
+  font-weight: var(--font-bold);
+  font-size: 2rem;
+  color: var(--T352-red);
+  letter-spacing: -1px;
+}
+
+/* ============================================
+   MOTIVATIONAL & COMMUNITY ELEMENTS
+   ============================================ */
+.motivation-quote {
+  border-left: 6px solid var(--accent-chartreuse);
+  padding-left: var(--spacing-lg);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--dark-grey);
+  max-width: 620px;
+}
+
+.community-stat {
+  text-align: center;
+  padding: var(--spacing-md);
+}
+
+.community-stat .number {
+  font-size: 2.5rem;
+  font-weight: var(--font-bold);
+  color: var(--T352-red);
+  line-height: 1;
+}
+
+.community-stat .label {
+  font-weight: var(--font-regular);
+  color: var(--dark-grey);
+  margin-top: var(--spacing-sm);
+}
+
+/* Progress / Achievement bars - Chartreuse for fresh motivation */
+.progress {
+  background-color: var(--light-grey);
+  border-radius: 9999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background-color: var(--accent-chartreuse);
+  height: 100%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   FORMS - Clean & Professional
+   ============================================ */
+input,
+textarea,
+select {
+  font-family: var(--font-family);
+  font-size: 1rem;
+  padding: 14px 18px;
+  border: 2px solid var(--light-grey);
+  border-radius: var(--radius-sm);
+  background-color: var(--white);
+  color: var(--dark-grey);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--T352-red);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(190, 15, 52, 0.1);
+}
+
+label {
+  font-weight: var(--font-bold);
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  color: var(--dark-grey);
+}
+
+/* ============================================
+   NAV & HEADER - Friendly & On-Brand
+   ============================================ */
+.navbar {
+  background-color: var(--white);
+  border-bottom: 1px solid var(--light-grey);
+  padding: var(--spacing-md) 0;
+}
+
+.navbar .brand {
+  font-weight: var(--font-bold);
+  font-size: 1.5rem;
+  color: var(--T352-red);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.text-red { color: var(--T352-red); }
+.text-bright-red { color: var(--bright-red); }
+.text-dark-grey { color: var(--dark-grey); }
+.text-light-grey { color: var(--light-grey); }
+.text-blue { color: var(--accent-blue); }
+.text-chartreuse { color: var(--accent-chartreuse); }
+
+.bg-red { background-color: var(--T352-red); color: var(--white); }
+.bg-light-grey { background-color: var(--light-grey); }
+.bg-chartreuse { background-color: var(--accent-chartreuse); }
+
+.font-light { font-weight: var(--font-light); }
+.font-bold { font-weight: var(--font-bold); }
+
+/* ============================================
+   RESPONSIVE & ACCESSIBILITY
+   ============================================ */
+@media (max-width: 768px) {
+  h1 { font-size: 2.1rem; }
+  h2 { font-size: 1.85rem; }
+  .hero h1 { font-size: 2.5rem; }
+  .btn { padding: 12px 24px; font-size: 0.95rem; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.85rem; }
+}
+
+/* High contrast focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   FINAL NOTES (Brand Compliance)
+   ============================================
+ * - This stylesheet honors T352's brand by using approved colors, typography guidance, 
+ *   and logo usage principles adapted for digital.
+ * - For production: Replace placeholder logo with official artwork from Communications@T352.com
+ * - Red should be balanced — use as hero/primary CTA, pair with generous white space and neutrals.
+ * - Never recreate logo in CSS text or alter proportions.
+ * - Core services language (if used): DEDICATED CONTRACT TRANSPORTATION | MANAGED TRANSPORTATION | 
+ *   VALUE-ADDED WAREHOUSING | BROKERAGE SUPPORT SERVICES | INTEGRATED SUPPLY CHAIN SOLUTIONS
+ *
+ * Built with care for community, encouragement, and professional fitness experiences.
+ * Let's move forward together! 💪
+ */

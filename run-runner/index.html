@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Run Runner</title>
+<link rel="stylesheet" href="t352-brand.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--dark-grey);
+    font-family: Arial, Helvetica, sans-serif;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  #wrap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--dark-grey);
+  }
+  canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: auto;
+    background: var(--light-grey);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:12px;left:12px;z-index:5;color:#fff;font:700 13px Arial,sans-serif;text-decoration:none;background:rgba(0,0,0,.4);padding:6px 12px;border-radius:999px">Fittest Fleet</a>
+<div id="wrap">
+  <canvas id="game" width="960" height="540"></canvas>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const chaChingAudio = new Audio("cha-ching.wav");
+  chaChingAudio.preload = "auto";
+  function playPackageChing() {
+    const clip = chaChingAudio.cloneNode();
+    const played = clip.play();
+    if (played && typeof played.catch === "function") played.catch(function () {});
+  }
+  const MIDI_FALLBACK = "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";
+  function midiFallbackBytes() {
+    const bin = atob(MIDI_FALLBACK);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+function parseSmf(bytes) {
+  let i = 0;
+  function u16() { const v = (bytes[i] << 8) | bytes[i + 1]; i += 2; return v; }
+  function u32() { const v = (bytes[i] * 16777216) + (bytes[i + 1] << 16) + (bytes[i + 2] << 8) + bytes[i + 3]; i += 4; return v; }
+  function varlen() {
+    let v = 0;
+    let c;
+    do { c = bytes[i++]; v = (v << 7) | (c & 0x7f); } while (c & 0x80);
+    return v;
+  }
+  if (bytes[0] !== 0x4d || bytes[1] !== 0x54 || bytes[2] !== 0x68 || bytes[3] !== 0x64) {
+    throw new Error("Not a MIDI file");
+  }
+  i = 4;
+  const hlen = u32();
+  const format = u16();
+  const ntrks = u16();
+  const division = u16();
+  i = 8 + hlen;
+  const tempos = [{ tick: 0, us: 500000 }];
+  const ons = new Map();
+  const raw = [];
+  const bends = [];
+  let endTick = 0;
+  for (let tr = 0; tr < ntrks; tr++) {
+    if (bytes[i] !== 0x4d || bytes[i + 1] !== 0x54 || bytes[i + 2] !== 0x72 || bytes[i + 3] !== 0x6b) {
+      throw new Error("Bad track");
+    }
+    i += 4;
+    const len = u32();
+    const end = i + len;
+    let tick = 0;
+    let running = 0;
+    while (i < end) {
+      tick += varlen();
+      let st = bytes[i];
+      if (st & 0x80) { running = st; i++; }
+      else st = running;
+      const kind = st & 0xf0;
+      const ch = st & 0x0f;
+      if (kind === 0x80 || kind === 0x90 || kind === 0xa0 || kind === 0xb0 || kind === 0xe0) {
+        const d1 = bytes[i++];
+        const d2 = bytes[i++];
+        if (kind === 0xe0) {
+          bends.push({ tick: tick, ch: ch, val: (d2 << 7) | d1 });
+        } else if (kind === 0x90 && d2 > 0) {
+          const key = ch + ":" + d1;
+          if (!ons.has(key)) ons.set(key, []);
+          ons.get(key).push({ tick: tick, vel: d2 });
+        } else if (kind === 0x80 || kind === 0x90) {
+          const key = ch + ":" + d1;
+          const stack = ons.get(key);
+          if (stack && stack.length) {
+            const on = stack.shift();
+            raw.push({ tick: on.tick, durTicks: tick - on.tick, ch: ch, note: d1, vel: on.vel });
+          }
+        }
+      } else if (kind === 0xc0 || kind === 0xd0) {
+        i += 1;
+      } else if (st === 0xff) {
+        const mt = bytes[i++];
+        const ln = varlen();
+        if (mt === 0x51 && ln === 3) {
+          const us = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+          tempos.push({ tick: tick, us: us });
+        }
+        i += ln;
+      } else if (st === 0xf0 || st === 0xf7) {
+        const ln = varlen();
+        i += ln;
+      } else {
+        throw new Error("Bad status " + st);
+      }
+    }
+    if (tick > endTick) endTick = tick;
+  }
+  tempos.sort(function (a, b) { return a.tick - b.tick; });
+  function tickToSec(tick) {
+    let sec = 0;
+    let last = 0;
+    let us = tempos[0].us;
+    for (let k = 0; k < tempos.length; k++) {
+      const tp = tempos[k];
+      if (tp.tick > tick) break;
+      sec += (tp.tick - last) * us / division / 1000000;
+      last = tp.tick;
+      us = tp.us;
+    }
+    sec += (tick - last) * us / division / 1000000;
+    return sec;
+  }
+  const notes = raw.map(function (n) {
+    return {
+      sec: tickToSec(n.tick),
+      dur: Math.max(0.05, tickToSec(n.tick + n.durTicks) - tickToSec(n.tick)),
+      ch: n.ch,
+      note: n.note,
+      vel: n.vel
+    };
+  }).sort(function (a, b) { return a.sec - b.sec; });
+  const bendEvents = bends.map(function (b) {
+    return {
+      sec: tickToSec(b.tick),
+      ch: b.ch,
+      semi: ((b.val - 8192) / 8192) * 2
+    };
+  });
+  return { notes: notes, bends: bendEvents, loopSec: tickToSec(endTick), endTick: endTick };
+}
+
+function midiFreq(note) {
+  return 440 * Math.pow(2, (note - 69) / 12);
+}
+
+function createMidiBgm(getBytes) {
+  let song = null;
+  let actx = null;
+  let master = null;
+  let bgmGain = null;
+  let sfxGain = null;
+  let noise = null;
+  let running = false;
+  const sfxSongs = [];
+  const SFX_NAMES = [
+    "01-ouch.midi", "02-oof.midi", "03-uh-oh.midi", "04-what.midi", "05-no.midi",
+    "06-eww.midi", "07-ah.midi", "08-guh.midi", "09-golly.midi", "10-geez.midi"
+  ];
+  const SFX_FALLBACK = {"01-ouch.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAAOAD/UQMHoSAA/wMLMDEtb3VjaC5taWQAwDYA4ABAAZBIX19MZBOASABgkEVLHYBMAIFTRQAw/y8A","02-oof.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAALwD/UQMHoSAA/wMKMDItb29mLm1pZADANgDgAEABkDRkcjBVHYA0AIIWMAAw/y8A","03-uh-oh.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAANQD/UQMHoSAA/wMMMDMtdWgtb2gubWlkAMA1AOAAQAGQPEuCDIA8AIEjkDdGgwCANwAw/y8A","04-what.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAAOgD/UQMHoSAA/wMLMDQtd2hhdC5taWQAwDYA4ABAAZA+RoEZQVATgD4AgQaQRVoTgEEAgj1FADD/LwA=","05-no.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAAMQD/UQMHoSAA/wMJMDUtbm8ubWlkAMA0AOAAQAGQQV+CH4BBABOQN1qDMIA3ADD/LwA=","06-eww.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAAaAD/UQMHoSAA/wMKMDYtZXd3Lm1pZADANQDgAEABkEVVAOAYOHIUMR2QQ1BDgEUAHeAQKjCQQEtDgEMAHeAMI02QPEFDgEAAAOAIHH2QNzdD4AQVHYA8AIEj4AAOTYA3ABPgAEAw/y8A","07-ah.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAAOwD/UQMHoSAA/wMJMDctYWgubWlkAMA0AOAAQAGQQFAA4ABAgW9gOYFwMDCBQIBAAADgECowAEAw/y8A","08-guh.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAAMAD/UQMHoSAA/wMKMDgtZ3VoLm1pZADANgDgAEABkCtfgSwoRkOAKwCBSigAMP8vAA==","09-golly.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAAPQD/UQMHoSAA/wMMMDktZ29sbHkubWlkAMA2AOAAQAGQPEuBLIA8AACQQFWBLYBAAACQSGSDAIBIADD/LwA=","10-geez.midi":"TVRoZAAAAAYAAQABAeBNVHJrAAAATQD/UQMHoSAA/wMLMTAtZ2Vlei5taWQAwDUA4ABAAZBDSwDgAECCH5A+QTCAQwAw4CQ0gUCQNzIwgD4AgRDgVCSCIIA3ADDgAEAw/y8A"};
+  let cursor = 0;
+  let loopIndex = 0;
+  let origin = 0;
+  let timer = null;
+
+  function setup() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    actx = new AC();
+    master = actx.createGain();
+    master.gain.value = 0.42;
+    master.connect(actx.destination);
+    bgmGain = actx.createGain();
+    bgmGain.gain.value = 1;
+    bgmGain.connect(master);
+    sfxGain = actx.createGain();
+    sfxGain.gain.value = 1;
+    sfxGain.connect(master);
+    const len = actx.sampleRate;
+    noise = actx.createBuffer(1, len, actx.sampleRate);
+    const d = noise.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  }
+
+  function tone(when, dur, note, vel, type, gainScale, dest) {
+    const osc = actx.createOscillator();
+    const g = actx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(midiFreq(note), when);
+    const peak = Math.max(0.0002, gainScale * (vel / 127));
+    const end = when + dur;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(peak, when + 0.012);
+    const mid = Math.min(end - 0.03, when + Math.min(0.18, dur * 0.45));
+    if (mid > when + 0.02) g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak * 0.5), mid);
+    g.gain.exponentialRampToValueAtTime(0.0001, end);
+    osc.connect(g);
+    g.connect(dest || bgmGain);
+    osc.start(when);
+    osc.stop(end + 0.03);
+  }
+
+  function drum(when, note, vel) {
+    const src = actx.createBufferSource();
+    src.buffer = noise;
+    const filter = actx.createBiquadFilter();
+    const g = actx.createGain();
+    let dur = 0.09;
+    if (note <= 40) {
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(140, when);
+      dur = 0.16;
+    } else if (note >= 75) {
+      filter.type = "highpass";
+      filter.frequency.setValueAtTime(3500, when);
+      dur = 0.07;
+    } else if (note >= 60) {
+      filter.type = "highpass";
+      filter.frequency.setValueAtTime(1800, when);
+      dur = 0.05;
+    } else {
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(900, when);
+      dur = 0.08;
+    }
+    const peak = Math.max(0.0002, 0.22 * (vel / 127));
+    g.gain.setValueAtTime(peak, when);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    src.connect(filter);
+    filter.connect(g);
+    g.connect(bgmGain);
+    src.start(when);
+    src.stop(when + dur + 0.02);
+  }
+
+  function playNote(n, when) {
+    if (n.ch === 9) {
+      drum(when, n.note, n.vel);
+      return;
+    }
+    if (n.ch === 2 || n.note < 48) tone(when, n.dur, n.note, n.vel, "triangle", 0.14);
+    else if (n.ch === 5) tone(when, n.dur, n.note, n.vel, "square", 0.035);
+    else tone(when, n.dur, n.note, n.vel, "square", 0.05);
+  }
+
+  function pump() {
+    if (!actx || !song || !running) return;
+    const horizon = actx.currentTime + 0.4;
+    const notes = song.notes;
+    const loopSec = song.loopSec;
+    while (cursor < notes.length) {
+      const when = origin + notes[cursor].sec + loopIndex * loopSec;
+      if (when > horizon) break;
+      if (when >= actx.currentTime - 0.03) playNote(notes[cursor], Math.max(when, actx.currentTime));
+      cursor++;
+      if (cursor >= notes.length) {
+        cursor = 0;
+        loopIndex++;
+      }
+    }
+  }
+
+  function playBent(n, when, bends) {
+    const osc = actx.createOscillator();
+    const g = actx.createGain();
+    osc.type = "square";
+    const base = midiFreq(n.note);
+    let semi = 0;
+    const relevant = [];
+    for (let i = 0; i < bends.length; i++) {
+      const b = bends[i];
+      if (b.ch !== n.ch) continue;
+      if (b.sec <= n.sec + 0.0001) semi = b.semi;
+      else if (b.sec < n.sec + n.dur) relevant.push(b);
+    }
+    function freq(s) { return base * Math.pow(2, s / 12); }
+    osc.frequency.setValueAtTime(freq(semi), when);
+    for (let i = 0; i < relevant.length; i++) {
+      const b = relevant[i];
+      osc.frequency.linearRampToValueAtTime(freq(b.semi), when + (b.sec - n.sec));
+      semi = b.semi;
+    }
+    const peak = Math.max(0.0002, 0.2 * (n.vel / 127));
+    const end = when + n.dur;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(peak, when + Math.min(0.02, n.dur * 0.25));
+    g.gain.exponentialRampToValueAtTime(0.0001, end);
+    osc.connect(g);
+    g.connect(sfxGain);
+    osc.start(when);
+    osc.stop(end + 0.03);
+  }
+
+  function playSongOnce(song) {
+    if (!song) return;
+    if (!actx) setup();
+    const resumed = actx.resume();
+    if (resumed && typeof resumed.catch === "function") resumed.catch(function () {});
+    const bends = song.bends || [];
+    const now = actx.currentTime + 0.01;
+    let end = 0.25;
+    for (let i = 0; i < song.notes.length; i++) {
+      const n = song.notes[i];
+      playBent(n, now + n.sec, bends);
+      if (n.sec + n.dur > end) end = n.sec + n.dur;
+    }
+    const t0 = actx.currentTime;
+    bgmGain.gain.cancelScheduledValues(t0);
+    bgmGain.gain.setValueAtTime(bgmGain.gain.value, t0);
+    bgmGain.gain.linearRampToValueAtTime(0.12, t0 + 0.02);
+    bgmGain.gain.setValueAtTime(0.12, t0 + end);
+    bgmGain.gain.linearRampToValueAtTime(1, t0 + end + 0.1);
+  }
+
+  function playHitSfx() {
+    if (!sfxSongs.length) return;
+    playSongOnce(sfxSongs[(Math.random() * sfxSongs.length) | 0]);
+  }
+
+  function loadSfx() {
+    SFX_NAMES.forEach(function (name) {
+      const use = function (bytes) {
+        try { sfxSongs.push(parseSmf(bytes)); } catch (err) {}
+      };
+      if (typeof fetch === "function") {
+        fetch(name).then(function (r) {
+          if (!r.ok) throw new Error("sfx");
+          return r.arrayBuffer();
+        }).then(function (buf) {
+          use(new Uint8Array(buf));
+        }).catch(function () {
+          const bin = atob(SFX_FALLBACK[name]);
+          const out = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+          use(out);
+        });
+      } else {
+        const bin = atob(SFX_FALLBACK[name]);
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        use(out);
+      }
+    });
+  }
+
+  function ensureBgm() {
+    if (!song) return;
+    if (!actx) setup();
+    const resumed = actx.resume();
+    if (resumed && typeof resumed.catch === "function") resumed.catch(function () {});
+    if (!running) {
+      running = true;
+      origin = actx.currentTime + 0.08;
+      cursor = 0;
+      loopIndex = 0;
+      pump();
+      timer = setInterval(pump, 90);
+    }
+  }
+
+  function boot() {
+    const loaded = function (bytes) {
+      song = parseSmf(bytes);
+      ensureBgm();
+    };
+    if (typeof fetch === "function") {
+      fetch("country-drive.midi").then(function (r) {
+        if (!r.ok) throw new Error("midi");
+        return r.arrayBuffer();
+      }).then(function (buf) {
+        loaded(new Uint8Array(buf));
+      }).catch(function () {
+        loaded(getBytes());
+      });
+    } else {
+      loaded(getBytes());
+    }
+    loadSfx();
+  }
+
+  return { ensureBgm: ensureBgm, boot: boot, parseSmf: parseSmf, playHitSfx: playHitSfx };
+}
+
+
+  const midiBgm = createMidiBgm(midiFallbackBytes);
+  function ensureBgm() { midiBgm.ensureBgm(); }
+  midiBgm.boot();
+
+  // Brand palette (mirrored from t352-brand.css for canvas use)
+  const C = {
+    red: "#BE0F34",
+    brightRed: "#D7153A",
+    darkRed: "#AC1E2F",
+    darkGrey: "#414042",
+    lightGrey: "#E6E7E8",
+    white: "#FFFFFF",
+    black: "#000000",
+    blue: "#5594CF",
+    chartreuse: "#D9E364",
+    vest: "#D9E364",
+    vestDark: "#c5d44a",
+    boot: "#8B6914",
+    bootDark: "#6B4F10",
+    skin: "#E8C4A0",
+    skinShadow: "#C9A07A",
+    jeans: "#3A4A6B",
+    asphalt: "#4A4A4C",
+    asphaltDark: "#353537",
+    lane: "#E6E7E8",
+    skyTop: "#87B8E0",
+    skyBot: "#C5D9EB",
+    grass: "#5A7A4A",
+  };
+
+  const W = 960;
+  const H = 540;
+  const GROUND_Y = 430;
+  const GRAVITY = 2200;
+  const JUMP_V = -720;
+  const JUMP_HOLD_FORCE = -1400;
+  const JUMP_HOLD_MAX = 0.18;
+  const FALL_V = 980; // second press while airborne → immediate dive
+  const COYOTE_TIME = 0.08;
+  const RUN_SPEED_BASE = 300;
+  const LEVEL_DIST_BASE = 1800; // level-1 distance before tractor appears
+  const LEVEL_DIST_GROWTH = 420; // extra distance per level after 1
+  const BONUS_DIST = 1720; // twice the previous bonus run, still shorter than a long regular level
+  const HS_KEY = "runRunnerHighScore";
+
+  let highScore = 0;
+  try {
+    const saved = localStorage.getItem(HS_KEY);
+    const legacy = localStorage.getItem("ruanRunnerHighScore");
+    if (saved != null) highScore = parseInt(saved, 10) || 0;
+    else if (legacy != null) {
+      highScore = parseInt(legacy, 10) || 0;
+      localStorage.setItem(HS_KEY, String(highScore));
+    }
+  } catch (_) {}
+
+  const state = {
+    mode: "start", // start | play | hop | transition | over
+    time: 0,
+    score: 0,
+    level: 1,
+    speed: RUN_SPEED_BASE,
+    scroll: 0,
+    distance: 0, // distance run this level
+    player: null,
+    obstacles: [],
+    particles: [],
+    clouds: [],
+    poles: [],
+    jumpHeld: false,
+    jumpHoldTimer: 0,
+    coyote: 0,
+    spawnTimer: 0,
+    nextSpawn: 1.2,
+    flash: 0,
+    tractor: null,
+    tractorSpawned: false,
+    hopTimer: 0,
+    hopProgress: 0,
+    transitionTimer: 0,
+    fade: 0,
+    levelBanner: 0,
+    continueCharges: 0,
+    continueMilestones: 0,
+    invuln: 0,
+    bonus: false,
+    bonusCollected: 0,
+    pickups: [],
+    pickupTimer: 0,
+    nextRegularLevel: 2,
+    pendingBonusOffer: false,
+    night: false,
+    dusk: 0,
+  };
+
+  function levelSpeedBase(level) {
+    return RUN_SPEED_BASE + (level - 1) * 35;
+  }
+
+  function levelSpeedMax(level) {
+    return levelSpeedBase(level) + 200;
+  }
+
+  // Longer run to the tractor each level
+  function levelDist(level) {
+    return LEVEL_DIST_BASE + Math.max(0, level - 1) * LEVEL_DIST_GROWTH;
+  }
+
+  // Initial spawn interval at level start (tighter as levels rise)
+  function levelSpawnInterval(level) {
+    return Math.max(0.42, 1.05 - (level - 1) * 0.09);
+  }
+
+  function resetPlayer() {
+    state.player = {
+      x: 140,
+      y: GROUND_Y - 56,
+      w: 28,
+      h: 56,
+      vy: 0,
+      onGround: true,
+      squish: 1,
+      visible: true,
+      hopX: 0,
+      hopY: 0,
+    };
+  }
+
+  function initDecor() {
+    state.clouds = [];
+    for (let i = 0; i < 7; i++) {
+      state.clouds.push({
+        x: Math.random() * W * 1.5,
+        y: 30 + Math.random() * 120,
+        s: 0.5 + Math.random() * 0.7,
+        w: 70 + Math.random() * 90,
+      });
+    }
+    state.poles = [];
+    for (let i = 0; i < 5; i++) {
+      state.poles.push({ x: i * 220 + 80 });
+    }
+  }
+
+  function startGame() {
+    state.mode = "play";
+    state.time = 0;
+    state.score = 0;
+    state.level = 1;
+    state.speed = levelSpeedBase(1);
+    state.scroll = 0;
+    state.distance = 0;
+    state.obstacles = [];
+    state.particles = [];
+    state.spawnTimer = 0;
+    state.nextSpawn = levelSpawnInterval(1);
+    state.flash = 0;
+    state.jumpHeld = false;
+    state.jumpHoldTimer = 0;
+    state.coyote = 0;
+    state.tractor = null;
+    state.tractorSpawned = false;
+    state.hopTimer = 0;
+    state.hopProgress = 0;
+    state.transitionTimer = 0;
+    state.fade = 0;
+    state.levelBanner = 1.8;
+    state.continueCharges = 0;
+    state.continueMilestones = 0;
+    state.invuln = 0;
+    state.bonus = false;
+    state.bonusCollected = 0;
+    state.pickups = [];
+    state.pickupTimer = 0;
+    state.pendingBonusOffer = false;
+    state.nextRegularLevel = 2;
+    state.night = false;
+    state.dusk = 0;
+    resetPlayer();
+    initDecor();
+  }
+
+  function startLevel(level) {
+    state.mode = "play";
+    state.level = level;
+    state.time = 0;
+    state.speed = levelSpeedBase(level);
+    state.distance = 0;
+    state.obstacles = [];
+    state.particles = [];
+    state.spawnTimer = 0;
+    state.nextSpawn = levelSpawnInterval(level);
+    state.flash = 0;
+    state.jumpHeld = false;
+    state.jumpHoldTimer = 0;
+    state.coyote = 0;
+    state.tractor = null;
+    state.tractorSpawned = false;
+    state.hopTimer = 0;
+    state.hopProgress = 0;
+    state.transitionTimer = 0;
+    state.fade = 0;
+    state.levelBanner = 1.6;
+    state.bonus = false;
+    state.bonusCollected = 0;
+    state.pickups = [];
+    state.pickupTimer = 0;
+    state.pendingBonusOffer = false;
+    resetPlayer();
+  }
+
+  function startBonus() {
+    const pace = Math.max(1, state.nextRegularLevel - 1);
+    state.mode = "play";
+    state.bonus = true;
+    state.bonusCollected = 0;
+    state.time = 0;
+    state.speed = levelSpeedBase(pace);
+    state.distance = 0;
+    state.obstacles = [];
+    state.pickups = [];
+    state.particles = [];
+    state.spawnTimer = 0;
+    state.pickupTimer = 0;
+    state.nextSpawn = 1.05;
+    state.flash = 0;
+    state.jumpHeld = false;
+    state.jumpHoldTimer = 0;
+    state.coyote = 0;
+    state.tractor = null;
+    state.tractorSpawned = false;
+    state.hopTimer = 0;
+    state.hopProgress = 0;
+    state.transitionTimer = 0;
+    state.fade = 0;
+    state.levelBanner = 1.8;
+    state.invuln = 0;
+    state.pendingBonusOffer = false;
+    resetPlayer();
+  }
+
+  function finishBonus() {
+    if (!state.bonus || state.mode !== "play") return;
+    // Tractor-clear bonus plus 1000 per package — only paid if the tractor is reached
+    state.score += 1000 + state.bonusCollected * 1000;
+    syncContinueCharges();
+    state.pickups = [];
+    beginHop();
+  }
+
+  function failBonus() {
+    if (!state.bonus || state.mode !== "play") return;
+    state.pickups = [];
+    state.obstacles = [];
+    beginTransition();
+  }
+
+  function spawnPickup() {
+    const air = Math.random() < 0.55;
+    const h = 26;
+    state.pickups.push({
+      x: W + 36,
+      y: air ? GROUND_Y - 96 - Math.random() * 36 : GROUND_Y - h,
+      w: 26,
+      h: h,
+    });
+  }
+
+  function updateBonus(dt, p) {
+    if (!state.tractorSpawned && state.distance >= BONUS_DIST) spawnTractor();
+
+    if (!state.tractorSpawned) {
+      state.pickupTimer += dt;
+      if (state.pickupTimer >= 0.48 && state.distance < BONUS_DIST - 160) {
+        state.pickupTimer = 0;
+        spawnPickup();
+      }
+    }
+
+    for (let i = state.pickups.length - 1; i >= 0; i--) {
+      const pk = state.pickups[i];
+      pk.x -= state.speed * dt;
+      if (pk.x + pk.w < -20) {
+        state.pickups.splice(i, 1);
+        continue;
+      }
+      if (aabb(p, pk)) {
+        state.bonusCollected += 1;
+        const cx = pk.x + pk.w / 2;
+        const cy = pk.y + pk.h / 2;
+        state.pickups.splice(i, 1);
+        for (let k = 0; k < 16; k++) {
+          const a = Math.random() * Math.PI * 2;
+          const sp = 80 + Math.random() * 220;
+          state.particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(a) * sp,
+            vy: Math.sin(a) * sp,
+            life: 0.28 + Math.random() * 0.22,
+            max: 0.5,
+            r: 2 + Math.random() * 4,
+            color: k % 3 === 0 ? C.red : (k % 3 === 1 ? C.chartreuse : C.white),
+          });
+        }
+        state.particles.push({
+          x: cx,
+          y: cy,
+          vx: 0,
+          vy: -46,
+          life: 0.75,
+          max: 0.75,
+          text: "+1000",
+          color: C.chartreuse,
+        });
+        playPackageChing();
+      }
+    }
+
+    if (state.tractor) {
+      const t = state.tractor;
+      t.x -= state.speed * dt;
+      const entryZone = {
+        x: t.x + 10,
+        y: GROUND_Y - 40,
+        w: t.cabW + 20,
+        h: 40,
+      };
+      if (aabb(p, entryZone) && p.y + p.h > GROUND_Y - 30) {
+        finishBonus();
+        return;
+      }
+      if (t.x + t.w < -30) {
+        failBonus();
+        return;
+      }
+      const bodyHit = {
+        x: t.x + t.cabW,
+        y: t.y + 20,
+        w: t.w - t.cabW - 10,
+        h: t.h - 20,
+      };
+      if (aabb(p, bodyHit) && !p.onGround) {
+        failBonus();
+        return;
+      }
+    }
+  }
+
+  function gameOver() {
+    syncContinueCharges();
+    state.mode = "over";
+    state.flash = 0.35;
+    if (state.score > highScore) {
+      highScore = Math.floor(state.score);
+      try {
+        localStorage.setItem(HS_KEY, String(highScore));
+      } catch (_) {}
+    }
+    const p = state.player;
+    for (let i = 0; i < 24; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = 80 + Math.random() * 280;
+      state.particles.push({
+        x: p.x + p.w / 2,
+        y: p.y + p.h / 2,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp - 100,
+        life: 0.5 + Math.random() * 0.6,
+        max: 1,
+        r: 3 + Math.random() * 5,
+        color: i % 2 ? C.brightRed : C.chartreuse,
+      });
+    }
+  }
+
+  function syncContinueCharges() {
+    const earned = Math.floor(state.score / 10000);
+    while (state.continueMilestones < earned) {
+      state.continueMilestones++;
+      state.continueCharges++;
+    }
+  }
+
+  function resumeAfterContinue() {
+    state.mode = "play";
+    state.coyote = 0;
+    state.invuln = 1.6;
+    state.particles = [];
+
+    // Clear nearby / oncoming obstacles so resume is fair
+    const clearUntil = 140 + 420;
+    state.obstacles = state.obstacles.filter((o) => o.x > clearUntil);
+
+    // If tractor already passed or is on top of the player, nudge it ahead again
+    if (state.tractor) {
+      const tr = state.tractor;
+      if (tr.x + tr.w < 200 || tr.x < 200) {
+        tr.x = W + 60;
+      }
+    }
+
+    resetPlayer();
+    // Brief spawn delay so nothing pops on top immediately
+    state.spawnTimer = 0;
+    state.nextSpawn = Math.max(state.nextSpawn, 0.9);
+  }
+
+  function continueFromGameOver() {
+    if (state.mode !== "over" || state.continueCharges <= 0) return;
+    state.continueCharges--;
+    state.flash = 0;
+    state.jumpHeld = false;
+    state.jumpHoldTimer = 0;
+    if (state.night) {
+      state.dusk = 1;
+      state.mode = "daybreak";
+      return;
+    }
+    state.dusk = 0;
+    state.mode = "nightfall";
+  }
+
+  function finishNightfall() {
+    if (state.mode !== "nightfall") return;
+    state.night = true;
+    state.dusk = 1;
+    resumeAfterContinue();
+  }
+
+  function finishDaybreak() {
+    if (state.mode !== "daybreak") return;
+    state.night = false;
+    state.dusk = 0;
+    resumeAfterContinue();
+  }
+
+  // Game-over button hit zones (canvas coords)
+  const OVER_BTNS = {
+    yes: { x: W / 2 - 230, y: H / 2 + 8, w: 460, h: 42 },
+    no: { x: W / 2 - 230, y: H / 2 + 60, w: 460, h: 42 },
+    restartOnly: { x: W / 2 - 130, y: H / 2 + 50, w: 260, h: 40 },
+  };
+
+  const BONUS_BTNS = {
+    yes: { x: W / 2 - 230, y: H / 2 + 6, w: 460, h: 42 },
+    no: { x: W / 2 - 230, y: H / 2 + 58, w: 460, h: 42 },
+  };
+
+  const START_BTN = { x: W / 2 - 140, y: H / 2 - 10, w: 280, h: 44 };
+
+  function canvasPosFromEvent(e) {
+    const rect = canvas.getBoundingClientRect();
+    const src = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    return {
+      x: (src.clientX - rect.left) * scaleX,
+      y: (src.clientY - rect.top) * scaleY,
+    };
+  }
+
+  function hitBtn(pos, btn) {
+    return pos.x >= btn.x && pos.x <= btn.x + btn.w && pos.y >= btn.y && pos.y <= btn.y + btn.h;
+  }
+
+  function tryJump() {
+    if (state.mode === "start") {
+      startGame();
+      doJump();
+      return;
+    }
+    if (state.mode === "bonusOffer" || state.mode === "nightfall" || state.mode === "daybreak") return;
+    if (state.mode === "over") {
+      // Space restarts only when no continue charges remain.
+      // While the dispatcher screen is up, Y continues and N restarts.
+      if (state.continueCharges <= 0) {
+        startGame();
+        doJump();
+      }
+      return;
+    }
+    if (state.mode === "play") doJump();
+  }
+
+  function doJump() {
+    const p = state.player;
+    if (!p || !p.visible) return;
+    // Ground / coyote jump (hold-for-higher applies only here)
+    if (p.onGround || state.coyote > 0) {
+      p.vy = JUMP_V;
+      p.onGround = false;
+      state.coyote = 0;
+      state.jumpHeld = true;
+      state.jumpHoldTimer = JUMP_HOLD_MAX;
+      p.squish = 0.78;
+      for (let i = 0; i < 6; i++) {
+        state.particles.push({
+          x: p.x + p.w * 0.2 + Math.random() * p.w * 0.6,
+          y: GROUND_Y,
+          vx: -40 - Math.random() * 60,
+          vy: -20 - Math.random() * 40,
+          life: 0.25 + Math.random() * 0.2,
+          max: 0.45,
+          r: 2 + Math.random() * 3,
+          color: "rgba(65,64,66,0.35)",
+        });
+      }
+      return;
+    }
+    // Airborne second press: cancel upward motion → immediate fall (no double-jump)
+    state.jumpHeld = false;
+    state.jumpHoldTimer = 0;
+    p.vy = Math.max(p.vy, FALL_V);
+    p.squish = 1.15;
+    for (let i = 0; i < 5; i++) {
+      state.particles.push({
+        x: p.x + Math.random() * p.w,
+        y: p.y + p.h * 0.3,
+        vx: (Math.random() - 0.5) * 60,
+        vy: -40 - Math.random() * 40,
+        life: 0.2 + Math.random() * 0.15,
+        max: 0.35,
+        r: 2 + Math.random() * 2,
+        color: "rgba(85,148,207,0.45)",
+      });
+    }
+  }
+
+  function endJump() {
+    state.jumpHeld = false;
+  }
+
+  window.addEventListener("keydown", (e) => {
+    ensureBgm();
+    if (e.code === "Space" || e.key === " ") {
+      e.preventDefault();
+      if (!e.repeat) tryJump();
+      return;
+    }
+    if (state.mode === "bonusOffer" && !e.repeat) {
+      const k = e.key;
+      if (k === "y" || k === "Y" || e.code === "KeyY") {
+        e.preventDefault();
+        startBonus();
+        return;
+      }
+      if (k === "n" || k === "N" || e.code === "KeyN") {
+        e.preventDefault();
+        startLevel(state.nextRegularLevel);
+        return;
+      }
+    }
+    if (state.mode === "over" && state.continueCharges > 0 && !e.repeat) {
+      const k = e.key;
+      if (k === "y" || k === "Y" || e.code === "KeyY" || k === "c" || k === "C" || e.code === "KeyC") {
+        e.preventDefault();
+        continueFromGameOver();
+        return;
+      }
+      if (k === "n" || k === "N" || e.code === "KeyN") {
+        e.preventDefault();
+        startGame();
+        doJump();
+      }
+    }
+  });
+  window.addEventListener("keyup", (e) => {
+    if (e.code === "Space" || e.key === " ") {
+      e.preventDefault();
+      endJump();
+    }
+  });
+
+  function pointerDown(e) {
+    e.preventDefault();
+    ensureBgm();
+    const pos = canvasPosFromEvent(e);
+    if (state.mode === "start") {
+      if (hitBtn(pos, START_BTN)) {
+        startGame();
+        doJump();
+      }
+      return;
+    }
+    if (state.mode === "bonusOffer") {
+      if (hitBtn(pos, BONUS_BTNS.yes)) startBonus();
+      else if (hitBtn(pos, BONUS_BTNS.no)) startLevel(state.nextRegularLevel);
+      return;
+    }
+    if (state.mode === "nightfall" || state.mode === "daybreak") return;
+    if (state.mode === "over") {
+      if (state.continueCharges > 0) {
+        if (hitBtn(pos, OVER_BTNS.yes)) continueFromGameOver();
+        else if (hitBtn(pos, OVER_BTNS.no)) {
+          startGame();
+          doJump();
+        }
+        return;
+      }
+      if (hitBtn(pos, OVER_BTNS.restartOnly)) {
+        startGame();
+        doJump();
+      }
+      return;
+    }
+    tryJump();
+  }
+  function pointerUp(e) {
+    e.preventDefault();
+    endJump();
+  }
+  canvas.addEventListener("mousedown", pointerDown);
+  canvas.addEventListener("mouseup", pointerUp);
+  canvas.addEventListener("touchstart", pointerDown, { passive: false });
+  canvas.addEventListener("touchend", pointerUp, { passive: false });
+  canvas.addEventListener("touchcancel", pointerUp, { passive: false });
+
+  function spawnObstacle() {
+    if (state.tractorSpawned || state.bonus) return;
+    const roll = Math.random();
+    let kind, w, h, moveVx = 0, color = null;
+
+    // Level 11+: chance to spawn a police car (in addition to other types)
+    const policeChance = state.level >= 11
+      ? Math.min(0.36, 0.16 + (state.level - 11) * 0.04)
+      : 0;
+    // Level 6+: chance to spawn a moving car (scales up with level)
+    const carChance = state.level >= 6
+      ? Math.min(0.48, 0.22 + (state.level - 6) * 0.05)
+      : 0;
+
+    if (state.level >= 11 && Math.random() < policeChance) {
+      kind = "police";
+      w = 76 + Math.random() * 14;
+      h = 36 + Math.random() * 6;
+      // Police approach a bit faster than civilian cars
+      moveVx = -(130 + (state.level - 11) * 32 + Math.random() * 50);
+      color = C.darkGrey;
+    } else if (state.level >= 6 && Math.random() < carChance) {
+      kind = "car";
+      w = 70 + Math.random() * 18;
+      h = 34 + Math.random() * 8;
+      // Extra speed toward player (on top of world scroll) — faster each level
+      moveVx = -(90 + (state.level - 6) * 28 + Math.random() * 40);
+      const palette = [C.blue, C.darkGrey, C.brightRed, "#2E7D4F", "#6B5B95"];
+      color = palette[Math.floor(Math.random() * palette.length)];
+    } else if (roll < 0.4) {
+      kind = "cone";
+      w = 22;
+      h = 36;
+    } else if (roll < 0.7) {
+      kind = "barrel";
+      w = 28 + Math.random() * 8;
+      h = 40 + Math.random() * 16;
+    } else {
+      kind = "barrier";
+      w = 48 + Math.random() * 30;
+      h = 24 + Math.random() * 8;
+    }
+    state.obstacles.push({
+      x: W + 40,
+      y: GROUND_Y - h,
+      w,
+      h,
+      kind,
+      moveVx,
+      color,
+    });
+  }
+
+  function spawnTractor() {
+    state.tractorSpawned = true;
+    state.tractor = {
+      x: W + 60,
+      y: GROUND_Y - 110,
+      w: 280,
+      h: 110,
+      cabW: 90,
+      reached: false,
+    };
+  }
+
+  function aabb(a, b) {
+    const padX = 6;
+    const padY = 4;
+    return (
+      a.x + padX < b.x + b.w &&
+      a.x + a.w - padX > b.x &&
+      a.y + padY < b.y + b.h &&
+      a.y + a.h - padY > b.y
+    );
+  }
+
+  function beginHop() {
+    state.mode = "hop";
+    state.hopTimer = 0;
+    state.hopProgress = 0;
+    const p = state.player;
+    p.onGround = false;
+    p.vy = 0;
+    // clear obstacles so they don't interfere visually
+    state.obstacles = [];
+  }
+
+  function beginTransition() {
+    state.mode = "transition";
+    state.transitionTimer = 0;
+    state.fade = 0;
+    state.player.visible = false;
+  }
+
+  function update(dt) {
+    if (state.mode === "nightfall") {
+      state.dusk = Math.min(1, state.dusk + dt / 2.8);
+      if (state.dusk >= 1) finishNightfall();
+      return;
+    }
+    if (state.mode === "daybreak") {
+      state.dusk = Math.max(0, state.dusk - dt / 2.8);
+      if (state.dusk <= 0) finishDaybreak();
+      return;
+    }
+    if (state.flash > 0) state.flash = Math.max(0, state.flash - dt);
+    if (state.levelBanner > 0) state.levelBanner = Math.max(0, state.levelBanner - dt);
+    if (state.invuln > 0) state.invuln = Math.max(0, state.invuln - dt);
+
+    for (let i = state.particles.length - 1; i >= 0; i--) {
+      const pt = state.particles[i];
+      pt.life -= dt;
+      pt.x += pt.vx * dt;
+      pt.y += pt.vy * dt;
+      if (!pt.text) pt.vy += 600 * dt;
+      if (pt.life <= 0) state.particles.splice(i, 1);
+    }
+
+    const scrollSpeed =
+      state.mode === "over" ? 0 :
+      state.mode === "play" ? state.speed :
+      state.mode === "hop" ? state.speed * 0.4 :
+      state.mode === "transition" ? state.speed * 2.2 :
+      35;
+    state.scroll += scrollSpeed * dt;
+
+    for (const c of state.clouds) {
+      c.x -= scrollSpeed * 0.12 * c.s * dt;
+      if (c.x + c.w < -20) {
+        c.x = W + Math.random() * 100;
+        c.y = 30 + Math.random() * 120;
+      }
+    }
+    for (const pole of state.poles) {
+      pole.x -= scrollSpeed * 0.55 * dt;
+      if (pole.x < -40) pole.x = W + Math.random() * 60;
+    }
+
+    // --- HOP INTO CAB ---
+    if (state.mode === "hop") {
+      state.hopTimer += dt;
+      state.hopProgress = Math.min(1, state.hopTimer / 0.85);
+      const p = state.player;
+      const t = state.tractor;
+      if (t && p) {
+        const targetX = t.x + 28;
+        const targetY = GROUND_Y - 78;
+        const startX = 140;
+        const startY = GROUND_Y - p.h;
+        // parabolic hop arc
+        const u = state.hopProgress;
+        p.x = startX + (targetX - startX) * u;
+        const arc = Math.sin(u * Math.PI) * 70;
+        p.y = startY + (targetY - startY) * u - arc;
+        p.squish = 1 + Math.sin(u * Math.PI) * 0.15;
+      }
+      // tractor keeps creeping slowly
+      if (t) t.x -= state.speed * 0.15 * dt;
+
+      if (state.hopProgress >= 1) {
+        beginTransition();
+      }
+      return;
+    }
+
+    // --- DRIVE TO NEXT LEVEL ---
+    if (state.mode === "transition") {
+      state.transitionTimer += dt;
+      if (state.tractor) {
+        state.tractor.x -= state.speed * 2.2 * dt;
+      }
+      // fade out mid-transition, then start next level
+      if (state.transitionTimer < 0.55) {
+        state.fade = state.transitionTimer / 0.55;
+      } else if (state.transitionTimer < 0.75) {
+        state.fade = 1;
+      } else if (state.transitionTimer < 1.15) {
+        if (state.transitionTimer - dt < 0.75) {
+          // swap under full fade: bonus exit, bonus offer, or next regular level
+          if (state.bonus) {
+            const next = state.nextRegularLevel;
+            state.bonus = false;
+            state.pickups = [];
+            startLevel(next);
+          } else if (state.level % 5 === 0) {
+            state.score += 250 * state.level;
+            syncContinueCharges();
+            state.nextRegularLevel = state.level + 1;
+            state.pendingBonusOffer = true;
+          } else {
+            state.score += 250 * state.level; // level clear bonus
+            syncContinueCharges();
+            startLevel(state.level + 1);
+          }
+          state.mode = "transition"; // keep until fade clears
+          state.transitionTimer = 0.75;
+          state.fade = 1;
+        }
+        state.fade = 1 - (state.transitionTimer - 0.75) / 0.4;
+      } else {
+        state.fade = 0;
+        if (state.pendingBonusOffer) {
+          state.pendingBonusOffer = false;
+          state.mode = "bonusOffer";
+          resetPlayer();
+        } else {
+          state.mode = "play";
+        }
+      }
+      return;
+    }
+
+    if (state.mode !== "play") return;
+
+    state.time += dt;
+    const base = levelSpeedBase(state.level);
+    const max = levelSpeedMax(state.level);
+    state.speed = Math.min(max, base + state.time * (8 + state.level));
+    state.score += state.speed * dt * 0.1;
+    syncContinueCharges();
+    state.distance += state.speed * dt;
+
+    const p = state.player;
+
+    if (state.jumpHeld && state.jumpHoldTimer > 0 && p.vy < 0) {
+      p.vy += JUMP_HOLD_FORCE * dt;
+      state.jumpHoldTimer -= dt;
+    }
+
+    p.vy += GRAVITY * dt;
+    p.y += p.vy * dt;
+
+    if (p.y + p.h >= GROUND_Y) {
+      if (!p.onGround && p.vy > 200) {
+        p.squish = 1.22;
+        for (let i = 0; i < 4; i++) {
+          state.particles.push({
+            x: p.x + Math.random() * p.w,
+            y: GROUND_Y,
+            vx: (Math.random() - 0.5) * 80,
+            vy: -10 - Math.random() * 30,
+            life: 0.2,
+            max: 0.2,
+            r: 2 + Math.random() * 2,
+            color: "rgba(65,64,66,0.3)",
+          });
+        }
+      }
+      p.y = GROUND_Y - p.h;
+      p.vy = 0;
+      p.onGround = true;
+      state.coyote = COYOTE_TIME;
+    } else {
+      if (p.onGround) p.onGround = false;
+      state.coyote = Math.max(0, state.coyote - dt);
+    }
+
+    p.squish += (1 - p.squish) * Math.min(1, 12 * dt);
+
+    if (state.bonus) {
+      updateBonus(dt, p);
+      return;
+    }
+
+    // Spawn tractor near end of level (target distance grows each level)
+    const targetDist = levelDist(state.level);
+    if (!state.tractorSpawned && state.distance >= targetDist) {
+      spawnTractor();
+    }
+
+    // Obstacle spawning (stop when tractor is coming / close)
+    // Higher levels: tighter gaps + more frequent double spawns
+    if (!state.tractorSpawned) {
+      state.spawnTimer += dt;
+      if (state.spawnTimer >= state.nextSpawn) {
+        state.spawnTimer = 0;
+        const minGap = Math.max(0.32, 0.55 - (state.level - 1) * 0.035);
+        const gap = Math.max(
+          minGap,
+          1.22 - state.time * 0.02 - (state.level - 1) * 0.085
+        );
+        const jitter = Math.max(0.12, 0.38 - (state.level - 1) * 0.025);
+        state.nextSpawn = gap + Math.random() * jitter;
+        // Don't spawn too close to tractor appearance
+        if (state.distance < targetDist - 350) {
+          spawnObstacle();
+          const doubleChance = Math.min(0.55, 0.16 + state.level * 0.045);
+          if (state.time > 6 && Math.random() < doubleChance) {
+            const delay = Math.max(90, 170 - state.level * 8) + Math.random() * 100;
+            const capturedLevel = state.level;
+            setTimeout(() => {
+              if (state.mode === "play" && !state.bonus && state.level === capturedLevel && !state.tractorSpawned) {
+                spawnObstacle();
+              }
+            }, delay);
+          }
+        }
+      }
+    }
+
+    // Obstacles (cars add extra approach speed via moveVx)
+    for (let i = state.obstacles.length - 1; i >= 0; i--) {
+      const o = state.obstacles[i];
+      o.x -= state.speed * dt;
+      if (o.moveVx) o.x += o.moveVx * dt;
+      if (o.x + o.w < -40) {
+        state.obstacles.splice(i, 1);
+        continue;
+      }
+      if (state.invuln <= 0 && aabb(p, o)) {
+        midiBgm.playHitSfx();
+        gameOver();
+        return;
+      }
+    }
+
+    // Tractor approach & reach
+    if (state.tractor) {
+      const t = state.tractor;
+      // Tractor scrolls toward player a bit slower so player "catches up" feel
+      // Actually: world scrolls left, tractor is ahead — move it with speed
+      t.x -= state.speed * dt;
+
+      // Successful reach: player overlaps tractor cab entry zone (front/rear of cab area)
+      // Not crashing into the tall tractor side from a bad jump — require mostly on ground
+      // and overlapping the cab/entry x-range
+      const entryZone = {
+        x: t.x + 10,
+        y: GROUND_Y - 40,
+        w: t.cabW + 20,
+        h: 40,
+      };
+      if (aabb(p, entryZone) && p.y + p.h > GROUND_Y - 30) {
+        beginHop();
+        return;
+      }
+
+      // If tractor fully passed without hop, treat as miss → game over
+      if (t.x + t.w < -30) {
+        gameOver();
+        return;
+      }
+
+      // Hitting the tall tractor body from mid-air (bad approach) = crash
+      const bodyHit = {
+        x: t.x + t.cabW,
+        y: t.y + 20,
+        w: t.w - t.cabW - 10,
+        h: t.h - 20,
+      };
+      if (state.invuln <= 0 && aabb(p, bodyHit) && !p.onGround) {
+        gameOver();
+        return;
+      }
+    }
+  }
+
+  function roundRect(x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+  }
+
+  function mixHex(a, b, t) {
+    const pa = parseInt(a.slice(1), 16);
+    const pb = parseInt(b.slice(1), 16);
+    const ch = function (s, m) { return (s >> m) & 255; };
+    const r = Math.round(ch(pa, 16) + (ch(pb, 16) - ch(pa, 16)) * t);
+    const g = Math.round(ch(pa, 8) + (ch(pb, 8) - ch(pa, 8)) * t);
+    const bl = Math.round(ch(pa, 0) + (ch(pb, 0) - ch(pa, 0)) * t);
+    return "rgb(" + r + "," + g + "," + bl + ")";
+  }
+
+  function drawBackground() {
+    const k = (state.mode === "nightfall" || state.mode === "daybreak")
+      ? state.dusk
+      : (state.night ? 1 : (state.dusk || 0));
+    const g = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+    g.addColorStop(0, mixHex(C.skyTop, "#070B16", k));
+    g.addColorStop(1, mixHex(C.skyBot, "#1A2438", k));
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    if (k > 0.05) {
+      ctx.globalAlpha = Math.min(0.75, k * 0.75);
+      ctx.fillStyle = "#FFFFFF";
+      for (let i = 0; i < 36; i++) {
+        const sx = (i * 137) % W;
+        const sy = (i * 61) % 200;
+        const size = i % 5 === 0 ? 2 : 1;
+        ctx.fillRect(sx, sy, size, size);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    const sunY = 70 + k * (GROUND_Y + 80 - 70);
+    if (sunY < GROUND_Y + 8) {
+      ctx.globalAlpha = Math.max(0, 1 - k);
+      ctx.fillStyle = "rgba(255, 240, 180, 0.9)";
+      ctx.beginPath();
+      ctx.arc(W - 120, sunY, 36, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    const moonY = GROUND_Y + 36 - k * (GROUND_Y + 36 - 68);
+    if (k > 0.02 && moonY < GROUND_Y) {
+      ctx.globalAlpha = Math.min(1, (k - 0.05) * 1.6);
+      ctx.fillStyle = "rgba(232, 236, 244, 0.95)";
+      ctx.beginPath();
+      ctx.arc(W - 130, moonY, 26, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = mixHex("#C5D9EB", "#10182A", k);
+      ctx.beginPath();
+      ctx.arc(W - 120, moonY - 6, 20, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    for (const c of state.clouds) {
+      ctx.fillStyle = k > 0.5 ? "rgba(160, 176, 200," + (0.75 - k * 0.59).toFixed(3) + ")" : "rgba(255,255,255," + (0.75 - k * 0.5).toFixed(3) + ")";
+      roundRect(c.x, c.y, c.w, 20 * c.s, 10);
+      ctx.fill();
+      roundRect(c.x + c.w * 0.18, c.y - 14 * c.s, c.w * 0.55, 22 * c.s, 10);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = mixHex(C.grass, "#1A2820", k);
+    ctx.fillRect(0, GROUND_Y - 18, W, 22);
+
+    ctx.fillStyle = mixHex(C.asphalt, "#2A2C31", k);
+    ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+
+    ctx.fillStyle = mixHex(C.asphaltDark, "#16181C", k);
+    ctx.fillRect(0, GROUND_Y + 55, W, H - GROUND_Y - 55);
+
+    ctx.fillStyle = k > 0.55 ? "rgba(230,231,232," + (1 - k * 0.62).toFixed(3) + ")" : C.white;
+    ctx.fillRect(0, GROUND_Y, W, 3);
+    ctx.fillRect(0, GROUND_Y + 52, W, 3);
+
+    // Center lane dashes
+    ctx.fillStyle = C.chartreuse;
+    const dashW = 36;
+    const gap = 28;
+    const period = dashW + gap;
+    const offset = state.scroll % period;
+    for (let x = -offset; x < W + period; x += period) {
+      ctx.fillRect(x, GROUND_Y + 24, dashW, 5);
+    }
+
+    // Shoulder rumble strip hint
+    ctx.fillStyle = "rgba(190,15,52,0.35)";
+    ctx.fillRect(0, GROUND_Y + 48, W, 2);
+
+    // Highway poles / markers
+    for (const pole of state.poles) {
+      ctx.fillStyle = C.darkGrey;
+      ctx.fillRect(pole.x, GROUND_Y - 70, 5, 70);
+      ctx.fillStyle = C.red;
+      roundRect(pole.x - 6, GROUND_Y - 78, 17, 14, 3);
+      ctx.fill();
+    }
+  }
+
+  function drawWorker(px, py, pw, ph, squish, running) {
+    // Draws a person with red trucker cap, chartreuse safety vest, and work boots
+    // Origin: top-left of bounding box (px, py), size pw x ph
+    const sx = squish;
+    const sy = 2 - squish;
+    const cx = px + pw / 2;
+    const by = py + ph;
+
+    ctx.save();
+    ctx.translate(cx, by);
+    ctx.scale(sx, sy);
+    ctx.translate(-cx, -by);
+
+    // Shadow
+    ctx.fillStyle = "rgba(0,0,0,0.22)";
+    ctx.beginPath();
+    ctx.ellipse(cx, GROUND_Y + 3, pw * 0.55, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const headR = 8;
+    const headY = py + headR + 2;
+    const torsoTop = headY + headR - 1;
+    const torsoH = 22;
+    const legTop = torsoTop + torsoH;
+    const legH = ph - (legTop - py) - 8;
+    const bootH = 8;
+
+    // Head
+    ctx.fillStyle = C.skin;
+    ctx.beginPath();
+    ctx.arc(cx, headY, headR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Eye looking forward
+    ctx.fillStyle = C.darkGrey;
+    ctx.beginPath();
+    ctx.arc(cx + 3, headY - 1, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Red trucker cap (flat-ish crown + front brim/visor) — brand red
+    // Crown (slightly flat top)
+    ctx.fillStyle = C.red;
+    ctx.beginPath();
+    ctx.ellipse(cx - 1, headY - 4, headR + 2, 6.5, 0, Math.PI, 0);
+    ctx.fill();
+    roundRect(cx - headR - 2, headY - 5, headR * 2 + 2, 5, 2);
+    ctx.fill();
+    // Flat crown top
+    ctx.fillStyle = C.darkRed;
+    ctx.beginPath();
+    ctx.ellipse(cx - 1, headY - 9.5, headR - 1, 2.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Front brim / visor (protrudes forward)
+    ctx.fillStyle = C.red;
+    ctx.beginPath();
+    ctx.ellipse(cx + 7, headY - 2, 7, 2.4, -0.15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = C.darkRed;
+    ctx.beginPath();
+    ctx.ellipse(cx + 7, headY - 1.2, 6.5, 1.4, -0.15, 0, Math.PI * 2);
+    ctx.fill();
+    // Cap band seam
+    ctx.strokeStyle = "rgba(0,0,0,0.2)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - headR - 1, headY - 2);
+    ctx.lineTo(cx + headR - 2, headY - 2);
+    ctx.stroke();
+
+    // Arms (behind / simple)
+    const armSwing = running && state.player && state.player.onGround
+      ? Math.sin(state.scroll * 0.1) * 6
+      : 0;
+    ctx.strokeStyle = C.skinShadow;
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, torsoTop + 6);
+    ctx.lineTo(cx - 16, torsoTop + 14 + armSwing);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx + 10, torsoTop + 6);
+    ctx.lineTo(cx + 16, torsoTop + 14 - armSwing);
+    ctx.stroke();
+
+    // Torso / safety vest
+    ctx.fillStyle = C.vest;
+    roundRect(cx - 11, torsoTop, 22, torsoH, 4);
+    ctx.fill();
+    // Vest reflective stripes
+    ctx.fillStyle = C.darkGrey;
+    ctx.fillRect(cx - 11, torsoTop + 6, 22, 3);
+    ctx.fillRect(cx - 11, torsoTop + 14, 22, 3);
+    // Vest center zipper hint
+    ctx.fillStyle = "rgba(65,64,66,0.35)";
+    ctx.fillRect(cx - 1, torsoTop + 2, 2, torsoH - 4);
+
+    // Legs (jeans)
+    const legPhase = running ? Math.sin(state.scroll * 0.1) * 5 : 0;
+    ctx.fillStyle = C.jeans;
+    // back leg
+    roundRect(cx - 9, legTop, 7, legH + legPhase * 0.3, 2);
+    ctx.fill();
+    // front leg
+    roundRect(cx + 2, legTop, 7, legH - legPhase * 0.3, 2);
+    ctx.fill();
+
+    // Work boots (brown/tan)
+    ctx.fillStyle = C.boot;
+    roundRect(cx - 11, legTop + legH + legPhase * 0.3 - 2, 11, bootH, 2);
+    ctx.fill();
+    roundRect(cx + 1, legTop + legH - legPhase * 0.3 - 2, 11, bootH, 2);
+    ctx.fill();
+    ctx.fillStyle = C.bootDark;
+    ctx.fillRect(cx - 11, legTop + legH + legPhase * 0.3 + 4, 11, 2);
+    ctx.fillRect(cx + 1, legTop + legH - legPhase * 0.3 + 4, 11, 2);
+
+    ctx.restore();
+  }
+
+  function drawPlayer() {
+    const p = state.player;
+    if (!p || !p.visible) return;
+    if (state.invuln > 0 && Math.floor(state.invuln * 10) % 2 === 0) return;
+    const running = state.mode === "play" || state.mode === "start";
+    drawWorker(p.x, p.y, p.w, p.h, p.squish, running);
+  }
+
+  function drawCar(o) {
+    const bodyColor = o.color || C.blue;
+    const x = o.x;
+    const y = o.y;
+    const w = o.w;
+    const h = o.h;
+
+    // Shadow
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.beginPath();
+    ctx.ellipse(x + w / 2, GROUND_Y + 3, w * 0.42, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Lower body
+    ctx.fillStyle = bodyColor;
+    roundRect(x, y + h * 0.35, w, h * 0.55, 5);
+    ctx.fill();
+
+    // Cabin / roof
+    ctx.fillStyle = bodyColor;
+    roundRect(x + w * 0.22, y, w * 0.48, h * 0.48, 5);
+    ctx.fill();
+
+    // Windows
+    ctx.fillStyle = "rgba(180, 220, 240, 0.9)";
+    roundRect(x + w * 0.28, y + 4, w * 0.16, h * 0.28, 2);
+    ctx.fill();
+    roundRect(x + w * 0.48, y + 4, w * 0.16, h * 0.28, 2);
+    ctx.fill();
+
+    // Headlights (facing left — toward player)
+    ctx.fillStyle = C.chartreuse;
+    ctx.fillRect(x + 2, y + h * 0.5, 5, 6);
+    ctx.fillStyle = C.brightRed;
+    ctx.fillRect(x + w - 7, y + h * 0.5, 5, 6);
+
+    // Wheels
+    ctx.fillStyle = C.black;
+    ctx.beginPath();
+    ctx.arc(x + w * 0.22, y + h - 2, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + w * 0.78, y + h - 2, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = C.lightGrey;
+    ctx.beginPath();
+    ctx.arc(x + w * 0.22, y + h - 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + w * 0.78, y + h - 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawPoliceCar(o) {
+    const x = o.x;
+    const y = o.y;
+    const w = o.w;
+    const h = o.h;
+    const blink = Math.sin(performance.now() / 120) > 0;
+
+    // Shadow
+    ctx.fillStyle = "rgba(0,0,0,0.22)";
+    ctx.beginPath();
+    ctx.ellipse(x + w / 2, GROUND_Y + 3, w * 0.44, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Body (black-and-white cruiser)
+    ctx.fillStyle = C.white;
+    roundRect(x, y + h * 0.32, w, h * 0.58, 5);
+    ctx.fill();
+    ctx.fillStyle = C.darkGrey;
+    roundRect(x + w * 0.28, y + h * 0.32, w * 0.44, h * 0.58, 3);
+    ctx.fill();
+
+    // Cabin
+    ctx.fillStyle = C.white;
+    roundRect(x + w * 0.22, y + 2, w * 0.5, h * 0.42, 4);
+    ctx.fill();
+    ctx.fillStyle = "rgba(40, 60, 90, 0.85)";
+    roundRect(x + w * 0.28, y + 6, w * 0.16, h * 0.26, 2);
+    ctx.fill();
+    roundRect(x + w * 0.48, y + 6, w * 0.16, h * 0.26, 2);
+    ctx.fill();
+
+    // Door badge / star hint
+    ctx.fillStyle = C.blue;
+    ctx.beginPath();
+    ctx.arc(x + w * 0.5, y + h * 0.58, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = C.white;
+    ctx.font = "bold 7px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("★", x + w * 0.5, y + h * 0.58);
+
+    // Light bar on roof (flashing red / blue)
+    ctx.fillStyle = C.darkGrey;
+    roundRect(x + w * 0.32, y - 4, w * 0.36, 7, 2);
+    ctx.fill();
+    ctx.fillStyle = blink ? C.brightRed : C.blue;
+    ctx.fillRect(x + w * 0.34, y - 3, w * 0.14, 5);
+    ctx.fillStyle = blink ? C.blue : C.brightRed;
+    ctx.fillRect(x + w * 0.52, y - 3, w * 0.14, 5);
+
+    // Soft light glow
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = blink ? C.brightRed : C.blue;
+    ctx.beginPath();
+    ctx.arc(x + w * 0.4, y - 2, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = blink ? C.blue : C.brightRed;
+    ctx.beginPath();
+    ctx.arc(x + w * 0.6, y - 2, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Headlights / taillights
+    ctx.fillStyle = C.chartreuse;
+    ctx.fillRect(x + 2, y + h * 0.5, 5, 6);
+    ctx.fillStyle = C.brightRed;
+    ctx.fillRect(x + w - 7, y + h * 0.5, 5, 6);
+
+    // Wheels
+    ctx.fillStyle = C.black;
+    ctx.beginPath();
+    ctx.arc(x + w * 0.22, y + h - 2, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + w * 0.78, y + h - 2, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = C.lightGrey;
+    ctx.beginPath();
+    ctx.arc(x + w * 0.22, y + h - 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + w * 0.78, y + h - 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawPickups() {
+    for (const pk of state.pickups) {
+      const cx = pk.x + pk.w / 2;
+      const cy = pk.y + pk.h / 2;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "bold 28px Arial, sans-serif";
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = C.darkGrey;
+      ctx.strokeText("$", cx, cy);
+      ctx.fillStyle = C.chartreuse;
+      ctx.fillText("$", cx, cy);
+      ctx.textBaseline = "alphabetic";
+    }
+  }
+
+  function drawObstacles() {
+    for (const o of state.obstacles) {
+      if (o.kind === "police") {
+        drawPoliceCar(o);
+      } else if (o.kind === "car") {
+        drawCar(o);
+      } else if (o.kind === "cone") {
+        // Traffic cone
+        ctx.fillStyle = C.brightRed;
+        ctx.beginPath();
+        ctx.moveTo(o.x + o.w / 2, o.y);
+        ctx.lineTo(o.x + o.w, o.y + o.h);
+        ctx.lineTo(o.x, o.y + o.h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = C.white;
+        ctx.fillRect(o.x + 4, o.y + o.h * 0.4, o.w - 8, 5);
+        ctx.fillStyle = C.darkGrey;
+        ctx.fillRect(o.x - 3, o.y + o.h - 4, o.w + 6, 4);
+      } else if (o.kind === "barrel") {
+        ctx.fillStyle = C.darkRed;
+        roundRect(o.x, o.y, o.w, o.h, 4);
+        ctx.fill();
+        ctx.fillStyle = C.white;
+        ctx.fillRect(o.x + 2, o.y + o.h * 0.35, o.w - 4, 6);
+        ctx.fillStyle = C.chartreuse;
+        ctx.fillRect(o.x + 2, o.y + o.h * 0.55, o.w - 4, 4);
+        ctx.fillStyle = "rgba(0,0,0,0.2)";
+        ctx.fillRect(o.x, o.y, 4, o.h);
+      } else {
+        // Construction barrier
+        ctx.fillStyle = C.red;
+        roundRect(o.x, o.y, o.w, o.h, 3);
+        ctx.fill();
+        ctx.fillStyle = C.white;
+        const stripe = 10;
+        for (let i = 0; i < o.w; i += stripe * 2) {
+          ctx.fillRect(o.x + i, o.y + 4, stripe, o.h - 8);
+        }
+        // Legs
+        ctx.fillStyle = C.darkGrey;
+        ctx.fillRect(o.x + 4, o.y + o.h, 4, 8);
+        ctx.fillRect(o.x + o.w - 8, o.y + o.h, 4, 8);
+      }
+    }
+  }
+
+  function drawTractor() {
+    const t = state.tractor;
+    if (!t) return;
+
+    const cabX = t.x;
+    const tractorX = t.x + t.cabW - 4;
+    const tractorW = t.w - t.cabW + 4;
+    const roadY = GROUND_Y;
+
+    // Shadow
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.beginPath();
+    ctx.ellipse(t.x + t.w / 2, roadY + 4, t.w * 0.45, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // --- Tractor box ---
+    ctx.fillStyle = C.white;
+    roundRect(tractorX, t.y + 8, tractorW, t.h - 20, 4);
+    ctx.fill();
+    // Red branding panel
+    ctx.fillStyle = C.red;
+    ctx.fillRect(tractorX + 8, t.y + 28, tractorW - 16, 42);
+    // "RUN" logo
+    ctx.fillStyle = C.white;
+    ctx.font = "italic bold 28px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("RUN", tractorX + tractorW / 2, t.y + 50);
+    // Accent stripe
+    ctx.fillStyle = C.chartreuse;
+    ctx.fillRect(tractorX + 8, t.y + 70, tractorW - 16, 4);
+    // Tractor outline
+    ctx.strokeStyle = C.darkGrey;
+    ctx.lineWidth = 2;
+    roundRect(tractorX, t.y + 8, tractorW, t.h - 20, 4);
+    ctx.stroke();
+
+    // --- Cab ---
+    ctx.fillStyle = C.red;
+    roundRect(cabX, t.y + 25, t.cabW, t.h - 37, 6);
+    ctx.fill();
+    // Cab roof
+    ctx.fillStyle = C.darkRed;
+    roundRect(cabX + 4, t.y + 18, t.cabW - 14, 16, 4);
+    ctx.fill();
+    // Windshield
+    ctx.fillStyle = C.blue;
+    roundRect(cabX + 10, t.y + 36, 36, 28, 3);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.35)";
+    ctx.fillRect(cabX + 14, t.y + 40, 12, 8);
+    // Door line
+    ctx.strokeStyle = "rgba(0,0,0,0.25)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cabX + 52, t.y + 35);
+    ctx.lineTo(cabX + 52, t.y + t.h - 20);
+    ctx.stroke();
+    // Side window
+    ctx.fillStyle = "rgba(85,148,207,0.7)";
+    roundRect(cabX + 56, t.y + 40, 22, 18, 2);
+    ctx.fill();
+
+    // Exhaust stack
+    ctx.fillStyle = C.darkGrey;
+    ctx.fillRect(cabX + t.cabW - 14, t.y - 5, 7, 30);
+
+    // Wheels
+    function wheel(wx, wy) {
+      ctx.fillStyle = C.black;
+      ctx.beginPath();
+      ctx.arc(wx, wy, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = C.lightGrey;
+      ctx.beginPath();
+      ctx.arc(wx, wy, 6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    wheel(cabX + 28, roadY - 2);
+    wheel(cabX + 68, roadY - 2);
+    wheel(tractorX + 40, roadY - 2);
+    wheel(tractorX + tractorW - 50, roadY - 2);
+    wheel(tractorX + tractorW - 20, roadY - 2);
+
+    // "Hop in!" prompt when close
+    if (state.mode === "play" && t.x < W - 40 && t.x > 100) {
+      const pulse = 0.6 + Math.sin(performance.now() / 250) * 0.4;
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = C.red;
+      ctx.font = "bold 16px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Reach the cab!", t.x + t.w / 2, t.y - 10);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function drawParticles() {
+    for (const pt of state.particles) {
+      const a = Math.max(0, pt.life / (pt.max || 0.5));
+      ctx.globalAlpha = a;
+      ctx.fillStyle = pt.color;
+      if (pt.text) {
+        ctx.font = "bold 18px Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeStyle = C.darkGrey;
+        ctx.lineWidth = 3;
+        ctx.strokeText(pt.text, pt.x, pt.y);
+        ctx.fillText(pt.text, pt.x, pt.y);
+        ctx.textBaseline = "alphabetic";
+      } else {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r * a, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function drawHUD() {
+    const score = Math.floor(state.score);
+
+    // Score panel
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    roundRect(14, 12, 160, 58, 8);
+    ctx.fill();
+    ctx.strokeStyle = C.red;
+    ctx.lineWidth = 2;
+    roundRect(14, 12, 160, 58, 8);
+    ctx.stroke();
+
+    ctx.fillStyle = C.darkGrey;
+    ctx.font = "bold 20px Arial, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Score  " + score, 26, 36);
+
+    ctx.fillStyle = C.red;
+    ctx.font = "14px Arial, sans-serif";
+    ctx.fillText("Best  " + highScore, 26, 56);
+
+    // Level badge
+    ctx.fillStyle = C.red;
+    roundRect(W - 130, 14, 112, 36, 8);
+    ctx.fill();
+    ctx.fillStyle = C.white;
+    ctx.font = "bold 18px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(state.bonus ? "Bonus" : "Level " + state.level, W - 74, 38);
+
+    if (state.bonus && state.mode === "play") {
+      ctx.fillStyle = C.darkGrey;
+      ctx.font = "bold 14px Arial, sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("Packages  " + state.bonusCollected, 26, 90);
+    }
+
+    // Distance / progress to tractor
+    if (state.mode === "play") {
+      const progress = Math.min(1, state.distance / (state.bonus ? BONUS_DIST : levelDist(state.level)));
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      roundRect(W / 2 - 90, 16, 180, 14, 7);
+      ctx.fill();
+      ctx.fillStyle = C.red;
+      roundRect(W / 2 - 90, 16, 180 * progress, 14, 7);
+      ctx.fill();
+      if (progress >= 1) {
+        ctx.fillStyle = C.chartreuse;
+        roundRect(W / 2 - 90, 16, 180, 14, 7);
+        ctx.fill();
+      }
+      ctx.fillStyle = C.darkGrey;
+      ctx.font = "11px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        state.bonus
+          ? (progress >= 1 ? "Tractor ahead!" : "Bonus load")
+          : (progress >= 1 ? "Tractor ahead!" : "To tractor"),
+        W / 2, 48);
+    }
+  }
+
+  function drawOverlay() {
+    if (state.mode === "start") {
+      ctx.fillStyle = "rgba(65, 64, 66, 0.55)";
+      ctx.fillRect(0, 0, W, H);
+
+      // Title card
+      ctx.fillStyle = C.white;
+      roundRect(W / 2 - 230, H / 2 - 130, 460, 250, 16);
+      ctx.fill();
+      ctx.strokeStyle = C.red;
+      ctx.lineWidth = 4;
+      roundRect(W / 2 - 230, H / 2 - 130, 460, 250, 16);
+      ctx.stroke();
+
+      // Red header bar
+      ctx.fillStyle = C.red;
+      roundRect(W / 2 - 230, H / 2 - 130, 460, 58, 16);
+      ctx.fill();
+      ctx.fillRect(W / 2 - 230, H / 2 - 88, 460, 16);
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = C.white;
+      ctx.font = "bold 36px Arial, sans-serif";
+      ctx.fillText("Run Runner", W / 2, H / 2 - 92);
+
+      ctx.fillStyle = C.darkGrey;
+      ctx.font = "16px Arial, sans-serif";
+      ctx.fillText("Dodge hazards · Reach the tractor", W / 2, H / 2 - 40);
+
+      const pulse = 0.65 + Math.sin(performance.now() / 400) * 0.35;
+      ctx.fillStyle = C.red;
+      ctx.globalAlpha = 0.7 + pulse * 0.3;
+      roundRect(W / 2 - 140, H / 2 - 10, 280, 44, 8);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = C.white;
+      ctx.font = "bold 18px Arial, sans-serif";
+      ctx.fillText("Press Space / Tap to start", W / 2, H / 2 + 18);
+
+      ctx.fillStyle = "rgba(65,64,66,0.7)";
+      ctx.font = "14px Arial, sans-serif";
+      ctx.fillText("Hold jump for a higher leap", W / 2, H / 2 + 58);
+
+      if (highScore > 0) {
+        ctx.fillStyle = C.red;
+        ctx.font = "bold 15px Arial, sans-serif";
+        ctx.fillText("Best score: " + highScore, W / 2, H / 2 + 90);
+      }
+    }
+
+    if (state.mode === "bonusOffer") {
+      ctx.fillStyle = "rgba(65, 64, 66, 0.55)";
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.fillStyle = C.white;
+      roundRect(W / 2 - 270, H / 2 - 140, 540, 280, 14);
+      ctx.fill();
+      ctx.strokeStyle = C.red;
+      ctx.lineWidth = 4;
+      roundRect(W / 2 - 270, H / 2 - 140, 540, 280, 14);
+      ctx.stroke();
+
+      ctx.fillStyle = C.red;
+      roundRect(W / 2 - 270, H / 2 - 140, 540, 52, 14);
+      ctx.fill();
+      ctx.fillRect(W / 2 - 270, H / 2 - 104, 540, 16);
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = C.white;
+      ctx.font = "bold 28px Arial, sans-serif";
+      ctx.fillText("Bonus load", W / 2, H / 2 - 106);
+
+      ctx.fillStyle = C.darkGrey;
+      ctx.font = "18px Arial, sans-serif";
+      ctx.fillText("Your dispatcher has a bonus load.", W / 2, H / 2 - 58);
+      ctx.fillText("Want to run it?", W / 2, H / 2 - 34);
+
+      const yes = BONUS_BTNS.yes;
+      ctx.fillStyle = C.chartreuse;
+      roundRect(yes.x, yes.y, yes.w, yes.h, 8);
+      ctx.fill();
+      ctx.fillStyle = C.darkGrey;
+      ctx.font = "bold 16px Arial, sans-serif";
+      ctx.fillText("Yes. I'll take the bonus.", yes.x + yes.w / 2, yes.y + 27);
+
+      const no = BONUS_BTNS.no;
+      ctx.fillStyle = C.red;
+      roundRect(no.x, no.y, no.w, no.h, 8);
+      ctx.fill();
+      ctx.fillStyle = C.white;
+      ctx.font = "bold 16px Arial, sans-serif";
+      ctx.fillText("No. I'll pass.", no.x + no.w / 2, no.y + 27);
+
+      ctx.fillStyle = "rgba(65,64,66,0.65)";
+      ctx.font = "13px Arial, sans-serif";
+      ctx.fillText("Y to take it  ·  N to pass", W / 2, H / 2 + 122);
+    }
+
+    if (state.mode === "over") {
+      ctx.fillStyle = "rgba(65, 64, 66, 0.6)";
+      ctx.fillRect(0, 0, W, H);
+
+      if (state.continueCharges > 0) {
+        ctx.fillStyle = C.white;
+        roundRect(W / 2 - 270, H / 2 - 130, 540, 260, 14);
+        ctx.fill();
+        ctx.strokeStyle = C.red;
+        ctx.lineWidth = 4;
+        roundRect(W / 2 - 270, H / 2 - 130, 540, 260, 14);
+        ctx.stroke();
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = C.darkGrey;
+        ctx.font = "bold 15px Arial, sans-serif";
+        ctx.fillText("You must take a qualifying 10-hour rest break to continue.", W / 2, H / 2 - 64);
+
+        const yes = OVER_BTNS.yes;
+        ctx.fillStyle = C.chartreuse;
+        roundRect(yes.x, yes.y, yes.w, yes.h, 8);
+        ctx.fill();
+        ctx.fillStyle = C.darkGrey;
+        ctx.font = "bold 15px Arial, sans-serif";
+        ctx.fillText("Yes. I'll take the rest break.", yes.x + yes.w / 2, yes.y + 27);
+
+        const no = OVER_BTNS.no;
+        ctx.fillStyle = C.red;
+        roundRect(no.x, no.y, no.w, no.h, 8);
+        ctx.fill();
+        ctx.fillStyle = C.white;
+        ctx.font = "bold 15px Arial, sans-serif";
+        ctx.fillText("No. I'll end the run.", no.x + no.w / 2, no.y + 27);
+
+        ctx.fillStyle = "rgba(65,64,66,0.6)";
+        ctx.font = "13px Arial, sans-serif";
+        ctx.fillText("Y to continue  ·  N to end the run", W / 2, H / 2 + 120);
+      } else {
+        ctx.fillStyle = C.white;
+        roundRect(W / 2 - 260, H / 2 - 130, 520, 260, 14);
+        ctx.fill();
+        ctx.strokeStyle = C.darkRed;
+        ctx.lineWidth = 4;
+        roundRect(W / 2 - 260, H / 2 - 130, 520, 260, 14);
+        ctx.stroke();
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = C.darkRed;
+        ctx.font = "bold 18px Arial, sans-serif";
+        ctx.fillText("Ouch! Call your fleet supervisor", W / 2, H / 2 - 78);
+        ctx.fillText("to report this workplace injury.", W / 2, H / 2 - 54);
+
+        ctx.fillStyle = C.darkGrey;
+        ctx.font = "bold 24px Arial, sans-serif";
+        ctx.fillText("Score  " + Math.floor(state.score), W / 2, H / 2 - 10);
+
+        ctx.fillStyle = C.red;
+        ctx.font = "16px Arial, sans-serif";
+        ctx.fillText("Best  " + highScore + "  ·  Level " + state.level, W / 2, H / 2 + 22);
+
+        const pulse = 0.65 + Math.sin(performance.now() / 400) * 0.35;
+        const rb = OVER_BTNS.restartOnly;
+        ctx.fillStyle = `rgba(190,15,52,${0.75 + pulse * 0.25})`;
+        roundRect(rb.x, rb.y, rb.w, rb.h, 8);
+        ctx.fill();
+        ctx.fillStyle = C.white;
+        ctx.font = "bold 16px Arial, sans-serif";
+        ctx.fillText("Press Space / Tap to restart", W / 2, rb.y + 26);
+      }
+    }
+
+    // Level banner
+    if (state.levelBanner > 0 && (state.mode === "play" || state.mode === "transition")) {
+      const a = Math.min(1, state.levelBanner * 2);
+      ctx.globalAlpha = a;
+      const banner = state.bonus ? "Bonus load" : "Level " + state.level;
+      const bannerW = state.bonus ? 240 : 200;
+      ctx.fillStyle = C.red;
+      roundRect(W / 2 - bannerW / 2, H / 2 - 30, bannerW, 50, 10);
+      ctx.fill();
+      ctx.fillStyle = C.white;
+      ctx.font = "bold 24px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(banner, W / 2, H / 2 + 2);
+      ctx.globalAlpha = 1;
+    }
+
+    // Hop caption
+    if (state.mode === "hop") {
+      ctx.fillStyle = C.red;
+      ctx.font = "bold 22px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Hopping in!", W / 2, 80);
+    }
+
+    // Transition caption
+    if (state.mode === "transition" && state.fade < 0.9) {
+      ctx.fillStyle = C.red;
+      ctx.font = "bold 22px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Driving to next stop…", W / 2, 80);
+    }
+
+    // Fade overlay for level transition
+    if (state.fade > 0) {
+      ctx.fillStyle = `rgba(65,64,66,${state.fade})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    if (state.flash > 0) {
+      ctx.fillStyle = `rgba(215,21,58,${state.flash})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  function draw() {
+    drawBackground();
+    drawObstacles();
+    drawPickups();
+    drawTractor();
+    if (state.player) drawPlayer();
+    drawParticles();
+    drawHUD();
+    drawOverlay();
+  }
+
+  resetPlayer();
+  initDecor();
+
+  let last = performance.now();
+  function frame(now) {
+    let dt = (now - last) / 1000;
+    last = now;
+    if (dt > 0.05) dt = 0.05;
+    update(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  function fitCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const maxW = window.innerWidth;
+    const maxH = window.innerHeight;
+    const scale = Math.min(maxW / W, maxH / H);
+    const cssW = Math.floor(W * scale);
+    const cssH = Math.floor(H * scale);
+    canvas.style.width = cssW + "px";
+    canvas.style.height = cssH + "px";
+    canvas.width = Math.floor(W * dpr);
+    canvas.height = Math.floor(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener("resize", fitCanvas);
+  fitCanvas();
+  ensureBgm();
+})();
+</script>
+</body>
+</html>
