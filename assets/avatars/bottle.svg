@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Water bottle avatar">
+  <circle cx="64" cy="64" r="64" fill="#2E6FA8"/>
+  <rect x="52" y="22" width="24" height="12" rx="4" fill="#fff"/>
+  <rect x="56" y="32" width="16" height="8" fill="#fff"/>
+  <rect x="42" y="40" width="44" height="66" rx="12" fill="#fff"/>
+  <rect x="42" y="62" width="44" height="22" fill="#5594CF" opacity="0.55"/>
+</svg>

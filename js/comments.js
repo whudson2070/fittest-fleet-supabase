@@ -22,7 +22,7 @@
       for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
       return presets[hash % presets.length].url;
     }
-    return 'assets/avatars/runner.svg';
+    return 'assets/avatars/dumbbell.svg';
   }
 
   function formatTimestamp(iso) {

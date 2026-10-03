@@ -77,7 +77,7 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)),
-    'assets/avatars/runner.svg'
+    'assets/avatars/dumbbell.svg'
   )
   on conflict (id) do nothing;
   return new;

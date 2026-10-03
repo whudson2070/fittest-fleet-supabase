@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Coach avatar">
-  <circle cx="64" cy="64" r="64" fill="#5594CF"/>
-  <circle cx="64" cy="48" r="22" fill="#fff"/>
-  <path d="M34 110c10-24 24-36 30-36s20 12 30 36" fill="#fff"/>
-  <path d="M52 40h24v8H52z" fill="#BE0F34" opacity="0.85"/>
-  <circle cx="64" cy="28" r="6" fill="#D9E364"/>
-</svg>

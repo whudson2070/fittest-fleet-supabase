@@ -6,13 +6,13 @@
   'use strict';
 
   const PRESET_AVATARS = [
-    { id: 'runner', url: 'assets/avatars/runner.svg', label: 'Runner' },
-    { id: 'lifter', url: 'assets/avatars/lifter.svg', label: 'Lifter' },
-    { id: 'cyclist', url: 'assets/avatars/cyclist.svg', label: 'Cyclist' },
-    { id: 'yoga', url: 'assets/avatars/yoga.svg', label: 'Yoga' },
-    { id: 'swimmer', url: 'assets/avatars/swimmer.svg', label: 'Swimmer' },
-    { id: 'hiker', url: 'assets/avatars/hiker.svg', label: 'Hiker' },
-    { id: 'coach', url: 'assets/avatars/coach.svg', label: 'Coach' },
+    { id: 'dumbbell', url: 'assets/avatars/dumbbell.svg', label: 'Dumbbell' },
+    { id: 'treadmill', url: 'assets/avatars/treadmill.svg', label: 'Treadmill' },
+    { id: 'jumprope', url: 'assets/avatars/jumprope.svg', label: 'Jump rope' },
+    { id: 'kettlebell', url: 'assets/avatars/kettlebell.svg', label: 'Kettlebell' },
+    { id: 'bike', url: 'assets/avatars/bike.svg', label: 'Bike' },
+    { id: 'stopwatch', url: 'assets/avatars/stopwatch.svg', label: 'Stopwatch' },
+    { id: 'bottle', url: 'assets/avatars/bottle.svg', label: 'Water bottle' },
     { id: 'spark', url: 'assets/avatars/spark.svg', label: 'Spark' },
   ];
 

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Bike avatar">
+  <circle cx="64" cy="64" r="64" fill="#D9E364"/>
+  <circle cx="38" cy="86" r="18" fill="none" stroke="#414042" stroke-width="5"/>
+  <circle cx="94" cy="86" r="18" fill="none" stroke="#414042" stroke-width="5"/>
+  <path d="M38 86 L62 86 L74 54 M62 86 L58 58 M58 58 L94 86" fill="none" stroke="#414042" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 58h18" stroke="#414042" stroke-width="5" stroke-linecap="round"/>
+  <path d="M74 54l10-8h12" fill="none" stroke="#414042" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

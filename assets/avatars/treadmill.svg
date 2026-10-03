@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Treadmill avatar">
+  <circle cx="64" cy="64" r="64" fill="#5594CF"/>
+  <rect x="18" y="70" width="92" height="16" rx="5" fill="#fff"/>
+  <rect x="24" y="75" width="80" height="6" rx="3" fill="#5594CF" opacity="0.4"/>
+  <rect x="82" y="34" width="8" height="40" rx="3" fill="#fff"/>
+  <rect x="64" y="26" width="36" height="16" rx="4" fill="#fff"/>
+  <circle cx="28" cy="92" r="7" fill="#fff"/>
+  <circle cx="100" cy="92" r="7" fill="#fff"/>
+</svg>
