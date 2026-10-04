@@ -240,6 +240,9 @@
       if (profile && profile.display_name) {
         const label = document.getElementById('auth-user-label');
         if (label) label.textContent = profile.display_name;
+        if (global.FFComments && typeof global.FFComments.updateCommentAuthor === 'function') {
+          global.FFComments.updateCommentAuthor(profile.display_name);
+        }
       }
     } catch (e) {
       console.warn('[profile] header avatar', e);

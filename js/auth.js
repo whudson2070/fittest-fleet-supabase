@@ -65,7 +65,10 @@
     const signedOut = document.getElementById('auth-signed-out');
     const signedIn = document.getElementById('auth-signed-in');
     const userLabel = document.getElementById('auth-user-label');
+    const nameInputWrap = document.getElementById('comment-name-input-wrap');
     const nameInput = document.getElementById('comment-name');
+    const displayNameWrap = document.getElementById('comment-display-name-wrap');
+    const displayNameText = document.getElementById('comment-display-name');
     const postGate = document.getElementById('post-auth-gate');
     const commentForm = document.getElementById('comment-form');
     const mobileSignin = document.getElementById('auth-mobile-signin');
@@ -76,11 +79,12 @@
     if (currentUser) {
       if (signedOut) signedOut.classList.add('hidden');
       if (signedIn) signedIn.classList.remove('hidden');
-      if (userLabel) userLabel.textContent = getDisplayName();
-      if (nameInput && !nameInput.value) {
-        nameInput.value = getDisplayName();
-        nameInput.placeholder = getDisplayName();
-      }
+      const displayName = getDisplayName();
+      if (userLabel) userLabel.textContent = displayName;
+      if (nameInputWrap) nameInputWrap.classList.add('hidden');
+      if (nameInput) nameInput.setAttribute('aria-hidden', 'true');
+      if (displayNameWrap) displayNameWrap.classList.remove('hidden');
+      if (displayNameText) displayNameText.textContent = displayName;
       if (postGate) postGate.classList.add('hidden');
       if (commentForm) commentForm.classList.remove('opacity-50', 'pointer-events-none');
       if (mobileSignin) mobileSignin.classList.add('hidden');
@@ -91,6 +95,10 @@
       if (signedOut) signedOut.classList.remove('hidden');
       if (signedIn) signedIn.classList.add('hidden');
       if (userLabel) userLabel.textContent = '';
+      if (nameInputWrap) nameInputWrap.classList.remove('hidden');
+      if (nameInput) nameInput.removeAttribute('aria-hidden');
+      if (displayNameWrap) displayNameWrap.classList.add('hidden');
+      if (displayNameText) displayNameText.textContent = '';
       if (postGate) postGate.classList.remove('hidden');
       if (commentForm) commentForm.classList.add('opacity-50', 'pointer-events-none');
       if (mobileSignin) mobileSignin.classList.remove('hidden');

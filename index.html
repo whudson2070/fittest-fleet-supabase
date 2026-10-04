@@ -416,10 +416,14 @@
 
             <form id="comment-form" class="opacity-50 pointer-events-none">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                    <div>
-                        <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">YOUR NAME</label>
+                    <div id="comment-name-input-wrap">
+                        <label for="comment-name" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">YOUR NAME</label>
                         <input type="text" id="comment-name" placeholder="Maria T. or Anonymous"
                                class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
+                    <div id="comment-display-name-wrap" class="hidden">
+                        <span class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">DISPLAY NAME</span>
+                        <p id="comment-display-name" class="w-full border border-[#E6E7E8] bg-[#F8F8F8] rounded-2xl px-5 py-3 text-sm text-[#414042] min-h-[46px]"></p>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">CATEGORY</label>

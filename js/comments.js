@@ -8,6 +8,7 @@
   let comments = [];
   let currentFilter = 'all';
   let realtimeChannel = null;
+  let currentDisplayName = '';
 
   function avatarFor(name, userId, profileAvatarUrl) {
     if (profileAvatarUrl && global.FFProfile) {
@@ -276,6 +277,12 @@
       .subscribe();
   }
 
+  function updateCommentAuthor(displayName) {
+    currentDisplayName = String(displayName || '').trim();
+    const displayNameText = document.getElementById('comment-display-name');
+    if (displayNameText && currentDisplayName) displayNameText.textContent = currentDisplayName;
+  }
+
   async function postComment(e) {
     e.preventDefault();
 
@@ -296,9 +303,19 @@
       return;
     }
 
-    const nameInput =
-      document.getElementById('comment-name').value.trim() ||
+    let profileDisplayName = '';
+    if (global.FFProfile && typeof global.FFProfile.ensureOwnProfile === 'function') {
+      const profile = await global.FFProfile.ensureOwnProfile(user);
+      profileDisplayName = profile && String(profile.display_name || '').trim();
+      if (profileDisplayName) updateCommentAuthor(profileDisplayName);
+    }
+
+    const nameInput = document.getElementById('comment-name');
+    const displayName =
+      profileDisplayName ||
+      currentDisplayName ||
       (global.FFAuth.getDisplayName() || 'Community Member');
+    const name = user ? displayName : (nameInput && nameInput.value.trim()) || displayName;
     const category = document.getElementById('comment-category').value;
     const message = document.getElementById('comment-message').value.trim();
 
@@ -311,7 +328,7 @@
 
     const { error } = await client.from('comments').insert({
       user_id: user.id,
-      display_name: nameInput,
+      display_name: name,
       category,
       message,
       likes: 0,
@@ -327,7 +344,8 @@
 
     document.getElementById('comment-form').reset();
     const nameField = document.getElementById('comment-name');
-    if (nameField) nameField.value = global.FFAuth.getDisplayName() || nameInput;
+    if (nameField) nameField.value = '';
+    updateCommentAuthor(name);
 
     if (typeof global.showToast === 'function') {
       global.showToast('Thank you for sharing! Your encouragement means everything to this community.');
@@ -574,6 +592,7 @@
     scrollToCommunityWithFilter,
     acceptDailyChallenge,
     refreshEngagementTracker,
+    updateCommentAuthor,
   };
 
   // Keep onclick helpers used in the HTML
