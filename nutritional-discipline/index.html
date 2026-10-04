@@ -71,6 +71,7 @@
                     <a href="../sustainable-weight-loss/" title="Sustainable Weight Loss routines" class="nav-link text-[#414042] hover:text-[#BE0F34]">Weight Loss</a>
                     <a href="../purposeful-movement/" title="Purposeful Movement routines" class="nav-link text-[#414042] hover:text-[#BE0F34]">Movement</a>
                     <a href="../run-runner/" class="nav-link text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
+                    <a href="../progress/" data-signed-in-nav class="nav-link hidden text-[#414042] hover:text-[#BE0F34]">Progress</a>
                 </div>
 
                 <div class="flex items-center gap-x-3">
@@ -93,6 +94,7 @@
                 <a href="../sustainable-weight-loss/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Sustainable Weight Loss</a>
                 <a href="../purposeful-movement/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Purposeful Movement</a>
                 <a href="../run-runner/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
+                <a href="../progress/" data-signed-in-nav class="hidden py-2 text-[#414042] hover:text-[#BE0F34]">Progress</a>
                 <a href="../index.html" class="mt-1 w-full text-center py-3 bg-[#BE0F34] text-white rounded-full font-semibold">Back home</a>
             </div>
         </div>
@@ -240,6 +242,13 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        if (window.FFAuth) FFAuth.initAuth();
+    </script>
     <script>
         (function () {
             var btn = document.getElementById('mobile-menu-btn');

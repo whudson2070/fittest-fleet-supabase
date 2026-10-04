@@ -113,6 +113,10 @@
       const avatarIcon = document.getElementById('auth-user-icon');
       if (avatarIcon) avatarIcon.classList.remove('hidden');
     }
+
+    document.querySelectorAll('[data-signed-in-nav]').forEach((el) => {
+      el.classList.toggle('hidden', !currentUser);
+    });
   }
 
   function openAuthModal(mode) {

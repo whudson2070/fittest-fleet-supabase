@@ -20,6 +20,7 @@ Browse posts signed out. Sign in to post and encourage (like) others.
 5. Run [`sql/get-member-count.sql`](sql/get-member-count.sql) so the hero can show the live count of registered accounts (`public.get_member_count()`, anon-safe). Until that function exists, the hero says “Members strong” with no number.
 6. Run [`sql/add-job-title-location.sql`](sql/add-job-title-location.sql) so signup can store `job_title` and `location` on `profiles` and comments can read them. Until then, those fields are not saved.
 7. Run [`sql/encouragements.sql`](sql/encouragements.sql) so signed-in members can see how many times they have clicked Encourage on other people’s posts. Until then, that count stays unavailable (it is not guessed). Comment totals still come from `comments`.
+8. Run [`sql/progress-checkins.sql`](sql/progress-checkins.sql) before using [Progress](progress/) (`https://fittestfleet.com/progress/`). Until that table exists, check-ins cannot be saved. Each save is one dated row owned by the signed-in user.
 
 ### 3. Enable Email auth
 
@@ -86,17 +87,20 @@ Choices persist in `public.profiles` (`avatar_url`, optional `display_name`). Av
 ```
 index.html                 — main page UI
 profile.html               — profile / avatar editor (login required to edit)
+progress/index.html        — personal progress check-ins (login required to save)
 assets/avatars/            — preset SVG avatars
 css/brand.css              — T352 brand guide CSS
 js/config.js               — Supabase URL + anon key (do not commit service_role)
 js/supabase-client.js      — creates the Supabase client
 js/auth.js                 — sign up / sign in / sign out + header UI
 js/profile.js              — profile load/save, upload, presets
+js/progress.js             — progress check-in form, summary, and recent list
 js/comments.js             — fetch, post, likes, filters, realtime (+ profile avatars)
 js/hero-avatars.js         — random custom uploads in the hero avatar stack
 sql/schema.sql             — comments + profiles schema, RLS, realtime
 sql/profiles-and-avatars.sql — profiles + Storage avatars bucket/policies (run this)
 sql/add-job-title-location.sql — job_title + location columns, grants, signup trigger
+sql/progress-checkins.sql  — progress check-ins table, own-row RLS, grants (run this)
 sql/fix-*.sql             — prior grant / replica identity fixes
 ```
 
