@@ -8,8 +8,14 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   avatar_url text,
   display_name text,
+  job_title text,
+  location text,
   updated_at timestamptz not null default now()
 );
+
+alter table public.profiles
+  add column if not exists job_title text,
+  add column if not exists location text;
 
 create index if not exists profiles_updated_at_idx on public.profiles (updated_at desc);
 
@@ -73,13 +79,17 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, display_name, avatar_url)
+  insert into public.profiles (id, display_name, avatar_url, job_title, location)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)),
-    'assets/avatars/dumbbell.svg'
+    'assets/avatars/dumbbell.svg',
+    nullif(btrim(coalesce(new.raw_user_meta_data->>'job_title', '')), ''),
+    nullif(btrim(coalesce(new.raw_user_meta_data->>'location', '')), '')
   )
-  on conflict (id) do nothing;
+  on conflict (id) do update set
+    job_title = coalesce(public.profiles.job_title, excluded.job_title),
+    location = coalesce(public.profiles.location, excluded.location);
   return new;
 end;
 $$;

@@ -18,6 +18,7 @@ Browse posts signed out. Sign in to post and encourage (like) others.
 3. Also run [`sql/profiles-and-avatars.sql`](sql/profiles-and-avatars.sql) (profiles table + Storage `avatars` bucket policies). If you already ran an older `schema.sql`, this migration alone is enough for profiles.
 4. Confirm the `comments` and `profiles` tables exist under **Table Editor**, and that Storage has a public **avatars** bucket.
 5. Run [`sql/get-member-count.sql`](sql/get-member-count.sql) so the hero can show the live count of registered accounts (`public.get_member_count()`, anon-safe). Until that function exists, the hero says “Members strong” with no number.
+6. Run [`sql/add-job-title-location.sql`](sql/add-job-title-location.sql) so signup can store `job_title` and `location` on `profiles` and comments can read them. Until then, those fields are not saved.
 
 ### 3. Enable Email auth
 
@@ -93,6 +94,7 @@ js/comments.js             — fetch, post, likes, filters, realtime (+ profile 
 js/hero-avatars.js         — random custom uploads in the hero avatar stack
 sql/schema.sql             — comments + profiles schema, RLS, realtime
 sql/profiles-and-avatars.sql — profiles + Storage avatars bucket/policies (run this)
+sql/add-job-title-location.sql — job_title + location columns, grants, signup trigger
 sql/fix-*.sql             — prior grant / replica identity fixes
 ```
 

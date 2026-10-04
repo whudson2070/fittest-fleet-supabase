@@ -48,6 +48,8 @@
       id: row.id,
       user_id: row.user_id,
       name: (profile && profile.display_name) || row.display_name,
+      job_title: profileText(profile && profile.job_title),
+      location: profileText(profile && profile.location),
       category: row.category,
       message: row.message,
       likes: row.likes ?? 0,
@@ -55,6 +57,19 @@
       timestamp: formatTimestamp(row.created_at),
       avatar: avatarFor(row.display_name, row.user_id, avatarUrl),
     };
+  }
+
+  function profileText(value) {
+    const trimmed = String(value ?? '').trim();
+    return trimmed;
+  }
+
+  function authorDetailsHtml(comment) {
+    const bits = [];
+    if (comment.job_title) bits.push(escapeHtml(comment.job_title));
+    if (comment.location) bits.push(escapeHtml(comment.location));
+    if (!bits.length) return '';
+    return `<div class="text-xs text-[#414042]/55 mt-0.5">${bits.join(' · ')}</div>`;
   }
 
   function getCategoryColor(category) {
@@ -99,9 +114,12 @@
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between mb-1">
-              <div class="flex items-center gap-x-3">
-                <span class="font-bold">${safeName}</span>
-                <span class="text-xs text-[#414042]/50">${escapeHtml(comment.timestamp)}</span>
+              <div class="flex items-center gap-x-3 min-w-0">
+                <div class="min-w-0">
+                  <span class="font-bold">${safeName}</span>
+                  ${authorDetailsHtml(comment)}
+                </div>
+                <span class="text-xs text-[#414042]/50 flex-shrink-0">${escapeHtml(comment.timestamp)}</span>
               </div>
               <span class="category-badge ${categoryColor} ${categoryTextColor}">${safeCategory}</span>
             </div>

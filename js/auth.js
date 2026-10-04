@@ -134,18 +134,48 @@
     errEl.classList.remove('hidden');
   }
 
-  async function signUp(email, password, displayName) {
+  function blankToNull(value) {
+    const trimmed = String(value || '').trim();
+    return trimmed || null;
+  }
+
+  async function saveSignupProfile(client, userId, displayName, jobTitle, location) {
+    if (!userId) return;
+    const row = { id: userId };
+    if (displayName) row.display_name = displayName;
+    if (jobTitle) row.job_title = jobTitle;
+    if (location) row.location = location;
+    if (!row.job_title && !row.location) return;
+
+    // Trigger may already have inserted the row. Upsert only the fields we have
+    // so avatar_url is left alone when the row exists.
+    const { error } = await client.from('profiles').upsert(row, { onConflict: 'id' });
+    if (error) console.warn('[auth] could not save job title / location', error);
+  }
+
+  async function signUp(email, password, displayName, jobTitle, location) {
     const client = global.ffSupabase;
     if (!client) throw new Error('Supabase is not configured. Add your keys to js/config.js.');
+
+    const name = displayName || email.split('@')[0];
+    const title = blankToNull(jobTitle);
+    const place = blankToNull(location);
+    const meta = { display_name: name };
+    if (title) meta.job_title = title;
+    if (place) meta.location = place;
 
     const { data, error } = await client.auth.signUp({
       email,
       password,
-      options: {
-        data: { display_name: displayName || email.split('@')[0] },
-      },
+      options: { data: meta },
     });
     if (error) throw error;
+
+    // When a session exists, write the profile now. If email confirmation is on,
+    // the handle_new_user_profile trigger copies the same metadata instead.
+    if (data && data.session && data.user) {
+      await saveSignupProfile(client, data.user.id, name, title, place);
+    }
     return data;
   }
 
@@ -172,6 +202,8 @@
     const email = (document.getElementById('auth-email') || {}).value || '';
     const password = (document.getElementById('auth-password') || {}).value || '';
     const name = (document.getElementById('auth-display-name') || {}).value || '';
+    const jobTitle = (document.getElementById('auth-job-title') || {}).value || '';
+    const location = (document.getElementById('auth-location') || {}).value || '';
 
     if (!email.trim() || !password) {
       showAuthError('Email and password are required.');
@@ -186,7 +218,7 @@
 
     try {
       if (mode === 'signup') {
-        const result = await signUp(email.trim(), password, name.trim());
+        const result = await signUp(email.trim(), password, name.trim(), jobTitle, location);
         displayNameHint = name.trim() || email.split('@')[0];
         if (result.session) {
           currentUser = result.session.user;

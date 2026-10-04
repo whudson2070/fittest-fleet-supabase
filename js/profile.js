@@ -17,7 +17,7 @@
   ];
 
   const DEFAULT_AVATAR = PRESET_AVATARS[0].url;
-  const profileCache = new Map(); // userId -> { avatar_url, display_name }
+  const profileCache = new Map(); // userId -> { avatar_url, display_name, job_title, location }
 
   function toast(msg) {
     if (typeof global.showToast === 'function') global.showToast(msg);
@@ -47,7 +47,7 @@
 
     const { data, error } = await client
       .from('profiles')
-      .select('id, avatar_url, display_name, updated_at')
+      .select('id, avatar_url, display_name, job_title, location, updated_at')
       .eq('id', userId)
       .maybeSingle();
 
@@ -73,7 +73,7 @@
 
     const { data, error } = await client
       .from('profiles')
-      .select('id, avatar_url, display_name, updated_at')
+      .select('id, avatar_url, display_name, job_title, location, updated_at')
       .in('id', missing);
 
     if (error) {

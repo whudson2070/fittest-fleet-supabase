@@ -182,10 +182,22 @@
             <p class="text-sm text-[#414042]/70 mb-6">Join the live Fittest Fleet community.</p>
             <div id="auth-error" class="hidden mb-4 text-sm text-[#BE0F34] bg-[#BE0F34]/10 rounded-2xl px-4 py-3"></div>
             <form id="auth-form" class="space-y-4">
-                <div id="auth-name-wrap" class="hidden">
-                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">DISPLAY NAME</label>
-                    <input type="text" id="auth-display-name" placeholder="Maria T."
-                           class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                <div id="auth-name-wrap" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5" for="auth-display-name">DISPLAY NAME</label>
+                        <input type="text" id="auth-display-name" placeholder="Maria T."
+                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5" for="auth-job-title">Job Title</label>
+                        <input type="text" id="auth-job-title" maxlength="120" autocomplete="organization-title" placeholder="Fleet coordinator"
+                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5" for="auth-location">Location</label>
+                        <input type="text" id="auth-location" maxlength="120" autocomplete="address-level2" placeholder="City, State"
+                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">EMAIL</label>
