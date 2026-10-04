@@ -27,18 +27,14 @@
 
   function formatTimestamp(iso) {
     if (!iso) return '';
-    const then = new Date(iso).getTime();
-    const now = Date.now();
-    const diffMs = Math.max(0, now - then);
-    const mins = Math.floor(diffMs / 60000);
-    if (mins < 1) return 'Just now';
-    if (mins < 60) return `${mins} min${mins === 1 ? '' : 's'} ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
-    const days = Math.floor(hours / 24);
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days} days ago`;
-    return new Date(iso).toLocaleDateString();
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(date);
   }
 
   function mapRow(row, profilesById) {
@@ -106,6 +102,7 @@
       const safeName = escapeHtml(comment.name);
       const safeMessage = escapeHtml(comment.message);
       const safeCategory = escapeHtml(comment.category);
+      const safeTimestamp = escapeHtml(comment.timestamp);
 
       card.innerHTML = `
         <div class="flex items-start gap-x-4">
@@ -119,7 +116,7 @@
                   <span class="font-bold">${safeName}</span>
                   ${authorDetailsHtml(comment)}
                 </div>
-                <span class="text-xs text-[#414042]/50 flex-shrink-0">${escapeHtml(comment.timestamp)}</span>
+                ${safeTimestamp ? `<span class="text-xs text-[#414042]/50 flex-shrink-0">${safeTimestamp}</span>` : ''}
               </div>
               <span class="category-badge ${categoryColor} ${categoryTextColor}">${safeCategory}</span>
             </div>
