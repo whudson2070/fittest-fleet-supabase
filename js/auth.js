@@ -71,6 +71,7 @@
     const mobileSignin = document.getElementById('auth-mobile-signin');
     const mobileSignup = document.getElementById('auth-mobile-signup');
     const joinButtons = document.querySelectorAll('#auth-open-signup, #auth-mobile-signup');
+    const signInButtons = document.querySelectorAll('#auth-open-signin, #auth-mobile-signin');
 
     if (currentUser) {
       if (signedOut) signedOut.classList.add('hidden');
@@ -85,6 +86,7 @@
       if (mobileSignin) mobileSignin.classList.add('hidden');
       if (mobileSignup) mobileSignup.classList.add('hidden');
       joinButtons.forEach((button) => button.classList.add('hidden'));
+      signInButtons.forEach((button) => button.classList.add('hidden'));
     } else {
       if (signedOut) signedOut.classList.remove('hidden');
       if (signedIn) signedIn.classList.add('hidden');
@@ -94,6 +96,7 @@
       if (mobileSignin) mobileSignin.classList.remove('hidden');
       if (mobileSignup) mobileSignup.classList.remove('hidden');
       joinButtons.forEach((button) => button.classList.remove('hidden'));
+      signInButtons.forEach((button) => button.classList.remove('hidden'));
       const avatarImg = document.getElementById('auth-user-avatar');
       if (avatarImg) {
         avatarImg.classList.add('hidden');
