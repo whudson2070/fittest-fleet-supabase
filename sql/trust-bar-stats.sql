@@ -76,11 +76,25 @@ as $$
   from public.progress_checkins as checkin;
 $$;
 
+-- Sum squats across all Progress check-ins owned by registered users.
+create or replace function public.get_total_squats()
+returns bigint
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce(sum(checkin.squats), 0)::bigint
+  from public.progress_checkins as checkin;
+$$;
+
 revoke all on function public.get_total_pounds_lost() from public;
 revoke all on function public.get_total_pushups() from public;
 revoke all on function public.get_total_miles() from public;
 revoke all on function public.get_total_yoga_hours() from public;
+revoke all on function public.get_total_squats() from public;
 grant execute on function public.get_total_pounds_lost() to anon, authenticated;
 grant execute on function public.get_total_pushups() to anon, authenticated;
 grant execute on function public.get_total_miles() to anon, authenticated;
 grant execute on function public.get_total_yoga_hours() to anon, authenticated;
+grant execute on function public.get_total_squats() to anon, authenticated;
