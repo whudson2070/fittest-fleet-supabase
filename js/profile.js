@@ -6,10 +6,10 @@
   'use strict';
 
   const PRESET_AVATARS = [
-    { id: 'dumbbell', url: 'assets/avatars/dumbbell.svg', label: 'Jump rope' },
-    { id: 'treadmill', url: 'assets/avatars/treadmill.svg', label: 'Runner' },
+    { id: 'dumbbell', url: 'assets/avatars/dumbbell.svg', label: 'Weight loss' },
+    { id: 'treadmill', url: 'assets/avatars/treadmill.svg', label: 'Exercise' },
     { id: 'jumprope', url: 'assets/avatars/jumprope.svg', label: 'Heart' },
-    { id: 'kettlebell', url: 'assets/avatars/kettlebell.svg', label: 'Kettlebell' },
+    { id: 'kettlebell', url: 'assets/avatars/kettlebell.svg', label: 'Nutrition' },
     { id: 'bike', url: 'assets/avatars/bike.svg', label: 'Bike' },
     { id: 'stopwatch', url: 'assets/avatars/stopwatch.svg', label: 'Stopwatch' },
     { id: 'bottle', url: 'assets/avatars/bottle.svg', label: 'Water bottle' },
