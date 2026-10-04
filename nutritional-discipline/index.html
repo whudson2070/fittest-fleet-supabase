@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutritional Discipline Routines • Fittest Fleet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/brand.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Arial:wght@400;700&display=swap');
+        body {
+            font-family: Arial, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .brand-heading {
+            font-family: Arial, sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+        .section-heading {
+            font-family: Arial, sans-serif;
+            font-weight: 700;
+            color: #414042;
+        }
+        .nav-link { transition: color 0.2s ease; }
+        .nav-link:hover { color: #BE0F34; }
+        .brand-logo {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+        .fitness-hero {
+            background: linear-gradient(135deg, #BE0F34 0%, #AC1E2F 100%);
+        }
+        .tip-bullet { position: relative; padding-left: 1.5rem; }
+        .tip-bullet:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #BE0F34;
+            font-weight: bold;
+        }
+        .category-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            letter-spacing: 0.025em;
+        }
+    </style>
+</head>
+<body class="bg-white text-[#414042]">
+    <nav class="bg-white border-b border-[#E6E7E8] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-x-3">
+                    <a href="../index.html" class="flex items-center group">
+                        <div class="brand-logo text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                        <div class="ml-3">
+                            <div class="font-bold text-lg tracking-tight text-[#414042]">Fittest Fleet</div>
+                            <div class="text-[10px] text-[#414042]/60 -mt-1">Community Wellness</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="hidden lg:flex items-center gap-x-4 text-sm font-medium">
+                    <a href="../index.html#pillars" class="nav-link text-[#414042] hover:text-[#BE0F34]">Our Pillars</a>
+                    <a href="../index.html#stories" class="nav-link text-[#414042] hover:text-[#BE0F34]">Success Stories</a>
+                    <a href="../index.html#community" class="nav-link text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                    <a href="../nutritional-discipline/" title="Nutritional Discipline routines" class="nav-link text-[#BE0F34] font-semibold">Nutrition</a>
+                    <a href="../sustainable-weight-loss/" title="Sustainable Weight Loss routines" class="nav-link text-[#414042] hover:text-[#BE0F34]">Weight Loss</a>
+                    <a href="../purposeful-movement/" title="Purposeful Movement routines" class="nav-link text-[#414042] hover:text-[#BE0F34]">Movement</a>
+                    <a href="../run-runner/" class="nav-link text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
+                </div>
+
+                <div class="flex items-center gap-x-3">
+                    <a href="../index.html" class="hidden sm:inline-flex items-center justify-center px-5 py-2.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full transition-all active:scale-[0.985]">
+                        Back home
+                    </a>
+                    <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 flex items-center justify-center text-[#414042] hover:text-[#BE0F34]" aria-label="Open menu">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-[#E6E7E8] bg-white">
+            <div class="px-6 py-4 flex flex-col gap-y-3 text-sm font-medium">
+                <a href="../index.html#pillars" class="py-2 text-[#414042] hover:text-[#BE0F34]">Our Pillars</a>
+                <a href="../index.html#stories" class="py-2 text-[#414042] hover:text-[#BE0F34]">Success Stories</a>
+                <a href="../index.html#community" class="py-2 text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                <a href="../nutritional-discipline/" class="py-2 text-[#BE0F34] font-semibold">Nutritional Discipline</a>
+                <a href="../sustainable-weight-loss/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Sustainable Weight Loss</a>
+                <a href="../purposeful-movement/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Purposeful Movement</a>
+                <a href="../run-runner/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
+                <a href="../index.html" class="mt-1 w-full text-center py-3 bg-[#BE0F34] text-white rounded-full font-semibold">Back home</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="fitness-hero text-white">
+        <div class="max-w-5xl mx-auto px-6 pt-16 pb-16">
+            <a href="../index.html#pillars" class="inline-flex items-center gap-x-2 text-sm font-semibold text-white/80 hover:text-white mb-6">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Fittest Fleet</span>
+            </a>
+            <div class="inline-flex items-center gap-x-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 ml-0">
+                <span class="category-badge bg-[#D9E364] text-[#414042]">NUTRITION</span>
+                <span class="text-sm font-semibold tracking-wide">HIGH-PERFORMANCE FUEL</span>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-black tracking-tighter leading-none mb-6">
+                Nutritional<br>
+                <span class="text-[#D9E364]">Discipline</span>
+            </h1>
+            <p class="max-w-2xl text-xl text-white/90 font-light">Concrete food routines that keep energy high, decisions simple, and improvement measurable. Same structure, better execution.</p>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-14">
+        <div class="flex items-start gap-4 mb-10">
+            <div class="w-14 h-14 bg-[#D9E364]/20 rounded-2xl flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-apple-alt text-3xl text-[#8a9420]"></i>
+            </div>
+            <p class="text-lg text-[#414042]/80">
+                These routines stay inside this pillar. Repeat them until they feel ordinary, then raise the standard by a small notch. They are community practice ideas, not medical advice. Adjust anything that does not fit your health, schedule, or coaching.
+            </p>
+        </div>
+
+        <div class="space-y-6">
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 01</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">Every main meal</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Performance Plate</h2>
+                <p class="text-[#414042]/80 mb-5">A fixed plate order removes guesswork and keeps training days and desk days fueled the same way. You improve by repeating the pattern, not by chasing a new diet each Monday.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">Start with a palm-sized portion of protein: eggs, fish, poultry, tofu, beans, or lean meat.</div>
+                        <div class="tip-bullet text-sm">Add a fist of colorful plants, raw or cooked, before you touch the starch.</div>
+                        <div class="tip-bullet text-sm">Finish with a cupped hand of slow carbs such as oats, rice, potatoes, or fruit, plus a thumb of fat.</div>
+                        <div class="tip-bullet text-sm">Eat seated, phone down, for at least ten minutes so the meal actually registers.</div>
+                        <div class="tip-bullet text-sm">If a meal falls apart, rebuild the next plate. Do not wait for tomorrow.</div>
+                </div>
+            </article>
+
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 02</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">90 minutes before hard work</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Shift-Start Fuel Window</h2>
+                <p class="text-[#414042]/80 mb-5">High output starts before the first demanding hour. A planned snack beats a last-second pastry and leaves you sharper for the block of work or training ahead.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">Pick the snack the night before and put it where you will see it: yogurt and fruit, eggs and toast, or a turkey wrap and an apple.</div>
+                        <div class="tip-bullet text-sm">Eat it about ninety minutes before a workout or a heavy shift, not in the first five minutes of hunger panic.</div>
+                        <div class="tip-bullet text-sm">Pair carbohydrate with protein so energy lasts past the first hour.</div>
+                        <div class="tip-bullet text-sm">Skip the unplanned drive-through. If the planned snack is gone, use the backup you packed, not a new decision.</div>
+                        <div class="tip-bullet text-sm">Note energy at the two-hour mark. Keep snacks that hold; retire the ones that crash you.</div>
+                </div>
+            </article>
+
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 03</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">All day</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Hydration Ladder</h2>
+                <p class="text-[#414042]/80 mb-5">Even mild under-drinking shows up as sluggish lifts, foggy afternoons, and snacking that is really thirst. A ladder makes water a routine instead of a hope.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">Drink one full glass on waking, before coffee.</div>
+                        <div class="tip-bullet text-sm">Drink one glass with each meal and one glass between meals.</div>
+                        <div class="tip-bullet text-sm">Add an extra glass for every hour of hard training or work in the heat.</div>
+                        <div class="tip-bullet text-sm">Use a marked bottle in the cab, kitchen, or desk so the next rung is visible.</div>
+                        <div class="tip-bullet text-sm">If urine stays dark past mid-morning, climb two rungs before the next meal.</div>
+                </div>
+            </article>
+
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 04</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">10 minutes after dinner</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Kitchen Close</h2>
+                <p class="text-[#414042]/80 mb-5">Morning discipline is mostly an evening routine. Closing the kitchen decides tomorrow’s food while you still have attention left.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">Pack tomorrow’s lunch using the Performance Plate portions.</div>
+                        <div class="tip-bullet text-sm">Set breakfast out: bowl, oats or eggs plan, and fruit where you cannot miss it.</div>
+                        <div class="tip-bullet text-sm">Fill the water bottle and park it by the door or in the bag.</div>
+                        <div class="tip-bullet text-sm">Move loose snack food off the counter and into a cupboard.</div>
+                        <div class="tip-bullet text-sm">Write one sentence: the single food choice you want to repeat tomorrow.</div>
+                </div>
+            </article>
+
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 05</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">Once a week, 45 minutes</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Sunday Fuel Reset</h2>
+                <p class="text-[#414042]/80 mb-5">Improvement compounds when the week is sketched before it starts. One reset keeps nutritional discipline from depending on perfect weeknights.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">List five dinners you will actually cook. Leave one meal unplanned on purpose.</div>
+                        <div class="tip-bullet text-sm">Shop from that list only, plus staple proteins, fruit, and a vegetable you can reheat.</div>
+                        <div class="tip-bullet text-sm">Prep one protein and one vegetable you can portion in under five minutes.</div>
+                        <div class="tip-bullet text-sm">Circle the meals that gave you the best training or focus last week and cook those again.</div>
+                        <div class="tip-bullet text-sm">Drop one food that repeatedly blew the plan. Replace it, do not just forbid it.</div>
+                </div>
+            </article>
+        </div>
+
+        <section class="mt-14">
+            <h2 class="section-heading text-3xl tracking-tight mb-4">The other pillars</h2>
+            <div class="flex flex-wrap gap-4">
+                <a href="../sustainable-weight-loss/" class="flex-1 min-w-[200px] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-2xl px-5 py-4 bg-white"><div class="text-xs font-bold tracking-wider text-[#BE0F34] mb-1">Habits that hold</div><div class="font-semibold">Sustainable Weight Loss</div></a>
+                <a href="../purposeful-movement/" class="flex-1 min-w-[200px] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-2xl px-5 py-4 bg-white"><div class="text-xs font-bold tracking-wider text-[#BE0F34] mb-1">Train with intent</div><div class="font-semibold">Purposeful Movement</div></a>
+            </div><div class="font-semibold">Sustainable Weight Loss</div></a>
+                <a href="../purposeful-movement/" class="flex-1 min-w-[200px] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-2xl px-5 py-4 bg-white"><div class="text-xs font-bold tracking-wider text-[#BE0F34] mb-1">Train with intent</div><div class="font-semibold">Purposeful Movement</div></a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#414042] text-white/80 text-sm">
+        <div class="max-w-7xl mx-auto px-6 pt-12 pb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-y-6">
+                <div>
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="brand-logo text-4xl italic font-black text-white tracking-[-2px]" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                        <div class="text-xs text-white/60">FITTEST FLEET</div>
+                    </div>
+                    <div class="text-xs">A fitness initiative for the T352 Fittest Fleet</div>
+                </div>
+                <div class="text-xs md:text-right space-y-1">
+                    <div>© 2026 Fittest Fleet | T352 Wellness Initiative. All rights reserved.</div>
+                </div>
+            </div>
+            <div class="border-t border-white/20 mt-8 pt-6 text-[10px] flex flex-col md:flex-row gap-y-2 justify-between text-white/50">
+                <div>People first. • Built with encouragement at the core.</div>
+                <div>For questions: <a href="mailto:hello@fittestfleet.com" class="text-white/70 underline hover:text-white">hello@fittestfleet.com</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            var btn = document.getElementById('mobile-menu-btn');
+            var menu = document.getElementById('mobile-menu');
+            if (!btn || !menu) return;
+            btn.addEventListener('click', function () {
+                menu.classList.toggle('hidden');
+                var icon = btn.querySelector('i');
+                var open = !menu.classList.contains('hidden');
+                icon.classList.toggle('fa-bars', !open);
+                icon.classList.toggle('fa-times', open);
+                btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+            });
+            menu.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    menu.classList.add('hidden');
+                    var icon = btn.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

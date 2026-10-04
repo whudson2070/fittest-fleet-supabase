@@ -215,7 +215,17 @@
     var encouragementEl = document.getElementById('daily-challenge-encouragement');
     if (!el) return;
     el.textContent = item.challenge;
-    if (pillarEl) pillarEl.textContent = item.pillar;
+    if (pillarEl) {
+      pillarEl.textContent = item.pillar;
+      if (pillarEl.tagName === 'A') {
+        var pages = {
+          'Sustainable Weight Loss': 'sustainable-weight-loss/',
+          'Purposeful Movement': 'purposeful-movement/',
+          'Nutritional Discipline': 'nutritional-discipline/'
+        };
+        pillarEl.setAttribute('href', pages[item.pillar] || 'index.html#pillars');
+      }
+    }
     if (encouragementEl) encouragementEl.textContent = item.encouragement;
   }
 

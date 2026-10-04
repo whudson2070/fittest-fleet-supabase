@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purposeful Movement Routines • Fittest Fleet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/brand.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Arial:wght@400;700&display=swap');
+        body {
+            font-family: Arial, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .brand-heading {
+            font-family: Arial, sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+        .section-heading {
+            font-family: Arial, sans-serif;
+            font-weight: 700;
+            color: #414042;
+        }
+        .nav-link { transition: color 0.2s ease; }
+        .nav-link:hover { color: #BE0F34; }
+        .brand-logo {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+        .fitness-hero {
+            background: linear-gradient(135deg, #BE0F34 0%, #AC1E2F 100%);
+        }
+        .tip-bullet { position: relative; padding-left: 1.5rem; }
+        .tip-bullet:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #BE0F34;
+            font-weight: bold;
+        }
+        .category-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            letter-spacing: 0.025em;
+        }
+    </style>
+</head>
+<body class="bg-white text-[#414042]">
+    <nav class="bg-white border-b border-[#E6E7E8] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-x-3">
+                    <a href="../index.html" class="flex items-center group">
+                        <div class="brand-logo text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                        <div class="ml-3">
+                            <div class="font-bold text-lg tracking-tight text-[#414042]">Fittest Fleet</div>
+                            <div class="text-[10px] text-[#414042]/60 -mt-1">Community Wellness</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="hidden lg:flex items-center gap-x-4 text-sm font-medium">
+                    <a href="../index.html#pillars" class="nav-link text-[#414042] hover:text-[#BE0F34]">Our Pillars</a>
+                    <a href="../index.html#stories" class="nav-link text-[#414042] hover:text-[#BE0F34]">Success Stories</a>
+                    <a href="../index.html#community" class="nav-link text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                    <a href="../nutritional-discipline/" title="Nutritional Discipline routines" class="nav-link text-[#414042] hover:text-[#BE0F34]">Nutrition</a>
+                    <a href="../sustainable-weight-loss/" title="Sustainable Weight Loss routines" class="nav-link text-[#414042] hover:text-[#BE0F34]">Weight Loss</a>
+                    <a href="../purposeful-movement/" title="Purposeful Movement routines" class="nav-link text-[#BE0F34] font-semibold">Movement</a>
+                    <a href="../run-runner/" class="nav-link text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
+                </div>
+
+                <div class="flex items-center gap-x-3">
+                    <a href="../index.html" class="hidden sm:inline-flex items-center justify-center px-5 py-2.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full transition-all active:scale-[0.985]">
+                        Back home
+                    </a>
+                    <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 flex items-center justify-center text-[#414042] hover:text-[#BE0F34]" aria-label="Open menu">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-[#E6E7E8] bg-white">
+            <div class="px-6 py-4 flex flex-col gap-y-3 text-sm font-medium">
+                <a href="../index.html#pillars" class="py-2 text-[#414042] hover:text-[#BE0F34]">Our Pillars</a>
+                <a href="../index.html#stories" class="py-2 text-[#414042] hover:text-[#BE0F34]">Success Stories</a>
+                <a href="../index.html#community" class="py-2 text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                <a href="../nutritional-discipline/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Nutritional Discipline</a>
+                <a href="../sustainable-weight-loss/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Sustainable Weight Loss</a>
+                <a href="../purposeful-movement/" class="py-2 text-[#BE0F34] font-semibold">Purposeful Movement</a>
+                <a href="../run-runner/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
+                <a href="../index.html" class="mt-1 w-full text-center py-3 bg-[#BE0F34] text-white rounded-full font-semibold">Back home</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="fitness-hero text-white">
+        <div class="max-w-5xl mx-auto px-6 pt-16 pb-16">
+            <a href="../index.html#pillars" class="inline-flex items-center gap-x-2 text-sm font-semibold text-white/80 hover:text-white mb-6">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Fittest Fleet</span>
+            </a>
+            <div class="inline-flex items-center gap-x-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 ml-0">
+                <span class="category-badge bg-[#5594CF] text-white">EXERCISE</span>
+                <span class="text-sm font-semibold tracking-wide">TRAIN TO IMPROVE</span>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-black tracking-tighter leading-none mb-6">
+                Purposeful<br>
+                <span class="text-[#D9E364]">Movement</span>
+            </h1>
+            <p class="max-w-2xl text-xl text-white/90 font-light">Short, repeatable training routines with a clear way to get better. Purpose first, then a little more work than last time.</p>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-14">
+        <div class="flex items-start gap-4 mb-10">
+            <div class="w-14 h-14 bg-[#5594CF]/10 rounded-2xl flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-dumbbell text-3xl text-[#5594CF]"></i>
+            </div>
+            <p class="text-lg text-[#414042]/80">
+                These routines stay inside this pillar. Repeat them until they feel ordinary, then raise the standard by a small notch. They are community practice ideas, not medical advice. Adjust anything that does not fit your health, schedule, or coaching.
+            </p>
+        </div>
+
+        <div class="space-y-6">
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 01</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">Monday, Wednesday, Friday</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Three-Day Strength Circuit</h2>
+                <p class="text-[#414042]/80 mb-5">Three short strength days build the muscle that makes every other effort feel lighter. The routine is simple enough to finish on a work night.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">Warm up with two minutes of easy marching and ten slow bodyweight squats.</div>
+                        <div class="tip-bullet text-sm">Complete three rounds: 10 squats or sit-to-stands, 8–12 push-ups or incline push-ups, 8 hip hinges or backpack deadlifts, and a 20–40 second plank.</div>
+                        <div class="tip-bullet text-sm">Rest 60–90 seconds between rounds. Quality of the last reps matters more than speed.</div>
+                        <div class="tip-bullet text-sm">When all three rounds feel solid, add one rep per move or slow the lowering phase.</div>
+                        <div class="tip-bullet text-sm">Stop a set if form breaks. Write down what you completed so the next session starts from a fact.</div>
+                </div>
+            </article>
+
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 02</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">Two days a week, 25–40 minutes</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Zone-2 Engine Builder</h2>
+                <p class="text-[#414042]/80 mb-5">Easy aerobic work is how hard efforts get easier. If you can only gasp, you are going too hard for this routine.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">Walk, cycle, or jog at a pace where you can speak in short sentences.</div>
+                        <div class="tip-bullet text-sm">Start at 25 minutes. Add five minutes only after two weeks feel repeatable.</div>
+                        <div class="tip-bullet text-sm">Keep the effort steady. Hills are fine; sprinting them is not the point.</div>
+                        <div class="tip-bullet text-sm">Use the same route once a week so time and effort are comparable.</div>
+                        <div class="tip-bullet text-sm">If you finished breathing easy, go a little farther next week, not a lot faster.</div>
+                </div>
+            </article>
+
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 03</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">5 minutes, twice a day</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Bookend Mobility</h2>
+                <p class="text-[#414042]/80 mb-5">Joints that move well let the strength and engine work actually land. Five minutes survives busy weeks; a perfect hour often does not.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">Before the first demanding task: hip openers, thoracic rotations, and calf stretches, 30 seconds each side.</div>
+                        <div class="tip-bullet text-sm">Repeat the same sequence before bed, slower, with longer exhales.</div>
+                        <div class="tip-bullet text-sm">Move into a comfortable range. Sharp pain is a stop, not a target.</div>
+                        <div class="tip-bullet text-sm">On lifting days, do the morning bookend before the strength circuit.</div>
+                        <div class="tip-bullet text-sm">If you miss one bookend, do the other. Never stack a missed session into a double-length punishment.</div>
+                </div>
+            </article>
+
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 04</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">Every 60–90 minutes, when it is safe to stop</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Shift Movement Snacks</h2>
+                <p class="text-[#414042]/80 mb-5">Long sits undo good workouts. Short movement snacks keep you ready for the session that actually drives improvement.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">When safely stopped, do 10 bodyweight squats, 10 wall or desk push-offs, and 20 seconds of standing tall.</div>
+                        <div class="tip-bullet text-sm">Set a timer or tie the snack to a natural break: fuel stop, meeting end, or load complete.</div>
+                        <div class="tip-bullet text-sm">Never do this while driving or operating equipment.</div>
+                        <div class="tip-bullet text-sm">If a break is only one minute, do the squats alone and count it.</div>
+                        <div class="tip-bullet text-sm">Aim for four snacks on a full workday. They support training; they do not replace it.</div>
+                </div>
+            </article>
+
+            <article class="bg-white border border-[#E6E7E8] rounded-3xl p-8">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div class="text-xs font-bold tracking-[2px] text-[#BE0F34]">ROUTINE 05</div>
+                    <div class="text-xs font-semibold text-[#414042]/70">First weekend of the month</div>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight mb-3">Four-Week Marker Test</h2>
+                <p class="text-[#414042]/80 mb-5">Improvement needs a scoreboard. Three simple markers show whether the other routines are doing their job.</p>
+                <div class="space-y-3">
+                        <div class="tip-bullet text-sm">Test max comfortable push-ups in one clean set. Stop when form fades.</div>
+                        <div class="tip-bullet text-sm">Time a 1 km walk or easy run on the same route.</div>
+                        <div class="tip-bullet text-sm">Run one round of the strength circuit and note how the last reps feel.</div>
+                        <div class="tip-bullet text-sm">Record all three numbers. Next month, beat one marker by a small margin.</div>
+                        <div class="tip-bullet text-sm">If a marker drops, check sleep and the movement floor before adding more volume.</div>
+                </div>
+            </article>
+        </div>
+
+        <section class="mt-14">
+            <h2 class="section-heading text-3xl tracking-tight mb-4">The other pillars</h2>
+            <div class="flex flex-wrap gap-4">
+                <a href="../nutritional-discipline/" class="flex-1 min-w-[200px] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-2xl px-5 py-4 bg-white"><div class="text-xs font-bold tracking-wider text-[#BE0F34] mb-1">Fuel the work</div><div class="font-semibold">Nutritional Discipline</div></a>
+                <a href="../sustainable-weight-loss/" class="flex-1 min-w-[200px] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-2xl px-5 py-4 bg-white"><div class="text-xs font-bold tracking-wider text-[#BE0F34] mb-1">Habits that hold</div><div class="font-semibold">Sustainable Weight Loss</div></a>
+            </div><div class="font-semibold">Nutritional Discipline</div></a>
+                <a href="../sustainable-weight-loss/" class="flex-1 min-w-[200px] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-2xl px-5 py-4 bg-white"><div class="text-xs font-bold tracking-wider text-[#BE0F34] mb-1">Habits that hold</div><div class="font-semibold">Sustainable Weight Loss</div></a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#414042] text-white/80 text-sm">
+        <div class="max-w-7xl mx-auto px-6 pt-12 pb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-y-6">
+                <div>
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="brand-logo text-4xl italic font-black text-white tracking-[-2px]" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                        <div class="text-xs text-white/60">FITTEST FLEET</div>
+                    </div>
+                    <div class="text-xs">A fitness initiative for the T352 Fittest Fleet</div>
+                </div>
+                <div class="text-xs md:text-right space-y-1">
+                    <div>© 2026 Fittest Fleet | T352 Wellness Initiative. All rights reserved.</div>
+                </div>
+            </div>
+            <div class="border-t border-white/20 mt-8 pt-6 text-[10px] flex flex-col md:flex-row gap-y-2 justify-between text-white/50">
+                <div>People first. • Built with encouragement at the core.</div>
+                <div>For questions: <a href="mailto:hello@fittestfleet.com" class="text-white/70 underline hover:text-white">hello@fittestfleet.com</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            var btn = document.getElementById('mobile-menu-btn');
+            var menu = document.getElementById('mobile-menu');
+            if (!btn || !menu) return;
+            btn.addEventListener('click', function () {
+                menu.classList.toggle('hidden');
+                var icon = btn.querySelector('i');
+                var open = !menu.classList.contains('hidden');
+                icon.classList.toggle('fa-bars', !open);
+                icon.classList.toggle('fa-times', open);
+                btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+            });
+            menu.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    menu.classList.add('hidden');
+                    var icon = btn.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
