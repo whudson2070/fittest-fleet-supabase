@@ -8,7 +8,9 @@
   'use strict';
 
   const POUNDS_STAT_ID = 'pounds-lost-stat';
-  const WORKOUTS_STAT_ID = 'workouts-month-stat';
+  const PUSHUPS_STAT_ID = 'pushups-stat';
+  const MILES_STAT_ID = 'miles-stat';
+  const YOGA_HOURS_STAT_ID = 'yoga-hours-stat';
 
   function setStat(id, value, fractionDigits) {
     const element = document.getElementById(id);
@@ -25,7 +27,9 @@
 
   function setFallbacks() {
     setStat(POUNDS_STAT_ID, NaN, 2);
-    setStat(WORKOUTS_STAT_ID, NaN, 0);
+    setStat(PUSHUPS_STAT_ID, NaN, 0);
+    setStat(MILES_STAT_ID, NaN, 2);
+    setStat(YOGA_HOURS_STAT_ID, NaN, 1);
   }
 
   async function loadStats() {
@@ -35,9 +39,11 @@
       return;
     }
 
-    const [poundsResult, workoutsResult] = await Promise.all([
+    const [poundsResult, pushupsResult, milesResult, yogaHoursResult] = await Promise.all([
       client.rpc('get_total_pounds_lost'),
-      client.rpc('get_workouts_completed_this_month'),
+      client.rpc('get_total_pushups'),
+      client.rpc('get_total_miles'),
+      client.rpc('get_total_yoga_hours'),
     ]);
 
     if (poundsResult.error) {
@@ -47,12 +53,19 @@
       setStat(POUNDS_STAT_ID, poundsResult.data, 2);
     }
 
-    if (workoutsResult.error) {
-      console.warn('[Fittest Fleet] Monthly-workouts stat unavailable.', workoutsResult.error.message || workoutsResult.error);
-      setStat(WORKOUTS_STAT_ID, NaN, 0);
-    } else {
-      setStat(WORKOUTS_STAT_ID, workoutsResult.data, 0);
-    }
+    const activityStats = [
+      [pushupsResult, PUSHUPS_STAT_ID, 0, 'Push-ups'],
+      [milesResult, MILES_STAT_ID, 2, 'Miles'],
+      [yogaHoursResult, YOGA_HOURS_STAT_ID, 1, 'Yoga-hours'],
+    ];
+    activityStats.forEach(([result, id, fractionDigits, label]) => {
+      if (result.error) {
+        console.warn(`[Fittest Fleet] ${label} stat unavailable.`, result.error.message || result.error);
+        setStat(id, NaN, fractionDigits);
+      } else {
+        setStat(id, result.data, fractionDigits);
+      }
+    });
   }
 
   global.FFTrustBar = { loadStats };

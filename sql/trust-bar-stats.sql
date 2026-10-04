@@ -37,33 +37,50 @@ as $$
   join last_weights using (user_id);
 $$;
 
--- Count this month's check-ins in the current America/New_York calendar month
--- when at least one activity field is greater than zero. Weight-only and
--- nutrition-only check-ins do not count as workouts.
-create or replace function public.get_workouts_completed_this_month()
+-- The former monthly-workouts RPC is no longer part of the public stats surface.
+drop function if exists public.get_workouts_completed_this_month();
+
+-- Sum push-ups across all Progress check-ins owned by registered users.
+create or replace function public.get_total_pushups()
 returns bigint
 language sql
 security definer
 set search_path = public
 stable
 as $$
-  with month_bounds as (
-    select date_trunc('month', timezone('America/New_York', now()))::date as month_start
-  )
-  select count(*)::bigint
-  from public.progress_checkins as checkin
-  cross join month_bounds
-  where checkin.checked_in_on >= month_bounds.month_start
-    and checkin.checked_in_on < (month_bounds.month_start + interval '1 month')::date
-    and (
-      coalesce(checkin.pushups, 0) > 0
-      or coalesce(checkin.squats, 0) > 0
-      or coalesce(checkin.yoga_minutes, 0) > 0
-      or coalesce(checkin.miles, 0) > 0
-    );
+  select coalesce(sum(checkin.pushups), 0)::bigint
+  from public.progress_checkins as checkin;
+$$;
+
+-- Sum miles across all Progress check-ins owned by registered users.
+create or replace function public.get_total_miles()
+returns numeric
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce(sum(checkin.miles), 0::numeric)
+  from public.progress_checkins as checkin;
+$$;
+
+-- Sum yoga minutes and present the registered-user total as hours.
+create or replace function public.get_total_yoga_hours()
+returns numeric
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce(sum(checkin.yoga_minutes), 0::numeric) / 60
+  from public.progress_checkins as checkin;
 $$;
 
 revoke all on function public.get_total_pounds_lost() from public;
-revoke all on function public.get_workouts_completed_this_month() from public;
+revoke all on function public.get_total_pushups() from public;
+revoke all on function public.get_total_miles() from public;
+revoke all on function public.get_total_yoga_hours() from public;
 grant execute on function public.get_total_pounds_lost() to anon, authenticated;
-grant execute on function public.get_workouts_completed_this_month() to anon, authenticated;
+grant execute on function public.get_total_pushups() to anon, authenticated;
+grant execute on function public.get_total_miles() to anon, authenticated;
+grant execute on function public.get_total_yoga_hours() to anon, authenticated;
