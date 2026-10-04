@@ -414,12 +414,18 @@
 
     setTimeout(async () => {
       const name = global.FFAuth.getDisplayName() || 'You';
+      const challenge =
+        global.FFDailyChallenge && typeof global.FFDailyChallenge.challengeForDate === 'function'
+          ? global.FFDailyChallenge.challengeForDate(new Date())
+          : '';
+      const message = challenge
+        ? `I accepted today’s challenge: ${challenge}. Who’s with me?`
+        : "I accepted today’s challenge! Committing to show up for myself and encourage at least one person in this amazing community. Who’s with me?";
       const { error } = await client.from('comments').insert({
         user_id: user.id,
         display_name: `${name} (via Challenge)`,
         category: 'General',
-        message:
-          "I accepted today’s challenge! Committing to show up for myself and encourage at least one person in this amazing community. Who’s with me?",
+        message,
         likes: 0,
       });
       if (error) {
