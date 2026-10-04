@@ -229,10 +229,11 @@
             global.showToast('Welcome to Fittest Fleet! You’re signed in.');
           }
         } else {
+          // Email confirmation required (typical Supabase: no session until confirmed).
           closeAuthModal();
-          if (typeof global.showToast === 'function') {
-            global.showToast('Check your email to confirm your account, then sign in.');
-          }
+          window.alert(
+            "You're almost there. We sent a confirmation email to the address you entered. Open it and confirm your account to finish signing up. If you don't see it in a few minutes, check your spam folder."
+          );
         }
       } else {
         const result = await signIn(email.trim(), password);
