@@ -117,6 +117,14 @@ a:focus {
   text-decoration: underline;
 }
 
+/* Final CTA uses a bright-red hover fill. The rule above would paint the
+   label the same color and hide it. Keep the label white on hover and focus. */
+a.final-cta-link:hover,
+a.final-cta-link:focus {
+  color: var(--white);
+  text-decoration: none;
+}
+
 /* ============================================
    BUTTONS - Clear CTAs for Community Action
    ============================================ */

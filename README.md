@@ -19,6 +19,7 @@ Browse posts signed out. Sign in to post and encourage (like) others.
 4. Confirm the `comments` and `profiles` tables exist under **Table Editor**, and that Storage has a public **avatars** bucket.
 5. Run [`sql/get-member-count.sql`](sql/get-member-count.sql) so the hero can show the live count of registered accounts (`public.get_member_count()`, anon-safe). Until that function exists, the hero says “Members strong” with no number.
 6. Run [`sql/add-job-title-location.sql`](sql/add-job-title-location.sql) so signup can store `job_title` and `location` on `profiles` and comments can read them. Until then, those fields are not saved.
+7. Run [`sql/encouragements.sql`](sql/encouragements.sql) so signed-in members can see how many times they have clicked Encourage on other people’s posts. Until then, that count stays unavailable (it is not guessed). Comment totals still come from `comments`.
 
 ### 3. Enable Email auth
 
@@ -65,7 +66,7 @@ Sign up with email/password, then post in the Community Hub. Open another browse
 | View comments | Anyone | `SELECT` on `comments` (public RLS) |
 | Sign up / Sign in | Visitor | Supabase Auth email/password; display name stored in `user_metadata` |
 | Post | Authenticated | `INSERT` with `user_id = auth.uid()` |
-| Encourage (like) | Authenticated | `UPDATE` increments `likes` |
+| Encourage (like) | Authenticated | `UPDATE` increments `likes`, and inserts a row in `encouragements` when the post belongs to someone else |
 | Live updates | Anyone | Realtime subscription on `INSERT` / `UPDATE` / `DELETE` |
 | Profile / avatar | Authenticated | Upsert own `profiles` row; upload only to `avatars/{uid}/…` |
 

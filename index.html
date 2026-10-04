@@ -526,10 +526,24 @@
     <div class="bg-[#E6E7E8]/60 border-t border-[#E6E7E8]">
         <div class="max-w-4xl mx-auto px-6 py-14 text-center">
             <h3 class="text-4xl font-bold tracking-tight mb-3">You’re not on this journey alone.</h3>
-            <p class="text-xl text-[#414042]/80 mb-8">Thousands of Fittest Fleet members are walking the same path — cheering each other on every single day.</p>
-            <a href="#community" class="inline-flex items-center justify-center gap-x-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold text-lg px-12 py-4 rounded-full transition-all active:scale-[0.985]">
+            <p class="text-xl text-[#414042]/80 mb-8">Fittest Fleet members are walking the same path and cheering each other on every single day.</p>
+            <a href="#community" class="final-cta-link inline-flex items-center justify-center gap-x-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white hover:text-white focus:text-white font-bold text-lg px-12 py-4 rounded-full transition-all active:scale-[0.985]">
                 Add Your Voice to the Community
             </a>
+            <div id="final-cta-engagement" class="hidden mx-auto mt-8 max-w-lg rounded-3xl bg-white border border-[#E6E7E8] px-6 py-5 text-left" aria-live="polite">
+                <p class="text-sm font-semibold text-[#414042] mb-4 text-center">Your engagement</p>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                        <div id="final-cta-comment-count" class="text-3xl font-black text-[#BE0F34] tracking-tight">—</div>
+                        <div class="text-xs text-[#414042]/70 mt-1">Comments you’ve posted</div>
+                    </div>
+                    <div>
+                        <div id="final-cta-encourage-count" class="text-3xl font-black text-[#BE0F34] tracking-tight">—</div>
+                        <div class="text-xs text-[#414042]/70 mt-1">Encourage clicks on others’ posts</div>
+                    </div>
+                </div>
+                <p id="final-cta-encourage-note" class="hidden mt-3 text-xs text-[#414042]/60 text-center"></p>
+            </div>
             <p class="mt-6 text-xs text-[#414042]/60">Small steps. Shared victories. Lifelong change.</p>
         </div>
     </div>
@@ -703,6 +717,9 @@
             await FFAuth.initAuth();
             FFAuth.onAuthChange(() => {
                 if (window.FFProfile) FFProfile.refreshAuthAvatar();
+                if (window.FFComments && typeof FFComments.refreshEngagementTracker === 'function') {
+                    FFComments.refreshEngagementTracker();
+                }
             });
             await FFComments.initComments();
             if (window.FFMembers) FFMembers.loadMemberCount();

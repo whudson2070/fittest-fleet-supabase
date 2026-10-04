@@ -249,6 +249,10 @@
         async (payload) => {
           await upsertLocal(payload.new);
           applyFilterAndRender();
+          const user = global.FFAuth && global.FFAuth.getCurrentUser();
+          if (user && payload.new && payload.new.user_id === user.id) {
+            refreshEngagementTracker();
+          }
         }
       )
       .on(
@@ -263,8 +267,13 @@
         'postgres_changes',
         { event: 'DELETE', schema: 'public', table: 'comments' },
         (payload) => {
+          const removed = comments.find((c) => c.id === payload.old.id);
           removeLocal(payload.old.id);
           applyFilterAndRender();
+          const user = global.FFAuth && global.FFAuth.getCurrentUser();
+          if (user && removed && removed.user_id === user.id) {
+            refreshEngagementTracker();
+          }
         }
       )
       .subscribe();
@@ -327,6 +336,8 @@
       global.showToast('Thank you for sharing! Your encouragement means everything to this community.');
     }
 
+    refreshEngagementTracker();
+
     // Realtime INSERT will refresh the list; fetch as fallback
     setTimeout(() => {
       document.getElementById('comments-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -372,6 +383,19 @@
         global.showToast(error.message || 'Could not update likes.');
       }
       return;
+    }
+
+    // comments.likes is only a total. Record this user's click when it is
+    // on someone else's post so the final CTA can count real encourage clicks.
+    if (comment.user_id && comment.user_id !== user.id) {
+      const { error: encourageError } = await client.from('encouragements').insert({
+        user_id: user.id,
+        comment_id: id,
+      });
+      if (encourageError) {
+        console.error('[comments] encouragement record failed', encourageError);
+      }
+      refreshEngagementTracker();
     }
 
     if (nextLikes === 1 || nextLikes === 5 || nextLikes === 10) {
@@ -430,8 +454,72 @@
       });
       if (error) {
         console.error('[comments] challenge post failed', error);
+      } else {
+        refreshEngagementTracker();
       }
     }, 1000);
+  }
+
+
+  let engagementRequest = 0;
+
+  function setEngagementNote(message) {
+    const note = document.getElementById('final-cta-encourage-note');
+    if (!note) return;
+    if (!message) {
+      note.textContent = '';
+      note.classList.add('hidden');
+      return;
+    }
+    note.textContent = message;
+    note.classList.remove('hidden');
+  }
+
+  async function refreshEngagementTracker() {
+    const el = document.getElementById('final-cta-engagement');
+    if (!el) return;
+
+    const requestId = ++engagementRequest;
+    const user = global.FFAuth && global.FFAuth.getCurrentUser();
+    const client = global.ffSupabase;
+    if (!user || !client) {
+      el.classList.add('hidden');
+      setEngagementNote('');
+      return;
+    }
+
+    const [commentRes, encourageRes] = await Promise.all([
+      client.from('comments').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      client.from('encouragements').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+    ]);
+
+    if (requestId !== engagementRequest) return;
+    const still = global.FFAuth && global.FFAuth.getCurrentUser();
+    if (!still || still.id !== user.id) {
+      el.classList.add('hidden');
+      return;
+    }
+
+    const commentEl = document.getElementById('final-cta-comment-count');
+    const encourageEl = document.getElementById('final-cta-encourage-count');
+
+    if (commentRes.error) {
+      console.error('[comments] engagement comment count failed', commentRes.error);
+      if (commentEl) commentEl.textContent = '—';
+    } else if (commentEl) {
+      commentEl.textContent = String(commentRes.count ?? 0);
+    }
+
+    if (encourageRes.error) {
+      console.error('[comments] engagement encourage count failed', encourageRes.error);
+      if (encourageEl) encourageEl.textContent = '—';
+      setEngagementNote('Encourage clicks are not available until sql/encouragements.sql has been run in Supabase.');
+    } else {
+      if (encourageEl) encourageEl.textContent = String(encourageRes.count ?? 0);
+      setEngagementNote('');
+    }
+
+    el.classList.remove('hidden');
   }
 
   async function initComments() {
@@ -457,6 +545,7 @@
 
     await fetchComments();
     subscribeRealtime();
+    await refreshEngagementTracker();
 
     const allFilterBtn = document.getElementById('filter-all');
     if (allFilterBtn) {
@@ -471,6 +560,7 @@
     encourageComment,
     scrollToCommunityWithFilter,
     acceptDailyChallenge,
+    refreshEngagementTracker,
   };
 
   // Keep onclick helpers used in the HTML
