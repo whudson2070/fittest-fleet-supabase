@@ -1,13 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Strong arm avatar">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Jump rope avatar">
   <circle cx="64" cy="64" r="64" fill="#BE0F34"/>
-  
-  <g fill="#fff">
-    <circle cx="34" cy="36" r="11"/>
-    <circle cx="94" cy="36" r="11"/>
-    <rect x="28" y="42" width="16" height="28" rx="8"/>
-    <rect x="84" y="42" width="16" height="28" rx="8"/>
-    <ellipse cx="40" cy="74" rx="16" ry="13"/>
-    <ellipse cx="88" cy="74" rx="16" ry="13"/>
-    <path d="M46 70c6 10 30 10 36 0v18c-6 8-30 8-36 0z"/>
-  </g>
+
+  <path d="M30 87C18 49 37 24 64 24s46 25 34 63" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+  <rect x="24" y="79" width="12" height="28" rx="6" fill="#fff" transform="rotate(-18 30 93)"/>
+  <rect x="92" y="79" width="12" height="28" rx="6" fill="#fff" transform="rotate(18 98 93)"/>
 </svg>

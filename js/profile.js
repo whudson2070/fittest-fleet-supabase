@@ -6,7 +6,7 @@
   'use strict';
 
   const PRESET_AVATARS = [
-    { id: 'dumbbell', url: 'assets/avatars/dumbbell.svg', label: 'Strong arm' },
+    { id: 'dumbbell', url: 'assets/avatars/dumbbell.svg', label: 'Jump rope' },
     { id: 'treadmill', url: 'assets/avatars/treadmill.svg', label: 'Runner' },
     { id: 'jumprope', url: 'assets/avatars/jumprope.svg', label: 'Heart' },
     { id: 'kettlebell', url: 'assets/avatars/kettlebell.svg', label: 'Kettlebell' },
