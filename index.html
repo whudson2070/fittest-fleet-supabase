@@ -242,11 +242,11 @@
                     <div class="text-sm text-[#414042]/70 font-medium tracking-wide">COMMUNITY MEMBERS</div>
                 </div>
                 <div>
-                    <div class="text-3xl font-black text-[#BE0F34]">47,312</div>
+                    <div id="pounds-lost-stat" class="text-3xl font-black text-[#BE0F34]">—</div>
                     <div class="text-sm text-[#414042]/70 font-medium tracking-wide">POUNDS LOST TOGETHER</div>
                 </div>
                 <div>
-                    <div class="text-3xl font-black text-[#BE0F34]">1,284</div>
+                    <div id="workouts-month-stat" class="text-3xl font-black text-[#BE0F34]">—</div>
                     <div class="text-sm text-[#414042]/70 font-medium tracking-wide">WORKOUTS COMPLETED THIS MONTH</div>
                 </div>
                 <div>
@@ -615,6 +615,7 @@
     <script src="js/comments.js"></script>
     <script src="js/daily-challenge.js"></script>
     <script src="js/member-count.js"></script>
+    <script src="js/trust-bar-stats.js"></script>
     <script src="js/hero-avatars.js"></script>
     <script src="js/voices-of-victory.js"></script>
     <script>
@@ -703,6 +704,7 @@
             });
             await FFComments.initComments();
             if (window.FFMembers) FFMembers.loadMemberCount();
+            if (window.FFTrustBar) FFTrustBar.loadStats();
             if (window.FFHeroAvatars) FFHeroAvatars.loadHeroAvatars();
             if (window.FFVoicesOfVictory) FFVoicesOfVictory.load();
             if (window.FFRunRunnerScores) FFRunRunnerScores.loadLeaderboard();

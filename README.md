@@ -21,6 +21,7 @@ Browse posts signed out. Sign in to post and encourage (like) others.
 6. Run [`sql/add-job-title-location.sql`](sql/add-job-title-location.sql) so signup can store `job_title` and `location` on `profiles` and comments can read them. Until then, those fields are not saved.
 7. Run [`sql/encouragements.sql`](sql/encouragements.sql) so signed-in members can see how many times they have clicked Encourage on other people’s posts. Until then, that count stays unavailable (it is not guessed). Comment totals still come from `comments`.
 8. Run [`sql/progress-checkins.sql`](sql/progress-checkins.sql) before using [Progress](progress/) (`https://fittestfleet.com/progress/`). Until that table exists, check-ins cannot be saved. Each save is one dated row owned by the signed-in user.
+9. Run [`sql/trust-bar-stats.sql`](sql/trust-bar-stats.sql) so the homepage trust bar can read aggregate-only Progress stats. **Pounds lost together** sums each user's positive loss from their earliest to latest non-null weight. **Workouts completed this month** counts check-ins in the current `America/New_York` calendar month with any positive pushups, squats, yoga minutes, or miles. If either RPC is missing or unavailable, the homepage shows `—` rather than a placeholder number.
 
 ### 3. Enable Email auth
 
@@ -101,6 +102,7 @@ sql/schema.sql             — comments + profiles schema, RLS, realtime
 sql/profiles-and-avatars.sql — profiles + Storage avatars bucket/policies (run this)
 sql/add-job-title-location.sql — job_title + location columns, grants, signup trigger
 sql/progress-checkins.sql  — progress check-ins table, own-row RLS, grants (run this)
+sql/trust-bar-stats.sql    — aggregate-only homepage trust-bar RPCs (run this)
 sql/fix-*.sql             — prior grant / replica identity fixes
 ```
 
