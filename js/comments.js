@@ -420,6 +420,15 @@
     }, 900);
   }
 
+  function categoryForChallengePillar(pillar) {
+    const pillarToCategory = {
+      'Nutritional Discipline': 'Nutritional Discipline',
+      'Sustainable Weight Loss': 'Weight Loss',
+      'Purposeful Movement': 'Exercise',
+    };
+    return pillarToCategory[pillar] || 'General';
+  }
+
   async function acceptDailyChallenge() {
     if (typeof global.showToast === 'function') {
       global.showToast("Challenge accepted! You've taken a powerful step today. 💪");
@@ -438,17 +447,23 @@
 
     setTimeout(async () => {
       const name = global.FFAuth.getDisplayName() || 'You';
+      const challengeApi = global.FFDailyChallenge;
       const challenge =
-        global.FFDailyChallenge && typeof global.FFDailyChallenge.challengeForDate === 'function'
-          ? global.FFDailyChallenge.challengeForDate(new Date())
+        challengeApi && typeof challengeApi.challengeForDate === 'function'
+          ? challengeApi.challengeForDate(new Date())
           : '';
+      const pillar =
+        challengeApi && typeof challengeApi.pillarForDate === 'function'
+          ? challengeApi.pillarForDate(new Date())
+          : '';
+      const category = categoryForChallengePillar(pillar);
       const message = challenge
         ? `I accepted today’s challenge: ${challenge}. Who’s with me?`
         : "I accepted today’s challenge! Committing to show up for myself and encourage at least one person in this amazing community. Who’s with me?";
       const { error } = await client.from('comments').insert({
         user_id: user.id,
         display_name: `${name} (via Challenge)`,
-        category: 'General',
+        category,
         message,
         likes: 0,
       });
