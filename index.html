@@ -213,10 +213,10 @@
             </div>
 
             <div class="mt-12 flex items-center justify-center gap-x-8 text-sm">
-                <div class="flex -space-x-3">
-                    <div class="w-8 h-8 bg-white/30 rounded-full border-2 border-white overflow-hidden"><img src="https://i.pravatar.cc/32?img=28" alt=""></div>
-                    <div class="w-8 h-8 bg-white/30 rounded-full border-2 border-white overflow-hidden"><img src="https://i.pravatar.cc/32?img=47" alt=""></div>
-                    <div class="w-8 h-8 bg-white/30 rounded-full border-2 border-white overflow-hidden"><img src="https://i.pravatar.cc/32?img=12" alt=""></div>
+                <div id="hero-member-avatars" class="flex -space-x-3">
+                    <div class="w-8 h-8 bg-white/30 rounded-full border-2 border-white overflow-hidden"><img alt="" class="w-full h-full object-cover"></div>
+                    <div class="w-8 h-8 bg-white/30 rounded-full border-2 border-white overflow-hidden"><img alt="" class="w-full h-full object-cover"></div>
+                    <div class="w-8 h-8 bg-white/30 rounded-full border-2 border-white overflow-hidden"><img alt="" class="w-full h-full object-cover"></div>
                 </div>
                 <div id="hero-member-join" class="text-white/80 text-sm font-medium">Join others on the journey</div>
             </div>
@@ -604,6 +604,7 @@
     <script src="js/profile.js"></script>
     <script src="js/comments.js"></script>
     <script src="js/member-count.js"></script>
+    <script src="js/hero-avatars.js"></script>
     <script>
         function initTailwind() {
             if (typeof tailwind !== 'undefined') {
@@ -687,6 +688,7 @@
             });
             await FFComments.initComments();
             if (window.FFMembers) FFMembers.loadMemberCount();
+            if (window.FFHeroAvatars) FFHeroAvatars.loadHeroAvatars();
 
             console.log('%c[Fittest Fleet] Supabase auth + realtime comments ready.', 'color:#BE0F34');
         }

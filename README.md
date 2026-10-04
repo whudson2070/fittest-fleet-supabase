@@ -74,7 +74,7 @@ Signed-in users can open **Profile** (header name / mobile menu) to:
 1. Upload an image. A crop step lets you drag and zoom so the photo fits the circular avatar, then saves a 512×512 JPEG (not the original) to Supabase Storage bucket `avatars` at `{user_id}/avatar.jpg`
 2. Or pick a preset SVG under [`assets/avatars/`](assets/avatars/) (presets skip cropping)
 
-Choices persist in `public.profiles` (`avatar_url`, optional `display_name`). Avatars appear in the header and on community comments.
+Choices persist in `public.profiles` (`avatar_url`, optional `display_name`). Avatars appear in the header and on community comments. The hero stack shows up to three random accounts whose `avatar_url` is a custom upload (anything that is not a preset under `assets/avatars/`). Fewer than three uploads leaves the remaining circles empty; a failed query leaves all three empty. No extra SQL is required — profiles are already anon-readable.
 
 **SQL Will must run:** [`sql/profiles-and-avatars.sql`](sql/profiles-and-avatars.sql) in the Supabase SQL Editor (creates `profiles`, trigger, grants/RLS, and Storage bucket + policies). Fresh installs can use updated [`sql/schema.sql`](sql/schema.sql) plus the storage section in the profiles migration.
 
@@ -90,6 +90,7 @@ js/supabase-client.js      — creates the Supabase client
 js/auth.js                 — sign up / sign in / sign out + header UI
 js/profile.js              — profile load/save, upload, presets
 js/comments.js             — fetch, post, likes, filters, realtime (+ profile avatars)
+js/hero-avatars.js         — random custom uploads in the hero avatar stack
 sql/schema.sql             — comments + profiles schema, RLS, realtime
 sql/profiles-and-avatars.sql — profiles + Storage avatars bucket/policies (run this)
 sql/fix-*.sql             — prior grant / replica identity fixes
