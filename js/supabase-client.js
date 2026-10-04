@@ -21,7 +21,17 @@
       return null;
     }
 
-    return global.supabase.createClient(url, key);
+    // detectSessionInUrl (default true) reads the email-confirm redirect.
+    // Implicit flow puts access_token / type=signup in the URL hash, which
+    // this static site can consume. PKCE would require the same browser.
+    return global.supabase.createClient(url, key, {
+      auth: {
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true,
+        flowType: 'implicit',
+      },
+    });
   }
 
   global.ffSupabase = createClient();

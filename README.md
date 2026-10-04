@@ -25,6 +25,7 @@ Browse posts signed out. Sign in to post and encourage (like) others.
 1. Open **Authentication** → **Providers** → **Email**.
 2. Ensure Email is enabled.
 3. For local demos you can turn **off** “Confirm email” so sign-up signs you in immediately. For production, leave confirmation on.
+4. **Authentication → URL Configuration**: set **Site URL** to `https://fittestfleet.com`. Add **Redirect URLs** `https://fittestfleet.com` and `https://fittestfleet.com/**`. Signup sends `emailRedirectTo` to `https://fittestfleet.com/`; if that URL is not allowed, Supabase falls back to Site URL (a localhost Site URL makes the confirm button fail with `ERR_CONNECTION_REFUSED`).
 
 ### 4. Add your API keys
 

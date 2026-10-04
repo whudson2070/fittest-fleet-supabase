@@ -8,6 +8,25 @@
   let currentUser = null;
   let displayNameHint = '';
 
+  // Production site. Confirmation emails must land here, not localhost.
+  const EMAIL_REDIRECT_TO = 'https://fittestfleet.com/';
+
+  // Read the redirect before supabase-js initialize strips the hash.
+  const authCallback = (function readAuthCallback() {
+    const hash = new URLSearchParams(String(global.location.hash || '').replace(/^#/, ''));
+    const query = new URLSearchParams(global.location.search || '');
+    const pick = (key) => hash.get(key) || query.get(key) || '';
+    return {
+      type: pick('type'),
+      error: pick('error_description') || pick('error'),
+      hasSessionGrant:
+        hash.has('access_token') ||
+        hash.has('refresh_token') ||
+        query.has('code') ||
+        query.has('token_hash'),
+    };
+  })();
+
   const listeners = [];
 
   function onAuthChange(cb) {
@@ -167,7 +186,10 @@
     const { data, error } = await client.auth.signUp({
       email,
       password,
-      options: { data: meta },
+      options: {
+        data: meta,
+        emailRedirectTo: EMAIL_REDIRECT_TO,
+      },
     });
     if (error) throw error;
 
@@ -256,6 +278,24 @@
     }
   }
 
+  function announceAuthCallback() {
+    if (!authCallback.error && !authCallback.hasSessionGrant) return;
+    if (typeof global.showToast !== 'function') return;
+    if (authCallback.error) {
+      let message = authCallback.error;
+      try {
+        message = decodeURIComponent(message.replace(/\+/g, ' '));
+      } catch (e) {
+        /* keep raw */
+      }
+      global.showToast(message);
+      return;
+    }
+    if (currentUser) {
+      global.showToast('Email confirmed. You’re signed in.');
+    }
+  }
+
   async function initAuth() {
     const client = global.ffSupabase;
 
@@ -287,6 +327,7 @@
     displayNameHint = getDisplayNameFromUser(currentUser);
     updateAuthUI();
     notify();
+    announceAuthCallback();
 
     client.auth.onAuthStateChange((_event, session) => {
       currentUser = session ? session.user : null;
