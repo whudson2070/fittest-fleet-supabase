@@ -341,59 +341,9 @@
                 <p class="mt-3 md:mt-0 max-w-md text-[#414042]/80">These are your neighbors, colleagues, and friends. Their stories could be yours.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="success-story bg-white rounded-3xl p-7 border border-[#E6E7E8]">
-                    <div class="flex items-center gap-x-4 mb-5">
-                        <img src="https://i.pravatar.cc/48?img=28" alt="Maria Torres" class="w-12 h-12 rounded-full ring-2 ring-[#BE0F34]/20">
-                        <div>
-                            <div class="font-bold">Maria Torres</div>
-                            <div class="text-xs text-[#414042]/60">T352 Fleet Coordinator • 8 months in community</div>
-                        </div>
-                    </div>
-                    <div class="motivation-quote pl-4 text-[#414042]/90">
-                        “I’ve lost 52 pounds since joining. The daily encouragement from this group kept me going when I wanted to quit.
-                        You all became my second family. Thank you for believing in me when I didn’t.”
-                    </div>
-                    <div class="mt-5 flex items-center gap-x-2 text-xs font-semibold text-[#BE0F34]">
-                        <i class="fa-solid fa-tachometer-alt"></i>
-                        <span>52 lbs down • Still going strong</span>
-                    </div>
-                </div>
-
-                <div class="success-story bg-white rounded-3xl p-7 border border-[#E6E7E8]">
-                    <div class="flex items-center gap-x-4 mb-5">
-                        <img src="https://i.pravatar.cc/48?img=47" alt="James Rivera" class="w-12 h-12 rounded-full ring-2 ring-[#5594CF]/20">
-                        <div>
-                            <div class="font-bold">James Rivera</div>
-                            <div class="text-xs text-[#414042]/60">T352 Driver • 5 months in community</div>
-                        </div>
-                    </div>
-                    <div class="motivation-quote pl-4 text-[#414042]/90">
-                        “After years of back pain from sitting, the exercise challenges got me moving again.
-                        I’m now pain-free and training for my first 10K. This community gave me my life back.”
-                    </div>
-                    <div class="mt-5 flex items-center gap-x-2 text-xs font-semibold text-[#5594CF]">
-                        <i class="fa-solid fa-running"></i>
-                        <span>Completed first 10K • Energy through the roof</span>
-                    </div>
-                </div>
-
-                <div class="success-story bg-white rounded-3xl p-7 border border-[#E6E7E8]">
-                    <div class="flex items-center gap-x-4 mb-5">
-                        <img src="https://i.pravatar.cc/48?img=12" alt="Elena Patel" class="w-12 h-12 rounded-full ring-2 ring-[#D9E364]/40">
-                        <div>
-                            <div class="font-bold">Elena Patel</div>
-                            <div class="text-xs text-[#414042]/60">T352 Safety Lead • 11 months in community</div>
-                        </div>
-                    </div>
-                    <div class="motivation-quote pl-4 text-[#414042]/90">
-                        “I used to skip meals or grab fast food. The nutritional discipline tips and accountability here changed everything.
-                        I now prep meals I actually enjoy and feel incredible. My kids even notice the difference!”
-                    </div>
-                    <div class="mt-5 flex items-center gap-x-2 text-xs font-semibold text-[#D9E364]">
-                        <i class="fa-solid fa-heart"></i>
-                        <span>Whole family eating better • More energy at work</span>
-                    </div>
+            <div id="voices-of-victory-list" class="grid md:grid-cols-3 gap-6" aria-live="polite">
+                <div class="md:col-span-3 text-center py-10 text-[#414042]/70">
+                    Loading community voices…
                 </div>
             </div>
 
@@ -639,6 +589,7 @@
     <script src="js/daily-challenge.js"></script>
     <script src="js/member-count.js"></script>
     <script src="js/hero-avatars.js"></script>
+    <script src="js/voices-of-victory.js"></script>
     <script>
         function initTailwind() {
             if (typeof tailwind !== 'undefined') {
@@ -726,6 +677,7 @@
             await FFComments.initComments();
             if (window.FFMembers) FFMembers.loadMemberCount();
             if (window.FFHeroAvatars) FFHeroAvatars.loadHeroAvatars();
+            if (window.FFVoicesOfVictory) FFVoicesOfVictory.load();
             if (window.FFRunRunnerScores) FFRunRunnerScores.loadLeaderboard();
             if (window.FFDailyChallenge) FFDailyChallenge.render();
 
