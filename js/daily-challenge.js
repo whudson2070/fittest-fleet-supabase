@@ -10,34 +10,146 @@
   var TIME_ZONE = 'America/New_York';
 
   var CHALLENGES = [
-    { challenge: 'Walk one mile', encouragement: 'Every mile starts with one determined step—keep going!' },
-    { challenge: 'Jog 5 kilometers', encouragement: 'Set your pace, trust your training, and celebrate every finish line.' },
-    { challenge: 'Consume less than 1,200 calories', encouragement: 'Practice mindful portions and nourish yourself with care today.' },
-    { challenge: 'Drink two liters of water', encouragement: 'Each glass is a refreshing vote for your energy and well-being.' },
-    { challenge: 'Achieve 100 pushups by the end of the day', encouragement: 'Break them into manageable sets—steady effort builds real strength.' },
-    { challenge: 'Meditate in silence for thirty minutes', encouragement: 'Give your mind room to breathe; this quiet time is a gift to yourself.' },
-    { challenge: 'Take a 20-minute walk after each meal', encouragement: 'A little movement after each meal adds up to a powerful daily habit.' },
-    { challenge: 'Complete 50 bodyweight squats', encouragement: 'Your legs grow stronger with every rep—show up for yourself.' },
-    { challenge: 'Hold a plank for three minutes total', encouragement: 'Find your steady breath and let each second strengthen your core.' },
-    { challenge: 'Skip added sugar for the entire day', encouragement: 'Your intentional choices today are building lasting momentum.' },
-    { challenge: 'Eat five servings of vegetables', encouragement: 'Add color to your plate and give your body the fuel it deserves.' },
-    { challenge: 'Take the stairs instead of the elevator all day', encouragement: 'Each flight is a small victory that makes you stronger.' },
-    { challenge: 'Finish a 30-minute strength session', encouragement: 'Thirty focused minutes can make a strong difference—give it your best.' },
-    { challenge: 'Stretch for fifteen minutes', encouragement: 'Slow down, breathe deeply, and give your body space to move well.' },
-    { challenge: 'Skip late-night snacks after dinner', encouragement: 'Honor your evening routine and wake up proud of your mindful choice.' },
-    { challenge: 'Walk or bike every trip under one mile', encouragement: 'Turn everyday errands into energizing wins for your body.' },
-    { challenge: 'Log every meal before you eat it', encouragement: 'A moment of awareness before each meal keeps your goals in view.' },
-    { challenge: 'Do 20 burpees before noon', encouragement: 'Start strong and finish proud—your early effort sets the tone for the day.' },
-    { challenge: 'Replace one sugary drink with water', encouragement: 'One simple swap is a meaningful step toward feeling your best.' },
-    { challenge: 'Complete a 15-minute HIIT circuit', encouragement: 'Bring focused energy for fifteen minutes, then enjoy the strength you earned.' },
-    { challenge: 'Reach 8,000 steps before dinner', encouragement: 'Keep moving in small bursts—every step brings you closer.' },
-    { challenge: 'Prep tomorrow’s meals tonight', encouragement: 'A little preparation tonight makes tomorrow’s healthy choices easier.' },
-    { challenge: 'Do 100 jumping jacks across the day', encouragement: 'Spread the reps out and let each burst lift your energy.' },
-    { challenge: 'Include a protein source with every meal', encouragement: 'Balanced meals help you stay fueled, satisfied, and ready for the day.' },
-    { challenge: 'Take a brisk 45-minute walk outdoors', encouragement: 'Enjoy the fresh air and let every brisk minute build your endurance.' },
-    { challenge: 'Do three sets of lunges on each leg', encouragement: 'Strong, steady lunges today support confident movement tomorrow.' },
-    { challenge: 'Choose whole foods instead of processed snacks', encouragement: 'Choose food that fuels your goals and makes you feel cared for.' },
-    { challenge: 'Spend ten minutes on mobility work', encouragement: 'Ten thoughtful minutes can help your body move with more freedom.' },
+    {
+      challenge: 'Choose one realistic weight-loss habit to practice today',
+      encouragement: 'A sustainable weight-loss journey grows from one realistic habit repeated with patience.',
+      pillar: 'Sustainable Weight Loss',
+    },
+    {
+      challenge: 'Jog for 5 kilometers at a purposeful, steady pace',
+      encouragement: 'Every steady kilometer builds purposeful movement and confidence in what your body can do.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Build a balanced plate at each meal today',
+      encouragement: 'Balanced plates make nutritional discipline practical, satisfying, and easier to repeat.',
+      pillar: 'Nutritional Discipline',
+    },
+    {
+      challenge: 'Drink water regularly throughout the day',
+      encouragement: 'Consistent hydration is a simple act of nutritional discipline that supports your daily energy.',
+      pillar: 'Nutritional Discipline',
+    },
+    {
+      challenge: 'Complete 100 pushups in manageable sets',
+      encouragement: 'Break the work into manageable sets—purposeful movement gets stronger through steady practice.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Record one non-scale win and one weight-loss habit you want to repeat',
+      encouragement: 'Noticing progress beyond the scale keeps sustainable weight loss grounded in habits and self-trust.',
+      pillar: 'Sustainable Weight Loss',
+    },
+    {
+      challenge: 'Take a 20-minute walk after each meal',
+      encouragement: 'A purposeful walk after each meal adds intentional movement to a routine you can sustain.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Complete 50 bodyweight squats with controlled form',
+      encouragement: 'Each controlled repetition makes purposeful movement a little stronger and more confident.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Hold a plank for three minutes total',
+      encouragement: 'Steady breathing and focused effort turn this purposeful movement into meaningful core strength.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Skip added sugar for the entire day',
+      encouragement: 'Choosing foods with intention is nutritional discipline that supports your goals without extremes.',
+      pillar: 'Nutritional Discipline',
+    },
+    {
+      challenge: 'Eat five servings of vegetables today',
+      encouragement: 'Colorful produce makes nutritional discipline delicious, practical, and full of nourishment.',
+      pillar: 'Nutritional Discipline',
+    },
+    {
+      challenge: 'Take the stairs instead of the elevator today',
+      encouragement: 'Each flight is a purposeful movement win that adds up across your day.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Finish a 30-minute strength session',
+      encouragement: 'Thirty focused minutes of purposeful movement can build strength and momentum.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Stretch for fifteen mindful minutes',
+      encouragement: 'A few focused minutes of purposeful movement help your body move with more freedom.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Track your evening hunger and fullness cues after dinner',
+      encouragement: 'Awareness at dinner supports sustainable weight loss by helping you respond to your body with care.',
+      pillar: 'Sustainable Weight Loss',
+    },
+    {
+      challenge: 'Walk or bike every trip under one mile',
+      encouragement: 'Turning short trips into purposeful movement makes active living part of your normal routine.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Log each meal before you eat it',
+      encouragement: 'A moment of awareness before eating keeps sustainable weight loss focused on helpful habits, not perfection.',
+      pillar: 'Sustainable Weight Loss',
+    },
+    {
+      challenge: 'Do 20 burpees before noon',
+      encouragement: 'Start with purposeful movement and let that early effort set a strong tone for the day.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Replace one sugary drink with water',
+      encouragement: 'One thoughtful beverage swap is nutritional discipline you can practice again tomorrow.',
+      pillar: 'Nutritional Discipline',
+    },
+    {
+      challenge: 'Complete a 15-minute HIIT circuit at your own pace',
+      encouragement: 'Focused intervals make purposeful movement adaptable, energizing, and worth showing up for.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Reach 8,000 steps before dinner',
+      encouragement: 'Small bursts of purposeful movement add up and bring you closer to your daily goal.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Prep tomorrow’s balanced meals tonight',
+      encouragement: 'Preparing balanced meals turns nutritional discipline into an easier choice tomorrow.',
+      pillar: 'Nutritional Discipline',
+    },
+    {
+      challenge: 'Do 100 jumping jacks across the day',
+      encouragement: 'Spread the reps out and let each burst of purposeful movement lift your energy.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Include a protein source with every meal',
+      encouragement: 'Balanced, satisfying meals make nutritional discipline easier to maintain all day.',
+      pillar: 'Nutritional Discipline',
+    },
+    {
+      challenge: 'Take a brisk 45-minute walk outdoors',
+      encouragement: 'Enjoy the fresh air while purposeful movement builds endurance one brisk minute at a time.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Do three sets of lunges on each leg',
+      encouragement: 'Strong, steady lunges make purposeful movement a practice you can build on.',
+      pillar: 'Purposeful Movement',
+    },
+    {
+      challenge: 'Choose whole foods instead of processed snacks today',
+      encouragement: 'Choosing nourishing foods is nutritional discipline that helps you feel cared for and fueled.',
+      pillar: 'Nutritional Discipline',
+    },
+    {
+      challenge: 'Spend ten minutes on mobility work',
+      encouragement: 'Ten thoughtful minutes of purposeful movement can help your body move with more freedom.',
+      pillar: 'Purposeful Movement',
+    },
   ];
 
   function zoneParts(date) {
@@ -78,24 +190,33 @@
     return Math.floor(Date.UTC(p.year, p.month - 1, p.day) / 86400000);
   }
 
-  function challengeForDate(date) {
+  function itemForDate(date) {
     var index = dayIndex(date || new Date());
     var i = ((index % CHALLENGES.length) + CHALLENGES.length) % CHALLENGES.length;
-    return CHALLENGES[i].challenge;
+    return CHALLENGES[i];
+  }
+
+  function challengeForDate(date) {
+    return itemForDate(date).challenge;
   }
 
   function encouragementForDate(date) {
-    var index = dayIndex(date || new Date());
-    var i = ((index % CHALLENGES.length) + CHALLENGES.length) % CHALLENGES.length;
-    return CHALLENGES[i].encouragement;
+    return itemForDate(date).encouragement;
+  }
+
+  function pillarForDate(date) {
+    return itemForDate(date).pillar;
   }
 
   function render(date) {
+    var item = itemForDate(date);
     var el = document.getElementById('daily-challenge-text');
+    var pillarEl = document.getElementById('daily-challenge-pillar');
     var encouragementEl = document.getElementById('daily-challenge-encouragement');
     if (!el) return;
-    el.textContent = challengeForDate(date);
-    if (encouragementEl) encouragementEl.textContent = encouragementForDate(date);
+    el.textContent = item.challenge;
+    if (pillarEl) pillarEl.textContent = item.pillar;
+    if (encouragementEl) encouragementEl.textContent = item.encouragement;
   }
 
   function msUntilNextNewYorkMidnight(now) {
@@ -127,6 +248,7 @@
     CHALLENGES: CHALLENGES,
     challengeForDate: challengeForDate,
     encouragementForDate: encouragementForDate,
+    pillarForDate: pillarForDate,
     dayIndex: dayIndex,
     render: render,
   };
