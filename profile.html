@@ -152,6 +152,19 @@
                 <input type="text" id="profile-display-name" maxlength="60" placeholder="How you appear in the community"
                        class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none mb-6">
 
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+                    <div>
+                        <label for="profile-job-title" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">JOB TITLE</label>
+                        <input type="text" id="profile-job-title" maxlength="120" autocomplete="organization-title" placeholder="Fleet coordinator"
+                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label for="profile-location" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">LOCATION</label>
+                        <input type="text" id="profile-location" maxlength="120" autocomplete="address-level2" placeholder="City, State"
+                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
+                </div>
+
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                     <button type="button" id="profile-save-btn"
                             class="inline-flex items-center justify-center px-6 py-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl transition-all active:scale-[0.985]">

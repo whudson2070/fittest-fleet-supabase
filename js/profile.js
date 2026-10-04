@@ -121,7 +121,7 @@
     return data || row;
   }
 
-  async function saveProfile({ displayName, avatarUrl }) {
+  async function saveProfile({ displayName, avatarUrl, jobTitle, location }) {
     const user = global.FFAuth && global.FFAuth.getCurrentUser();
     if (!user) throw new Error('Sign in to update your profile.');
 
@@ -134,6 +134,8 @@
     };
     if (typeof displayName === 'string') payload.display_name = displayName.trim() || null;
     if (typeof avatarUrl === 'string') payload.avatar_url = avatarUrl;
+    if (typeof jobTitle === 'string') payload.job_title = jobTitle.trim() || null;
+    if (typeof location === 'string') payload.location = location.trim() || null;
 
     const { data, error } = await client
       .from('profiles')
@@ -555,6 +557,10 @@
 
       const nameInput = document.getElementById('profile-display-name');
       if (nameInput) nameInput.value = name;
+      const jobTitleInput = document.getElementById('profile-job-title');
+      if (jobTitleInput) jobTitleInput.value = (profile && profile.job_title) || '';
+      const locationInput = document.getElementById('profile-location');
+      if (locationInput) locationInput.value = (profile && profile.location) || '';
       updatePreview(avatar);
       renderPresetGrid(avatar);
       setStatus('');
@@ -567,6 +573,8 @@
     document.getElementById('profile-save-btn')?.addEventListener('click', async () => {
       const nameInput = document.getElementById('profile-display-name');
       const displayName = nameInput ? nameInput.value.trim() : '';
+      const jobTitleInput = document.getElementById('profile-job-title');
+      const locationInput = document.getElementById('profile-location');
       const btn = document.getElementById('profile-save-btn');
       if (btn) {
         btn.disabled = true;
@@ -576,6 +584,8 @@
         await saveProfile({
           displayName,
           avatarUrl: selectedAvatarUrl || DEFAULT_AVATAR,
+          jobTitle: jobTitleInput ? jobTitleInput.value : '',
+          location: locationInput ? locationInput.value : '',
         });
         toast('Profile saved.');
         setStatus('Saved.');

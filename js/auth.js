@@ -70,6 +70,7 @@
     const commentForm = document.getElementById('comment-form');
     const mobileSignin = document.getElementById('auth-mobile-signin');
     const mobileSignup = document.getElementById('auth-mobile-signup');
+    const joinButtons = document.querySelectorAll('#auth-open-signup, #auth-mobile-signup');
 
     if (currentUser) {
       if (signedOut) signedOut.classList.add('hidden');
@@ -83,6 +84,7 @@
       if (commentForm) commentForm.classList.remove('opacity-50', 'pointer-events-none');
       if (mobileSignin) mobileSignin.classList.add('hidden');
       if (mobileSignup) mobileSignup.classList.add('hidden');
+      joinButtons.forEach((button) => button.classList.add('hidden'));
     } else {
       if (signedOut) signedOut.classList.remove('hidden');
       if (signedIn) signedIn.classList.add('hidden');
@@ -91,6 +93,7 @@
       if (commentForm) commentForm.classList.add('opacity-50', 'pointer-events-none');
       if (mobileSignin) mobileSignin.classList.remove('hidden');
       if (mobileSignup) mobileSignup.classList.remove('hidden');
+      joinButtons.forEach((button) => button.classList.remove('hidden'));
       const avatarImg = document.getElementById('auth-user-avatar');
       if (avatarImg) {
         avatarImg.classList.add('hidden');
