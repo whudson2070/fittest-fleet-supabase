@@ -17,6 +17,7 @@ Browse posts signed out. Sign in to post and encourage (like) others.
 2. Paste and run the contents of [`sql/schema.sql`](sql/schema.sql).
 3. Also run [`sql/profiles-and-avatars.sql`](sql/profiles-and-avatars.sql) (profiles table + Storage `avatars` bucket policies). If you already ran an older `schema.sql`, this migration alone is enough for profiles.
 4. Confirm the `comments` and `profiles` tables exist under **Table Editor**, and that Storage has a public **avatars** bucket.
+5. Run [`sql/get-member-count.sql`](sql/get-member-count.sql) so the hero can show the live count of registered accounts (`public.get_member_count()`, anon-safe). Until that function exists, the hero says “Members strong” with no number.
 
 ### 3. Enable Email auth
 
