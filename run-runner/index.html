@@ -45,6 +45,12 @@
     touch-action: none;
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/profile.js"></script>
+<script src="../js/run-runner-scores.js"></script>
 </head>
 <body>
 <div id="wrap">
@@ -53,6 +59,13 @@
 <script>
 (function () {
   "use strict";
+
+  let runRunnerAuthReady = Promise.resolve();
+  if (window.FFAuth && typeof window.FFAuth.initAuth === "function") {
+    runRunnerAuthReady = window.FFAuth.initAuth().catch(function (error) {
+      console.warn("[run-runner] auth initialization failed", error);
+    });
+  }
 
   const canvas = document.getElementById("game");
   const ctx = canvas.getContext("2d");
@@ -779,6 +792,13 @@ function createMidiBgm(getBytes) {
       try {
         localStorage.setItem(HS_KEY, String(highScore));
       } catch (_) {}
+    }
+    if (window.FFRunRunnerScores && typeof window.FFRunRunnerScores.saveBestScore === "function") {
+      runRunnerAuthReady.then(function () {
+        return window.FFRunRunnerScores.saveBestScore(Math.floor(state.score));
+      }).catch(function (error) {
+        console.warn("[run-runner] score save failed", error);
+      });
     }
     const p = state.player;
     for (let i = 0; i < 24; i++) {

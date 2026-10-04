@@ -495,10 +495,11 @@
     if (!el) return;
 
     const requestId = ++engagementRequest;
+    const personal = document.getElementById('final-cta-personal-engagement');
     const user = global.FFAuth && global.FFAuth.getCurrentUser();
     const client = global.ffSupabase;
     if (!user || !client) {
-      el.classList.add('hidden');
+      if (personal) personal.classList.add('hidden');
       setEngagementNote('');
       return;
     }
@@ -511,7 +512,7 @@
     if (requestId !== engagementRequest) return;
     const still = global.FFAuth && global.FFAuth.getCurrentUser();
     if (!still || still.id !== user.id) {
-      el.classList.add('hidden');
+      if (personal) personal.classList.add('hidden');
       return;
     }
 
@@ -534,7 +535,7 @@
       setEngagementNote('');
     }
 
-    el.classList.remove('hidden');
+    if (personal) personal.classList.remove('hidden');
   }
 
   async function initComments() {

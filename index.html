@@ -530,9 +530,9 @@
             <a href="#community" class="final-cta-link inline-flex items-center justify-center gap-x-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white hover:text-white focus:text-white font-bold text-lg px-12 py-4 rounded-full transition-all active:scale-[0.985]">
                 Add Your Voice to the Community
             </a>
-            <div id="final-cta-engagement" class="hidden mx-auto mt-8 max-w-lg rounded-3xl bg-white border border-[#E6E7E8] px-6 py-5 text-left" aria-live="polite">
+            <div id="final-cta-engagement" class="mx-auto mt-8 max-w-lg rounded-3xl bg-white border border-[#E6E7E8] px-6 py-5 text-left" aria-live="polite">
                 <p class="text-sm font-semibold text-[#414042] mb-4 text-center">Your engagement</p>
-                <div class="grid grid-cols-2 gap-4 text-center">
+                <div id="final-cta-personal-engagement" class="hidden grid grid-cols-2 gap-4 text-center">
                     <div>
                         <div id="final-cta-comment-count" class="text-3xl font-black text-[#BE0F34] tracking-tight">—</div>
                         <div class="text-xs text-[#414042]/70 mt-1">Comments you’ve posted</div>
@@ -543,6 +543,11 @@
                     </div>
                 </div>
                 <p id="final-cta-encourage-note" class="hidden mt-3 text-xs text-[#414042]/60 text-center"></p>
+                <div id="final-cta-runner-board" class="mt-6 border-t border-[#E6E7E8] pt-5">
+                    <p class="text-sm font-semibold text-[#414042] text-center">Run Runner high scores</p>
+                    <ol id="final-cta-runner-scores" class="mt-3 space-y-2" aria-live="polite"></ol>
+                    <p id="final-cta-runner-empty" class="mt-3 text-xs text-[#414042]/60 text-center">Loading scores…</p>
+                </div>
             </div>
             <p class="mt-6 text-xs text-[#414042]/60">Small steps. Shared victories. Lifelong change.</p>
         </div>
@@ -633,6 +638,7 @@
     <script src="js/supabase-client.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/profile.js"></script>
+    <script src="js/run-runner-scores.js"></script>
     <script src="js/comments.js"></script>
     <script src="js/daily-challenge.js"></script>
     <script src="js/member-count.js"></script>
@@ -724,6 +730,7 @@
             await FFComments.initComments();
             if (window.FFMembers) FFMembers.loadMemberCount();
             if (window.FFHeroAvatars) FFHeroAvatars.loadHeroAvatars();
+            if (window.FFRunRunnerScores) FFRunRunnerScores.loadLeaderboard();
             if (window.FFDailyChallenge) FFDailyChallenge.render();
 
             console.log('%c[Fittest Fleet] Supabase auth + realtime comments ready.', 'color:#BE0F34');
