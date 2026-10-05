@@ -476,23 +476,23 @@ function createMidiBgm(getBytes) {
   let runScorePersisted = false;
 
   function persistRunScore() {
-    if (runScorePersisted) return;
+    if (runScorePersisted) return Promise.resolve();
     const points = Math.floor(Number(state.score) || 0);
-    if (points < 0) return;
+    if (points < 0) return Promise.resolve();
     runScorePersisted = true;
     try {
       if (window.FFRunRunnerScores && typeof FFRunRunnerScores.saveBestScore === 'function') {
-        FFRunRunnerScores.saveBestScore(points).catch(function (err) {
+        return FFRunRunnerScores.saveBestScore(points).catch(function (err) {
           console.warn('[run-runner] persist failed', err);
           runScorePersisted = false;
         });
-      } else {
-        runScorePersisted = false;
       }
+      runScorePersisted = false;
     } catch (err) {
       console.warn('[run-runner] persist failed', err);
       runScorePersisted = false;
     }
+    return Promise.resolve();
   }
 
   try {
@@ -997,8 +997,9 @@ function createMidiBgm(getBytes) {
       }
       if (k === "n" || k === "N" || e.code === "KeyN") {
         e.preventDefault();
-        persistRunScore();
-        window.location.href = "https://fittestfleet.com/index.html";
+        Promise.resolve(persistRunScore()).finally(function () {
+          window.location.href = "https://fittestfleet.com/index.html";
+        });
       }
     }
   });
@@ -1034,14 +1035,16 @@ function createMidiBgm(getBytes) {
       if (state.continueCharges > 0) {
         if (hitBtn(pos, OVER_BTNS.yes)) continueFromGameOver();
         else if (hitBtn(pos, OVER_BTNS.no)) {
-          persistRunScore();
-          window.location.href = "https://fittestfleet.com/index.html";
+          Promise.resolve(persistRunScore()).finally(function () {
+            window.location.href = "https://fittestfleet.com/index.html";
+          });
         }
         return;
       }
       if (hitBtn(pos, OVER_BTNS.fleet)) {
-        persistRunScore();
-        window.location.href = "https://fittestfleet.com/index.html";
+        Promise.resolve(persistRunScore()).finally(function () {
+          window.location.href = "https://fittestfleet.com/index.html";
+        });
         return;
       }
       if (hitBtn(pos, OVER_BTNS.restartOnly)) {
