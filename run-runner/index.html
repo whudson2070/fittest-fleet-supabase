@@ -30,9 +30,6 @@
     justify-content: center;
     overflow: hidden;
     background: var(--dark-grey);
-    cursor: pointer;
-    touch-action: none;
-    -webkit-tap-highlight-color: transparent;
     padding:
       env(safe-area-inset-top)
       env(safe-area-inset-right)
@@ -1020,11 +1017,6 @@ function createMidiBgm(getBytes) {
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
     }
     ensureBgm();
-    // In play, any tap/click on the phone screen jumps (not only on the canvas).
-    if (state.mode === "play") {
-      doJump();
-      return;
-    }
     const pos = canvasPosFromEvent(e);
     if (state.mode === "start") {
       if (hitBtn(pos, START_BTN)) {
@@ -1068,24 +1060,10 @@ function createMidiBgm(getBytes) {
     e.preventDefault();
     endJump();
   }
-  const wrapEl = document.getElementById("wrap");
-  const jumpSurface = wrapEl || canvas;
-  jumpSurface.addEventListener("pointerdown", pointerDown);
-  jumpSurface.addEventListener("pointerup", pointerUp);
-  jumpSurface.addEventListener("pointercancel", pointerUp);
-  jumpSurface.addEventListener("contextmenu", (e) => e.preventDefault());
-  // Older iOS: touch on the full screen, not only the letterboxed canvas.
-  jumpSurface.addEventListener("touchstart", function (e) {
-    if (state.mode !== "play") return;
-    e.preventDefault();
-    ensureBgm();
-    doJump();
-  }, { passive: false });
-  jumpSurface.addEventListener("touchend", function (e) {
-    if (state.mode !== "play") return;
-    e.preventDefault();
-    endJump();
-  }, { passive: false });
+  canvas.addEventListener("pointerdown", pointerDown);
+  canvas.addEventListener("pointerup", pointerUp);
+  canvas.addEventListener("pointercancel", pointerUp);
+  canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
   function spawnObstacle() {
     if (state.tractorSpawned || state.bonus) return;
