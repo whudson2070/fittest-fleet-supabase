@@ -241,15 +241,20 @@
   function filterComments(filter) {
     currentFilter = filter;
 
+    const filterColors = {
+      'Weight Loss': ['bg-[#BE0F34]', 'text-white', 'border-[#BE0F34]'],
+      'Exercise': ['bg-[#5594CF]', 'text-white', 'border-[#5594CF]'],
+      'Nutritional Discipline': ['bg-[#D9E364]', 'text-[#414042]', 'border-[#D9E364]'],
+    };
+    const allColors = ['bg-[#BE0F34]', 'text-white', 'border-[#BE0F34]', 'bg-[#5594CF]', 'border-[#5594CF]', 'bg-[#D9E364]', 'text-[#414042]', 'border-[#D9E364]'];
     document.querySelectorAll('.filter-btn').forEach((btn) => {
-      btn.classList.remove('active', 'bg-[#BE0F34]', 'text-white', 'border-[#BE0F34]');
+      btn.classList.remove('active', ...allColors);
       btn.classList.add('border-[#E6E7E8]');
-
-      if (filter === 'all' && btn.id === 'filter-all') {
-        btn.classList.add('active', 'bg-[#BE0F34]', 'text-white', 'border-[#BE0F34]');
-        btn.classList.remove('border-[#E6E7E8]');
-      } else if (btn.id === `filter-${filter}`) {
-        btn.classList.add('active', 'bg-[#BE0F34]', 'text-white', 'border-[#BE0F34]');
+      let colors = null;
+      if (filter === 'all' && btn.id === 'filter-all') colors = ['bg-[#BE0F34]', 'text-white', 'border-[#BE0F34]'];
+      else if (btn.id === `filter-${filter}`) colors = filterColors[filter] || ['bg-[#BE0F34]', 'text-white', 'border-[#BE0F34]'];
+      if (colors) {
+        btn.classList.add('active', ...colors);
         btn.classList.remove('border-[#E6E7E8]');
       }
     });

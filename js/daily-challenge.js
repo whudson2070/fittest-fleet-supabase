@@ -224,6 +224,12 @@
           'Nutritional Discipline': 'nutritional-discipline/'
         };
         pillarEl.setAttribute('href', pages[item.pillar] || 'index.html#pillars');
+        var colors = {
+          'Sustainable Weight Loss': '#BE0F34',
+          'Purposeful Movement': '#5594CF',
+          'Nutritional Discipline': '#D9E364'
+        };
+        if (colors[item.pillar]) pillarEl.style.color = colors[item.pillar];
       }
     }
     if (encouragementEl) encouragementEl.textContent = item.encouragement;
