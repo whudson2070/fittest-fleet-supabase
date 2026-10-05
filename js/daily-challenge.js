@@ -225,7 +225,7 @@
         };
         pillarEl.setAttribute('href', pages[item.pillar] || 'index.html#pillars');
         var colors = {
-          'Sustainable Weight Loss': '#BE0F34',
+          'Sustainable Weight Loss': '#ffffff',
           'Purposeful Movement': '#5594CF',
           'Nutritional Discipline': '#D9E364'
         };
