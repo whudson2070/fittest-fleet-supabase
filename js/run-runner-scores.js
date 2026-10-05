@@ -38,19 +38,24 @@
       : null;
     const numericScore = Math.floor(Number(score));
 
-    // Scores from logged-out play are intentionally never sent to Supabase.
-    if (!client || !user || !Number.isFinite(numericScore) || numericScore < 0) {
+    if (!client || !Number.isFinite(numericScore) || numericScore < 0) {
       return { saved: false };
     }
 
-    // Keep every finished signed-in game. The high-score row below is still
-    // deliberately one row per user so the leaderboard remains best-score
-    // based.
+    // Keep every finished game, including logged-out guest plays. Guest rows
+    // have no user_id; the high-score row below remains signed-in only so the
+    // leaderboard stays best-score based.
+    const play = { points: numericScore };
+    if (user) play.user_id = user.id;
     const { error: playError } = await client
       .from(PLAYS_TABLE)
-      .insert({ user_id: user.id, points: numericScore });
+      .insert(play);
     if (playError) {
       console.warn('[run-runner] could not save completed play', playError);
+    }
+
+    if (!user) {
+      return { saved: !playError, playSaved: !playError, error: playError || undefined };
     }
 
     const { data: existing, error: readError } = await client
