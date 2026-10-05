@@ -6,6 +6,8 @@
   'use strict';
 
   const TABLE = 'run_runner_scores';
+  const PLAYS_TABLE = 'run_runner_plays';
+  const TOTALS_FUNCTION = 'run_runner_total_points';
 
   function fallbackDisplayName(user) {
     const meta = (user && user.user_metadata) || {};
@@ -37,8 +39,18 @@
     const numericScore = Math.floor(Number(score));
 
     // Scores from logged-out play are intentionally never sent to Supabase.
-    if (!client || !user || !Number.isFinite(numericScore) || numericScore <= 0) {
+    if (!client || !user || !Number.isFinite(numericScore) || numericScore < 0) {
       return { saved: false };
+    }
+
+    // Keep every finished signed-in game. The high-score row below is still
+    // deliberately one row per user so the leaderboard remains best-score
+    // based.
+    const { error: playError } = await client
+      .from(PLAYS_TABLE)
+      .insert({ user_id: user.id, points: numericScore });
+    if (playError) {
+      console.warn('[run-runner] could not save completed play', playError);
     }
 
     const { data: existing, error: readError } = await client
@@ -48,11 +60,15 @@
       .maybeSingle();
     if (readError) {
       console.warn('[run-runner] could not read existing high score', readError);
-      return { saved: false, error: readError };
+      return { saved: !playError, playSaved: !playError, error: readError };
     }
 
     if (existing && Number(existing.score) >= numericScore) {
-      return { saved: false, score: Number(existing.score) };
+      return {
+        saved: !playError,
+        playSaved: !playError,
+        score: Number(existing.score),
+      };
     }
 
     const displayName = await displayNameForUser(user);
@@ -62,9 +78,9 @@
     );
     if (error) {
       console.warn('[run-runner] could not save high score', error);
-      return { saved: false, error: error };
+      return { saved: !playError, playSaved: !playError, error: error };
     }
-    return { saved: true, score: numericScore };
+    return { saved: true, playSaved: !playError, score: numericScore };
   }
 
   function emptyLeaderboard(message) {
@@ -132,8 +148,7 @@
         .order('score', { ascending: false })
         .limit(3),
       client
-        .from(TABLE)
-        .select('score')
+        .rpc(TOTALS_FUNCTION)
     ]);
 
     if (leaderboardResult.error) {
@@ -148,11 +163,9 @@
       return;
     }
 
-    const scores = (totalsResult.data || [])
-      .map((row) => Number(row && row.score))
-      .filter((score) => Number.isFinite(score) && score >= 0);
-    if (!scores.length) return;
-    renderTotalPoints(scores.reduce((total, score) => total + Math.floor(score), 0));
+    const total = Number(totalsResult.data);
+    if (!Number.isFinite(total) || total < 0) return;
+    renderTotalPoints(total);
   }
 
   global.FFRunRunnerScores = { saveBestScore, loadLeaderboard };
