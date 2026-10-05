@@ -77,6 +77,15 @@
     }
   }
 
+  function renderTotalPoints(total) {
+    const totalElement = document.getElementById('final-cta-runner-total');
+    if (!totalElement) return;
+    const numericTotal = Number(total);
+    totalElement.textContent = Number.isFinite(numericTotal) && numericTotal >= 0
+      ? Math.floor(numericTotal).toLocaleString()
+      : '—';
+  }
+
   function renderLeaderboard(rows) {
     const list = document.getElementById('final-cta-runner-scores');
     const empty = document.getElementById('final-cta-runner-empty');
@@ -109,23 +118,41 @@
   }
 
   async function loadLeaderboard() {
+    renderTotalPoints(null);
     const client = global.ffSupabase;
     if (!client) {
       emptyLeaderboard('Leaderboard unavailable right now.');
       return;
     }
 
-    const { data, error } = await client
-      .from(TABLE)
-      .select('user_id, display_name, score')
-      .order('score', { ascending: false })
-      .limit(3);
-    if (error) {
-      console.warn('[run-runner] leaderboard query failed', error);
+    const [leaderboardResult, totalsResult] = await Promise.all([
+      client
+        .from(TABLE)
+        .select('user_id, display_name, score')
+        .order('score', { ascending: false })
+        .limit(3),
+      client
+        .from(TABLE)
+        .select('score')
+    ]);
+
+    if (leaderboardResult.error) {
+      console.warn('[run-runner] leaderboard query failed', leaderboardResult.error);
       emptyLeaderboard('Leaderboard unavailable right now.');
+    } else {
+      renderLeaderboard(leaderboardResult.data);
+    }
+
+    if (totalsResult.error) {
+      console.warn('[run-runner] total points query failed', totalsResult.error);
       return;
     }
-    renderLeaderboard(data);
+
+    const scores = (totalsResult.data || [])
+      .map((row) => Number(row && row.score))
+      .filter((score) => Number.isFinite(score) && score >= 0);
+    if (!scores.length) return;
+    renderTotalPoints(scores.reduce((total, score) => total + Math.floor(score), 0));
   }
 
   global.FFRunRunnerScores = { saveBestScore, loadLeaderboard };
