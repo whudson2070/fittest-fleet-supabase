@@ -43,6 +43,7 @@
     const avatarUrl = profile && profile.avatar_url;
     return {
       id: row.id,
+      parent_id: row.parent_id || null,
       user_id: row.user_id,
       name: (profile && profile.display_name) || row.display_name,
       job_title: profileText(profile && profile.job_title),
@@ -76,39 +77,43 @@
     return 'bg-[#414042]';
   }
 
-  function renderComments(filteredComments) {
-    const container = document.getElementById('comments-list');
-    if (!container) return;
-    container.innerHTML = '';
+  function renderCommentCard(comment, isReply) {
+    const categoryColor = getCategoryColor(comment.category);
+    const categoryTextColor =
+      comment.category === 'Nutritional Discipline' ? 'text-[#414042]' : 'text-white';
+    const safeName = escapeHtml(comment.name);
+    const safeMessage = escapeHtml(comment.message);
+    const safeCategory = escapeHtml(comment.category);
+    const safeTimestamp = escapeHtml(comment.timestamp);
+    const avatarSize = isReply ? 'w-9 h-9' : 'w-11 h-11';
 
-    if (!filteredComments.length) {
-      container.innerHTML = `
-        <div class="text-center py-12 bg-white border border-[#E6E7E8] rounded-3xl">
-          <i class="fa-solid fa-comments text-4xl text-[#E6E7E8] mb-4"></i>
-          <p class="text-[#414042]/70">No posts yet in this category. Be the first to share some encouragement!</p>
-        </div>
+    if (isReply) {
+      return `
+        <article class="reply-card border-l-2 border-[#E6E7E8] pl-4 py-1">
+          <div class="flex items-start gap-x-3">
+            <div class="flex-shrink-0">
+              <img src="${comment.avatar}" alt="${safeName}" class="${avatarSize} rounded-full ring-2 ring-[#E6E7E8]">
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-x-3 mb-1">
+                <div class="min-w-0">
+                  <span class="font-bold text-sm">${safeName}</span>
+                  ${authorDetailsHtml(comment)}
+                </div>
+                ${safeTimestamp ? `<span class="text-xs text-[#414042]/50 flex-shrink-0">${safeTimestamp}</span>` : ''}
+              </div>
+              <div class="text-[#414042]/90 text-sm leading-relaxed">${safeMessage}</div>
+            </div>
+          </div>
+        </article>
       `;
-      return;
     }
 
-    filteredComments.forEach((comment) => {
-      const card = document.createElement('div');
-      card.className = 'comment-card bg-white border border-[#E6E7E8] rounded-3xl p-6';
-      card.dataset.commentId = comment.id;
-
-      const categoryColor = getCategoryColor(comment.category);
-      const categoryTextColor =
-        comment.category === 'Nutritional Discipline' ? 'text-[#414042]' : 'text-white';
-
-      const safeName = escapeHtml(comment.name);
-      const safeMessage = escapeHtml(comment.message);
-      const safeCategory = escapeHtml(comment.category);
-      const safeTimestamp = escapeHtml(comment.timestamp);
-
-      card.innerHTML = `
+    return `
+      <article class="comment-card bg-white border border-[#E6E7E8] rounded-3xl p-6" data-comment-id="${comment.id}">
         <div class="flex items-start gap-x-4">
           <div class="flex-shrink-0">
-            <img src="${comment.avatar}" alt="${safeName}" class="w-11 h-11 rounded-full ring-2 ring-[#E6E7E8]">
+            <img src="${comment.avatar}" alt="${safeName}" class="${avatarSize} rounded-full ring-2 ring-[#E6E7E8]">
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between mb-1">
@@ -122,25 +127,94 @@
               <span class="category-badge ${categoryColor} ${categoryTextColor}">${safeCategory}</span>
             </div>
             <div class="text-[#414042]/90 leading-relaxed mb-4">${safeMessage}</div>
-            <div class="flex items-center">
+            <div class="flex items-center gap-x-2">
               <button type="button" data-encourage-id="${comment.id}"
                       class="encourage-btn flex items-center gap-x-2 px-4 py-1.5 text-sm font-semibold text-[#414042] hover:text-[#BE0F34] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full transition-all">
                 <i class="fa-solid fa-heart text-[#BE0F34]"></i>
                 <span class="like-count">${comment.likes}</span>
                 <span class="hidden sm:inline text-xs ml-0.5">Encourage</span>
               </button>
+              <button type="button" data-reply-id="${comment.id}"
+                      class="reply-btn flex items-center gap-x-2 px-4 py-1.5 text-sm font-semibold text-[#414042] hover:text-[#BE0F34] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full transition-all">
+                <i class="fa-solid fa-reply"></i>
+                <span>Reply</span>
+              </button>
             </div>
+            <form data-reply-form="${comment.id}" class="hidden mt-4 rounded-2xl border border-[#E6E7E8] bg-[#F8F8F8] p-4">
+              <label for="reply-message-${comment.id}" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">YOUR REPLY</label>
+              <textarea id="reply-message-${comment.id}" data-reply-message rows="2" required
+                        placeholder="Write a thoughtful reply..."
+                        class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-4 py-3 text-sm outline-none resize-y min-h-[76px] bg-white"></textarea>
+              <div class="flex items-center justify-end gap-x-2 mt-3">
+                <button type="button" data-cancel-reply
+                        class="px-4 py-2 text-sm font-semibold text-[#414042]/70 hover:text-[#414042] rounded-full">Cancel</button>
+                <button type="submit"
+                        class="px-5 py-2 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-bold rounded-full transition-all">Post reply</button>
+              </div>
+            </form>
+            <div data-replies-for="${comment.id}" class="mt-5 space-y-4"></div>
           </div>
         </div>
-      `;
+      </article>
+    `;
+  }
 
-      container.appendChild(card);
+  function renderComments(filteredComments) {
+    const container = document.getElementById('comments-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const topLevelComments = filteredComments
+      .filter((comment) => !comment.parent_id)
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    if (!topLevelComments.length) {
+      container.innerHTML = `
+        <div class="text-center py-12 bg-white border border-[#E6E7E8] rounded-3xl">
+          <i class="fa-solid fa-comments text-4xl text-[#E6E7E8] mb-4"></i>
+          <p class="text-[#414042]/70">No posts yet in this category. Be the first to share some encouragement!</p>
+        </div>
+      `;
+      return;
+    }
+
+    const repliesByParent = new Map();
+    filteredComments.forEach((comment) => {
+      if (!comment.parent_id) return;
+      if (!repliesByParent.has(comment.parent_id)) repliesByParent.set(comment.parent_id, []);
+      repliesByParent.get(comment.parent_id).push(comment);
+    });
+
+    topLevelComments.forEach((comment) => {
+      const card = document.createElement('div');
+      card.innerHTML = renderCommentCard(comment, false);
+      const article = card.firstElementChild;
+      const repliesContainer = article.querySelector(`[data-replies-for="${comment.id}"]`);
+      const replies = (repliesByParent.get(comment.id) || []).sort(
+        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      );
+      replies.forEach((reply) => {
+        repliesContainer.insertAdjacentHTML('beforeend', renderCommentCard(reply, true));
+      });
+      container.appendChild(article);
     });
 
     container.querySelectorAll('[data-encourage-id]').forEach((btn) => {
       btn.addEventListener('click', () => {
         encourageComment(btn.getAttribute('data-encourage-id'), btn);
       });
+    });
+    container.querySelectorAll('[data-reply-id]').forEach((btn) => {
+      btn.addEventListener('click', () => toggleReplyForm(btn.getAttribute('data-reply-id')));
+    });
+    container.querySelectorAll('[data-cancel-reply]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const form = btn.closest('[data-reply-form]');
+        if (form) form.classList.add('hidden');
+      });
+    });
+    container.querySelectorAll('[data-reply-form]').forEach((form) => {
+      form.addEventListener('submit', (event) => postReply(event, form.dataset.replyForm));
     });
   }
 
@@ -195,7 +269,18 @@
   }
 
   function removeLocal(id) {
-    comments = comments.filter((c) => c.id !== id);
+    const removedIds = new Set([id]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      comments.forEach((comment) => {
+        if (comment.parent_id && removedIds.has(comment.parent_id) && !removedIds.has(comment.id)) {
+          removedIds.add(comment.id);
+          changed = true;
+        }
+      });
+    }
+    comments = comments.filter((comment) => !removedIds.has(comment.id));
   }
 
   async function fetchComments() {
@@ -281,6 +366,70 @@
     currentDisplayName = String(displayName || '').trim();
     const displayNameText = document.getElementById('comment-display-name');
     if (displayNameText && currentDisplayName) displayNameText.textContent = currentDisplayName;
+  }
+
+  function toggleReplyForm(parentId) {
+    const user = global.FFAuth && global.FFAuth.getCurrentUser();
+    if (!user) {
+      if (typeof global.showToast === 'function') {
+        global.showToast('Please sign in to reply.');
+      }
+      if (global.FFAuth) global.FFAuth.openAuthModal('signin');
+      return;
+    }
+
+    const form = document.querySelector(`[data-reply-form="${parentId}"]`);
+    if (!form) return;
+    const isHidden = form.classList.toggle('hidden');
+    if (!isHidden) form.querySelector('[data-reply-message]')?.focus();
+  }
+
+  async function postReply(e, parentId) {
+    e.preventDefault();
+
+    const user = global.FFAuth && global.FFAuth.getCurrentUser();
+    if (!user) {
+      if (typeof global.showToast === 'function') global.showToast('Please sign in to reply.');
+      if (global.FFAuth) global.FFAuth.openAuthModal('signin');
+      return;
+    }
+
+    const client = global.ffSupabase;
+    const parent = comments.find((comment) => comment.id === parentId && !comment.parent_id);
+    const form = e.currentTarget;
+    const messageField = form && form.querySelector('[data-reply-message]');
+    const message = messageField ? messageField.value.trim() : '';
+    if (!client || !parent) return;
+    if (!message) {
+      if (typeof global.showToast === 'function') global.showToast('Please write a reply before posting.');
+      return;
+    }
+
+    let profileDisplayName = '';
+    if (global.FFProfile && typeof global.FFProfile.ensureOwnProfile === 'function') {
+      const profile = await global.FFProfile.ensureOwnProfile(user);
+      profileDisplayName = profile && String(profile.display_name || '').trim();
+    }
+    const displayName = profileDisplayName || (global.FFAuth.getDisplayName() || 'Community Member');
+
+    const { error } = await client.from('comments').insert({
+      user_id: user.id,
+      display_name: displayName,
+      category: parent.category,
+      message,
+      likes: 0,
+      parent_id: parent.id,
+    });
+
+    if (error) {
+      console.error('[comments] reply insert failed', error);
+      if (typeof global.showToast === 'function') global.showToast(error.message || 'Could not post reply. Try again.');
+      return;
+    }
+
+    form.reset();
+    form.classList.add('hidden');
+    if (typeof global.showToast === 'function') global.showToast('Your reply has been posted.');
   }
 
   async function postComment(e) {
@@ -588,6 +737,7 @@
     initComments,
     filterComments,
     postComment,
+    postReply,
     encourageComment,
     scrollToCommunityWithFilter,
     acceptDailyChallenge,
