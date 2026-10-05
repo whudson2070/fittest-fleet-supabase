@@ -83,6 +83,17 @@
             background: linear-gradient(135deg, #BE0F34 0%, #AC1E2F 100%);
         }
 
+        /* Override the global a:hover bright-red rule so hero button labels stay visible. */
+        .fitness-hero a.hero-pillars-button:hover,
+        .fitness-hero a.hero-pillars-button:focus-visible {
+            color: #5594CF;
+        }
+
+        .fitness-hero a.hero-progress-button:hover,
+        .fitness-hero a.hero-progress-button:focus-visible {
+            color: #D9E364;
+        }
+
         /* Keep the Community Hub heading visible below the sticky navigation. */
         #community {
             scroll-margin-top: 5rem;
@@ -217,11 +228,11 @@
                     <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                 </a>
                 <a href="#pillars"
-                   class="inline-flex items-center justify-center gap-x-3 border-2 border-white/70 hover:bg-white/10 font-semibold text-lg px-8 py-4 rounded-full transition-all">
+                   class="hero-pillars-button inline-flex items-center justify-center gap-x-3 border-2 border-white/70 hover:bg-white/10 font-semibold text-lg px-8 py-4 rounded-full transition-all">
                     Explore Our Pillars
                 </a>
                 <a href="progress/"
-                   class="inline-flex items-center justify-center gap-x-3 border-2 border-white/70 hover:bg-white/10 font-semibold text-lg px-8 py-4 rounded-full transition-all">
+                   class="hero-progress-button inline-flex items-center justify-center gap-x-3 border-2 border-white/70 hover:bg-white/10 font-semibold text-lg px-8 py-4 rounded-full transition-all">
                     Track Personal Progress
                 </a>
             </div>
