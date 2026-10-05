@@ -1,54 +1,70 @@
 /**
- * Replaces the hero member count with the live number of registered accounts.
- * Calls public.get_member_count() (see sql/get-member-count.sql). Anon key only.
+ * Replaces the hero member count with the live number of registered accounts
+ * and Progress check-ins that contain at least one logged workout activity.
+ * Calls public.get_member_count() and public.get_workout_activity_count().
  */
 (function (global) {
   'use strict';
 
-  function formatCount(n) {
-    return Number(n).toLocaleString('en-US');
+  function parseCount(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number >= 0 ? number : null;
   }
 
-  function applyCount(n) {
-    const formatted = formatCount(n);
+  function formatCount(n) {
+    return n.toLocaleString('en-US');
+  }
+
+  function applyCounts(memberCount, activityCount) {
+    const memberFormatted = memberCount === null ? '—' : formatCount(memberCount);
+    const activityFormatted = activityCount === null ? '—' : formatCount(activityCount);
     const label = document.getElementById('hero-member-count');
     const join = document.getElementById('hero-member-join');
     const stat = document.getElementById('member-count-stat');
     if (label) {
-      label.textContent = formatted + ' members strong • 47,300+ pounds lost together';
+      label.textContent = memberFormatted + ' members strong • ' + activityFormatted + ' workout activities logged';
     }
     if (join) {
-      join.textContent = 'Join ' + formatted + ' others on the journey';
+      join.textContent = memberCount === null
+        ? 'Join others on the journey'
+        : 'Join ' + formatCount(memberCount) + ' others on the journey';
     }
-    if (stat) stat.textContent = formatted;
-  }
-
-  function applyFallback() {
-    const label = document.getElementById('hero-member-count');
-    const join = document.getElementById('hero-member-join');
-    const stat = document.getElementById('member-count-stat');
-    if (label) label.textContent = 'Members strong • 47,300+ pounds lost together';
-    if (join) join.textContent = 'Join others on the journey';
-    if (stat) stat.textContent = '—';
+    if (stat) stat.textContent = memberFormatted;
   }
 
   async function loadMemberCount() {
     const client = global.ffSupabase;
     if (!client) {
-      applyFallback();
+      applyCounts(null, null);
       return;
     }
 
-    try {
-      const { data, error } = await client.rpc('get_member_count');
-      if (error) throw error;
-      const n = typeof data === 'number' ? data : Number(data);
-      if (!Number.isFinite(n) || n < 0) throw new Error('Invalid member count');
-      applyCount(n);
-    } catch (err) {
-      console.warn('[Fittest Fleet] Member count unavailable.', err && err.message ? err.message : err);
-      applyFallback();
+    const [memberResult, activityResult] = await Promise.all([
+      client.rpc('get_member_count'),
+      client.rpc('get_workout_activity_count'),
+    ]);
+
+    let memberCount = null;
+    if (memberResult.error) {
+      console.warn('[Fittest Fleet] Member count unavailable.', memberResult.error.message || memberResult.error);
+    } else {
+      memberCount = parseCount(memberResult.data);
+      if (memberCount === null) {
+        console.warn('[Fittest Fleet] Member count unavailable: invalid response.');
+      }
     }
+
+    let activityCount = null;
+    if (activityResult.error) {
+      console.warn('[Fittest Fleet] Workout activity count unavailable.', activityResult.error.message || activityResult.error);
+    } else {
+      activityCount = parseCount(activityResult.data);
+      if (activityCount === null) {
+        console.warn('[Fittest Fleet] Workout activity count unavailable: invalid response.');
+      }
+    }
+
+    applyCounts(memberCount, activityCount);
   }
 
   global.FFMembers = { loadMemberCount };

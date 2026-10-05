@@ -40,6 +40,23 @@ $$;
 -- The former monthly-workouts RPC is no longer part of the public stats surface.
 drop function if exists public.get_workouts_completed_this_month();
 
+-- Count Progress check-ins with at least one logged workout activity.
+-- A check-in counts once, even when it includes multiple activity types.
+create or replace function public.get_workout_activity_count()
+returns bigint
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select count(*)::bigint
+  from public.progress_checkins as checkin
+  where coalesce(checkin.pushups, 0) > 0
+     or coalesce(checkin.squats, 0) > 0
+     or coalesce(checkin.yoga_minutes, 0) > 0
+     or coalesce(checkin.miles, 0) > 0;
+$$;
+
 -- Sum push-ups across all Progress check-ins owned by registered users.
 create or replace function public.get_total_pushups()
 returns bigint
@@ -88,11 +105,13 @@ as $$
   from public.progress_checkins as checkin;
 $$;
 
+revoke all on function public.get_workout_activity_count() from public;
 revoke all on function public.get_total_pounds_lost() from public;
 revoke all on function public.get_total_pushups() from public;
 revoke all on function public.get_total_miles() from public;
 revoke all on function public.get_total_yoga_hours() from public;
 revoke all on function public.get_total_squats() from public;
+grant execute on function public.get_workout_activity_count() to anon, authenticated;
 grant execute on function public.get_total_pounds_lost() to anon, authenticated;
 grant execute on function public.get_total_pushups() to anon, authenticated;
 grant execute on function public.get_total_miles() to anon, authenticated;
