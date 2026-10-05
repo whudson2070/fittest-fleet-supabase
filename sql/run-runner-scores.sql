@@ -87,9 +87,11 @@ create policy "Guests can insert Run Runner plays"
   to anon
   with check (user_id is null);
 
-revoke insert on table public.run_runner_plays from anon;
-grant insert (points) on table public.run_runner_plays to anon;
+-- PostgREST needs table-level INSERT; RLS still blocks fake user_id rows.
+revoke all on table public.run_runner_plays from anon;
+grant insert on table public.run_runner_plays to anon;
 grant insert on table public.run_runner_plays to authenticated;
+-- No SELECT for clients: totals go through run_runner_total_points().
 
 -- Keep the plays table private while allowing the board to read only its
 -- aggregate. The sum includes both signed-in and null-user guest plays.
@@ -106,3 +108,23 @@ as $$
 $$;
 
 grant execute on function public.run_runner_total_points() to anon, authenticated;
+
+-- Reliable play insert for guests and signed-in players (bypasses table INSERT quirks).
+create or replace function public.record_run_runner_play(p_points integer)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if p_points is null or p_points < 0 then
+    raise exception 'invalid points';
+  end if;
+  insert into public.run_runner_plays (user_id, points)
+  values (auth.uid(), floor(p_points)::integer);
+end;
+$$;
+
+revoke all on function public.record_run_runner_play(integer) from public;
+grant execute on function public.record_run_runner_play(integer) to anon, authenticated;
+

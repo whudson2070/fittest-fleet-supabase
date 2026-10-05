@@ -50,6 +50,12 @@
 <div id="wrap">
   <canvas id="game" width="960" height="540"></canvas>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/profile.js"></script>
+<script src="../js/run-runner-scores.js"></script>
 <script>
 (function () {
   "use strict";
@@ -467,6 +473,28 @@ function createMidiBgm(getBytes) {
   const HS_KEY = "runRunnerHighScore";
 
   let highScore = 0;
+  let runScorePersisted = false;
+
+  function persistRunScore() {
+    if (runScorePersisted) return;
+    const points = Math.floor(Number(state.score) || 0);
+    if (points < 0) return;
+    runScorePersisted = true;
+    try {
+      if (window.FFRunRunnerScores && typeof FFRunRunnerScores.saveBestScore === 'function') {
+        FFRunRunnerScores.saveBestScore(points).catch(function (err) {
+          console.warn('[run-runner] persist failed', err);
+          runScorePersisted = false;
+        });
+      } else {
+        runScorePersisted = false;
+      }
+    } catch (err) {
+      console.warn('[run-runner] persist failed', err);
+      runScorePersisted = false;
+    }
+  }
+
   try {
     const saved = localStorage.getItem(HS_KEY);
     const legacy = localStorage.getItem("ruanRunnerHighScore");
@@ -566,6 +594,7 @@ function createMidiBgm(getBytes) {
   }
 
   function startGame() {
+    runScorePersisted = false;
     state.mode = "play";
     state.time = 0;
     state.score = 0;
@@ -968,6 +997,7 @@ function createMidiBgm(getBytes) {
       }
       if (k === "n" || k === "N" || e.code === "KeyN") {
         e.preventDefault();
+        persistRunScore();
         window.location.href = "https://fittestfleet.com/index.html";
       }
     }
@@ -1004,15 +1034,18 @@ function createMidiBgm(getBytes) {
       if (state.continueCharges > 0) {
         if (hitBtn(pos, OVER_BTNS.yes)) continueFromGameOver();
         else if (hitBtn(pos, OVER_BTNS.no)) {
+          persistRunScore();
           window.location.href = "https://fittestfleet.com/index.html";
         }
         return;
       }
       if (hitBtn(pos, OVER_BTNS.fleet)) {
+        persistRunScore();
         window.location.href = "https://fittestfleet.com/index.html";
         return;
       }
       if (hitBtn(pos, OVER_BTNS.restartOnly)) {
+        persistRunScore();
         startGame();
         doJump();
       }
@@ -2459,6 +2492,11 @@ function createMidiBgm(getBytes) {
   document.addEventListener("gesturestart", (e) => e.preventDefault());
   fitCanvas();
   ensureBgm();
+  if (window.FFAuth && typeof FFAuth.initAuth === 'function') {
+    FFAuth.initAuth().catch(function (err) {
+      console.warn('[run-runner] auth init failed', err);
+    });
+  }
 })();
 </script>
 </body>

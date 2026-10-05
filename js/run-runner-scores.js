@@ -33,7 +33,7 @@
 
   async function saveBestScore(score) {
     const client = global.ffSupabase;
-    const user = global.FFAuth && global.FFAuth.getCurrentUser
+    let user = global.FFAuth && global.FFAuth.getCurrentUser
       ? global.FFAuth.getCurrentUser()
       : null;
     const numericScore = Math.floor(Number(score));
@@ -42,16 +42,32 @@
       return { saved: false };
     }
 
+    // Session may still be loading when game-over fires first.
+    if (!user) {
+      try {
+        const { data } = await client.auth.getSession();
+        user = data && data.session ? data.session.user : null;
+      } catch (_) {
+        user = null;
+      }
+    }
+
     // Keep every finished game, including logged-out guest plays. Guest rows
     // have no user_id; the high-score row below remains signed-in only so the
     // leaderboard stays best-score based.
-    const play = { points: numericScore };
-    if (user) play.user_id = user.id;
-    const { error: playError } = await client
-      .from(PLAYS_TABLE)
-      .insert(play);
-    if (playError) {
-      console.warn('[run-runner] could not save completed play', playError);
+    let playError = null;
+    const { error: rpcError } = await client.rpc('record_run_runner_play', {
+      p_points: numericScore,
+    });
+    if (rpcError) {
+      // Fallback for projects that only have the table insert grants.
+      const play = { points: numericScore };
+      if (user) play.user_id = user.id;
+      const inserted = await client.from(PLAYS_TABLE).insert(play);
+      playError = inserted.error || rpcError;
+      if (playError) {
+        console.warn('[run-runner] could not save completed play', playError);
+      }
     }
 
     if (!user) {
