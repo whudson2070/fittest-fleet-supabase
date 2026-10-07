@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fittest Fleet • Weight Loss • Exercise • Nutritional Discipline</title>
+    <script>
+        // Stay at the top on fresh loads / reloads. In-page #community clicks
+        // preventDefault (no hash), so the browser was restoring scroll mid-page.
+        // Keep real section deep-links like index.html#community.
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        (function () {
+            var hash = location.hash || '';
+            if (!/^#[A-Za-z][\w-]*$/.test(hash)) {
+                window.scrollTo(0, 0);
+            }
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/brand.css">
@@ -698,9 +710,18 @@
             initTailwind();
             initMobileMenu();
 
+            // Fresh load without a section hash: land at top (defeat scroll restoration).
+            // Intentional deep links like #community still scroll via the browser.
+            if (!/^#[A-Za-z][\w-]*$/.test(location.hash || '')) {
+                window.scrollTo(0, 0);
+            }
+
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
-                    const target = document.querySelector(this.getAttribute('href'));
+                    const href = this.getAttribute('href');
+                    // Skip empty "#" and non-id fragments (e.g. auth tokens).
+                    if (!href || !/^#[A-Za-z][\w-]*$/.test(href)) return;
+                    const target = document.querySelector(href);
                     if (target) {
                         e.preventDefault();
                         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
