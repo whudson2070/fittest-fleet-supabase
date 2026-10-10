@@ -1,5 +1,7 @@
 /**
- * Progress page: one unified tracker (check-in + weight lifting + golf + steps).
+ * Progress page: one unified tracker (check-in incl. steps + cycling, weight lifting, golf).
+ * Steps live in the Check-in section but still save to progress_steps; cycling_miles is a
+ * nullable progress_checkins column (sql/progress-trackers.sql). Missing column => saved without it.
  * Depends on: window.ffSupabase, window.FFAuth.
  * Tables: progress_checkins (sql/progress-checkins.sql) and
  * progress_lifts / progress_golf_rounds / progress_steps (sql/progress-trackers.sql).
@@ -17,6 +19,7 @@
     { key: 'squats', label: 'Squats', unit: '', summary: 'total', integer: true },
     { key: 'yoga_minutes', label: 'Yoga', unit: 'min', summary: 'total', integer: true },
     { key: 'miles', label: 'Miles walked / run', unit: 'mi', summary: 'total' },
+    { key: 'cycling_miles', label: 'Miles cycled', unit: 'mi', summary: 'total', optional: true },
     { key: 'calories', label: 'Calories', unit: '', summary: 'total', integer: true },
     { key: 'carbohydrates', label: 'Carbohydrates', unit: 'g', summary: 'total' },
     { key: 'sugars', label: 'Sugars', unit: 'g', summary: 'total' },
@@ -146,7 +149,7 @@
     for (const field of FIELDS) {
       const input = el('progress-' + field.key);
       const text = String(input ? input.value : '').trim();
-      if (!text) { row[field.key] = null; continue; }
+      if (!text) { if (!field.optional) row[field.key] = null; continue; }
       const n = field.integer ? Number.parseInt(text, 10) : Number(text);
       if (!Number.isFinite(n) || n < 0) return { error: field.label + ' needs a number that is zero or greater.', focus: input };
       row[field.key] = n;
@@ -176,14 +179,16 @@
     return { rows: out };
   }
 
+  const GOLF_HOLES = [9, 18, 27, 36];
   function readGolf(date) {
     const holesRaw = String(el('golf-holes').value || '').trim();
     const scoreRaw = String(el('golf-score').value || '').trim();
     const course = String(el('golf-course').value || '').trim();
-    if (!holesRaw && !scoreRaw && !course) return {};
+    // Holes is a select (always has a value), so only score/course decide whether golf was filled in.
+    if (!scoreRaw && !course) return {};
     const holes = holesRaw ? Number.parseInt(holesRaw, 10) : 18;
     const score = Number.parseInt(scoreRaw, 10);
-    if (!(holes >= 1 && holes <= 18)) return { error: 'Golf: holes played must be 1–18.', focus: el('golf-holes') };
+    if (GOLF_HOLES.indexOf(holes) === -1) return { error: 'Golf: holes played must be 9, 18, 27, or 36.', focus: el('golf-holes') };
     if (!(score >= 1 && score <= 300)) return { error: 'Golf: enter your score for the round.', focus: el('golf-score') };
     return { row: { played_on: date, holes, score, course: course ? course.slice(0, 120) : null } };
   }
@@ -216,7 +221,7 @@
     const sorted = rows.slice().sort((a, b) =>
       String(b.checked_in_on || '').localeCompare(String(a.checked_in_on || '')) ||
       String(b.created_at || '').localeCompare(String(a.created_at || '')));
-    return FIELDS.map((field) => {
+    const cards = FIELDS.filter((f) => !f.optional || cyclingAvailable).map((field) => {
       let display = '—';
       if (field.summary === 'latest') {
         const found = sorted.find((r) => r[field.key] != null && r[field.key] !== '');
@@ -233,6 +238,19 @@
       }
       return card((field.summary === 'latest' ? 'LATEST ' : 'TOTAL ') + field.label.toUpperCase(), display, '#BE0F34');
     });
+    if (cyclingAvailable) {
+      const cutoff = isoDaysAgo(6);
+      let c7 = 0;
+      let anyC = false;
+      rows.forEach((r) => {
+        const n = Number(r.cycling_miles);
+        if (r.cycling_miles == null || !Number.isFinite(n)) return;
+        anyC = true;
+        if (String(r.checked_in_on) >= cutoff) c7 += n;
+      });
+      cards.push(card('MILES CYCLED · 7 DAYS', anyC ? fmt(c7) + ' mi' : '—', '#BE0F34'));
+    }
+    return cards;
   }
 
   function liftCards(rows) {
@@ -262,7 +280,7 @@
   function golfCards(rows) {
     if (!rows.length) return [];
     const out = [card('GOLF ROUNDS', fmt(rows.length), '#D9E364')];
-    ['18', '9'].forEach((h) => {
+    ['9', '18', '27', '36'].forEach((h) => {
       const set = rows.filter((r) => String(r.holes) === h);
       if (!set.length) return;
       out.push(card('BEST ' + h + '-HOLE', fmt(Math.min.apply(null, set.map((r) => r.score))), '#D9E364'));
@@ -377,6 +395,30 @@
   /* ---------- data ---------- */
 
   const trackersAvailable = { lifts: true, golf: true, steps: true };
+  const CHECKIN_BASE_COLS = 'id, checked_in_on, created_at, weight, pushups, squats, yoga_minutes, miles, calories, carbohydrates, sugars';
+  const CYCLING_MSG = 'Cycling miles will save once the cycling column is set up; the rest of your check-in was saved.';
+  let cyclingAvailable = true;
+  function isMissingColumn(error, col) {
+    if (!error) return false;
+    const msg = String(error.message || '') + ' ' + String(error.code || '');
+    return msg.indexOf(col) !== -1 && /42703|PGRST204|does not exist|schema cache|Could not find/i.test(msg);
+  }
+  function insertRows(client, job, userId) {
+    const rows = job.rows.map((r) => Object.assign({ user_id: userId }, r));
+    return client.from(job.table).insert(rows).then(async (res) => {
+      if (job.kind === 'checkin' && res.error && isMissingColumn(res.error, 'cycling_miles')) {
+        cyclingAvailable = false;
+        const hadCycling = rows.some((r) => r.cycling_miles != null);
+        const stripped = rows.map((r) => { const c = Object.assign({}, r); delete c.cycling_miles; return c; });
+        if (!Object.keys(stripped[0]).some((k) => k !== 'user_id' && k !== 'checked_in_on' && stripped[0][k] != null)) {
+          return { error: { message: CYCLING_MSG.split(';')[0] + '.' }, cyclingOnly: true };
+        }
+        const retry = await client.from(job.table).insert(stripped);
+        return { error: retry.error, cyclingDropped: hadCycling };
+      }
+      return res;
+    });
+  }
 
   async function loadAll() {
     const client = global.ffSupabase;
@@ -388,13 +430,21 @@
       return;
     }
 
-    const checkinQ = client
+    const checkinQuery = (cols) => client
       .from('progress_checkins')
-      .select('id, checked_in_on, created_at, weight, pushups, squats, yoga_minutes, miles, calories, carbohydrates, sugars')
+      .select(cols)
       .eq('user_id', user.id)
       .order('checked_in_on', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(500);
+    const checkinQ = checkinQuery(CHECKIN_BASE_COLS + ', cycling_miles').then(async (res) => {
+      if (res.error && isMissingColumn(res.error, 'cycling_miles')) {
+        cyclingAvailable = false;
+        return checkinQuery(CHECKIN_BASE_COLS);
+      }
+      if (!res.error) cyclingAvailable = true;
+      return res;
+    });
     const trackerQs = Object.keys(TRACKERS).map((key) => {
       const t = TRACKERS[key];
       return client.from(t.table).select(t.cols).eq('user_id', user.id)
@@ -470,8 +520,8 @@
     setStatus('');
 
     const results = await Promise.all(jobs.map((job) =>
-      client.from(job.table).insert(job.rows.map((r) => Object.assign({ user_id: user.id }, r)))
-        .then((res) => ({ job, error: res.error }), (err) => ({ job, error: err }))));
+      insertRows(client, job, user.id)
+        .then((res) => ({ job, error: res.error, cyclingDropped: !!res.cyclingDropped }), (err) => ({ job, error: err }))));
 
     if (button) { button.disabled = false; button.textContent = 'Save'; }
 
@@ -479,7 +529,9 @@
     const pending = [];
     const failed = [];
     const NAMES = { checkin: 'check-in', lifts: 'lifting', golf: 'golf', steps: 'steps' };
-    results.forEach(({ job, error }) => {
+    let cyclingDropped = false;
+    results.forEach(({ job, error, cyclingDropped: dropped }) => {
+      if (dropped) cyclingDropped = true;
       if (!error) { saved.push(job.kind); return; }
       console.warn('[progress] save ' + job.kind, error);
       if (job.kind !== 'checkin' && isMissingTable(error)) pending.push(job.kind);
@@ -487,14 +539,15 @@
     });
 
     // Clear only the sections that saved.
-    if (saved.includes('checkin')) FIELDS.forEach((f) => { const i = el('progress-' + f.key); if (i) i.value = ''; });
+    if (saved.includes('checkin')) FIELDS.forEach((f) => { if (f.optional && cyclingDropped) return; const i = el('progress-' + f.key); if (i) i.value = ''; });
     if (saved.includes('lifts')) resetLiftRows();
-    if (saved.includes('golf')) { el('golf-holes').value = ''; el('golf-score').value = ''; el('golf-course').value = ''; }
+    if (saved.includes('golf')) { el('golf-holes').value = '18'; el('golf-score').value = ''; el('golf-course').value = ''; }
     if (saved.includes('steps')) el('steps-count').value = '';
 
     const msgs = [];
     if (saved.length) msgs.push('Saved: ' + saved.map((k) => NAMES[k]).join(', ') + '.');
     if (pending.length) msgs.push('Not saved yet: ' + pending.map((k) => NAMES[k]).join(', ') + '. ' + SETUP_MSG);
+    if (cyclingDropped) msgs.push(CYCLING_MSG);
     failed.forEach((f) => msgs.push('Could not save ' + NAMES[f.kind] + ': ' + f.message));
     setStatus(msgs.join(' '), !saved.length || failed.length > 0);
     if (saved.length) toast('Progress saved.');
