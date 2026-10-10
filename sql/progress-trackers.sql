@@ -21,7 +21,7 @@ create table if not exists public.progress_golf_rounds (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
   played_on date not null default (timezone('utc', now()))::date,
-  holes integer not null check (holes between 1 and 18),
+  holes integer not null check (holes between 1 and 36),
   score integer not null check (score between 1 and 300),
   course text check (course is null or char_length(course) <= 120),
   created_at timestamptz not null default now()
@@ -65,3 +65,16 @@ end
 $$;
 
 grant usage on schema public to authenticated;
+
+-- Golf: allow 9, 18, 27, or 36 holes (replaces the original 1-18 check). Safe to re-run.
+alter table public.progress_golf_rounds drop constraint if exists progress_golf_rounds_holes_check;
+alter table public.progress_golf_rounds add constraint progress_golf_rounds_holes_check
+  check (holes between 1 and 36);
+
+-- Cycling: optional miles cycled on daily check-ins. Safe to re-run.
+alter table public.progress_checkins add column if not exists cycling_miles numeric;
+alter table public.progress_checkins drop constraint if exists progress_checkins_cycling_miles_check;
+alter table public.progress_checkins add constraint progress_checkins_cycling_miles_check
+  check (cycling_miles is null or (cycling_miles >= 0 and cycling_miles <= 1000));
+
+notify pgrst, 'reload schema';
