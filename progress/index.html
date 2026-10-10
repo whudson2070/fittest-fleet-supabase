@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../css/brand.css">
     <style>
+        details > summary::-webkit-details-marker { display: none; }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Arial:wght@400;700&display=swap');
         body { font-family: Arial, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         .brand-logo { font-weight: 900; letter-spacing: -0.05em; line-height: 1; }
@@ -64,7 +65,7 @@
         <div class="mb-8">
             <p class="text-xs font-semibold tracking-wider text-[#BE0F34] mb-2">YOUR TRAINING LOG</p>
             <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Progress</h1>
-            <p class="mt-2 text-[#414042]/70">Log one check-in at a time. Leave a field blank if you did not track it that day.</p>
+            <p class="mt-2 text-[#414042]/70">Check-ins, lifting, golf, and steps in one tracker. Leave anything blank you did not track.</p>
         </div>
 
         <div id="progress-signed-out" class="bg-white border border-[#E6E7E8] rounded-3xl p-8 text-center">
@@ -79,115 +80,119 @@
 
         <div id="progress-app" class="hidden space-y-6">
             <section class="bg-white border border-[#E6E7E8] rounded-3xl p-6 sm:p-8">
-                <h2 class="text-lg font-bold mb-4">New check-in</h2>
-                <form id="progress-form" class="space-y-5">
+                <h2 class="text-lg font-bold mb-1">Tracker</h2>
+                <p class="text-sm text-[#414042]/70 mb-5">One date, one save. Fill in only the sections that apply; blank sections are skipped.</p>
+                <form id="progress-form" class="space-y-6" novalidate>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <label for="progress-date" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">DATE</label>
                             <input type="date" id="progress-date" required
                                    class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
                         </div>
-                        <div>
-                            <label for="progress-weight" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">WEIGHT (LB)</label>
-                            <input type="number" id="progress-weight" inputmode="decimal" min="0" step="0.1" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="progress-pushups" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">PUSH-UPS</label>
-                            <input type="number" id="progress-pushups" inputmode="numeric" min="0" step="1" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="progress-squats" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">SQUATS</label>
-                            <input type="number" id="progress-squats" inputmode="numeric" min="0" step="1" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="progress-yoga_minutes" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">YOGA MINUTES</label>
-                            <input type="number" id="progress-yoga_minutes" inputmode="numeric" min="0" step="1" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="progress-miles" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">MILES WALKED / RUN</label>
-                            <input type="number" id="progress-miles" inputmode="decimal" min="0" step="0.01" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="progress-calories" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">CALORIES</label>
-                            <input type="number" id="progress-calories" inputmode="numeric" min="0" step="1" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="progress-carbohydrates" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">CARBOHYDRATES (G)</label>
-                            <input type="number" id="progress-carbohydrates" inputmode="decimal" min="0" step="0.1" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="progress-sugars" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">SUGARS (G)</label>
-                            <input type="number" id="progress-sugars" inputmode="decimal" min="0" step="0.1" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
                     </div>
-                    <button type="submit" id="progress-save-btn"
-                            class="inline-flex items-center justify-center px-6 py-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl transition-all active:scale-[0.985]">
-                        Save check-in
-                    </button>
-                    <p id="progress-status" class="text-sm text-[#414042]/70 min-h-[1.25rem]"></p>
-                </form>
-            </section>
 
-            <section>
-                <h2 class="text-lg font-bold mb-3">Summary</h2>
-                <div id="progress-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
-            </section>
+                    <details open class="group border border-[#E6E7E8] rounded-2xl border-l-4" style="border-left-color:#BE0F34">
+                        <summary class="cursor-pointer list-none flex items-center justify-between px-5 py-3 font-bold">
+                            <span><i class="fa-solid fa-clipboard-check mr-2 text-[#BE0F34]"></i>Check-in</span>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform group-open:rotate-180"></i>
+                        </summary>
+                        <div class="px-5 pb-5 grid grid-cols-2 gap-4 sm:gap-5">
+                            <div>
+                                <label for="progress-weight" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">WEIGHT (LB)</label>
+                                <input type="number" id="progress-weight" inputmode="decimal" min="0" step="0.1" placeholder="Optional"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label for="progress-pushups" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">PUSH-UPS</label>
+                                <input type="number" id="progress-pushups" inputmode="numeric" min="0" step="1" placeholder="Optional"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label for="progress-squats" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">SQUATS</label>
+                                <input type="number" id="progress-squats" inputmode="numeric" min="0" step="1" placeholder="Optional"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label for="progress-yoga_minutes" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">YOGA MINUTES</label>
+                                <input type="number" id="progress-yoga_minutes" inputmode="numeric" min="0" step="1" placeholder="Optional"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label for="progress-miles" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">MILES WALKED / RUN</label>
+                                <input type="number" id="progress-miles" inputmode="decimal" min="0" step="0.01" placeholder="Optional"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label for="progress-calories" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">CALORIES</label>
+                                <input type="number" id="progress-calories" inputmode="numeric" min="0" step="1" placeholder="Optional"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label for="progress-carbohydrates" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">CARBOHYDRATES (G)</label>
+                                <input type="number" id="progress-carbohydrates" inputmode="decimal" min="0" step="0.1" placeholder="Optional"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label for="progress-sugars" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">SUGARS (G)</label>
+                                <input type="number" id="progress-sugars" inputmode="decimal" min="0" step="0.1" placeholder="Optional"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
+                        </div>
+                    </details>
 
-            <section class="bg-white border border-[#E6E7E8] rounded-3xl p-6 sm:p-8">
-                <h2 class="text-lg font-bold mb-4">Recent check-ins</h2>
-                <p id="progress-empty" class="text-sm text-[#414042]/70">No check-ins yet. Save your first one above.</p>
-                <ul id="progress-list" class="space-y-3"></ul>
-            </section>
+                    <details open class="group border border-[#E6E7E8] rounded-2xl border-l-4" style="border-left-color:#5594CF">
+                        <summary class="cursor-pointer list-none flex items-center justify-between px-5 py-3 font-bold">
+                            <span><i class="fa-solid fa-dumbbell mr-2 text-[#5594CF]"></i>Weight lifting</span>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform group-open:rotate-180"></i>
+                        </summary>
+                        <div class="px-5 pb-5 space-y-4">
+                            <p class="text-xs text-[#414042]/70">Sets × reps at a weight. Volume = sets × reps × weight.</p>
+                            <div id="lift-rows" class="space-y-4"></div>
+                            <button type="button" id="lift-add-btn" class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-semibold border border-[#5594CF] text-[#5594CF] hover:bg-[#5594CF] hover:text-white rounded-full">
+                                <i class="fa-solid fa-plus"></i> Add lift
+                            </button>
+                        </div>
+                    </details>
 
-            <section id="tracker-lifts" class="bg-white border border-[#E6E7E8] rounded-3xl p-6 sm:p-8 border-t-4" style="border-top-color:#5594CF">
-                <h2 class="text-lg font-bold mb-1">Weight lifting</h2>
-                <p class="text-sm text-[#414042]/70 mb-4">Log each exercise: sets × reps at a weight. Volume = sets × reps × weight.</p>
-                <form id="lifts-form" class="space-y-5">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label for="lifts-date" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">DATE</label>
-                            <input type="date" id="lifts-date" required
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    <details open class="group border border-[#E6E7E8] rounded-2xl border-l-4" style="border-left-color:#D9E364">
+                        <summary class="cursor-pointer list-none flex items-center justify-between px-5 py-3 font-bold">
+                            <span><i class="fa-solid fa-golf-ball-tee mr-2 text-[#414042]"></i>Golf</span>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform group-open:rotate-180"></i>
+                        </summary>
+                        <div class="px-5 pb-5 grid grid-cols-1 sm:grid-cols-3 gap-5">
+                            <div>
+                                <label for="golf-holes" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">HOLES PLAYED</label>
+                                <input type="number" id="golf-holes" inputmode="numeric" min="1" max="18" step="1" placeholder="18" list="golf-holes-options"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                                <datalist id="golf-holes-options"><option value="9"></option><option value="18"></option></datalist>
+                            </div>
+                            <div>
+                                <label for="golf-score" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">SCORE FOR THE ROUND</label>
+                                <input type="number" id="golf-score" inputmode="numeric" min="1" max="300" step="1" placeholder="92"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label for="golf-course" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">COURSE</label>
+                                <input type="text" id="golf-course" maxlength="120" placeholder="Optional"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
                         </div>
-                        <div>
-                            <label for="lifts-exercise" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">EXERCISE</label>
-                            <input type="text" id="lifts-exercise" list="lifts-exercise-options" maxlength="80" required placeholder="Bench Press" autocomplete="off"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </details>
+
+                    <details open class="group border border-[#E6E7E8] rounded-2xl border-l-4" style="border-left-color:#BE0F34">
+                        <summary class="cursor-pointer list-none flex items-center justify-between px-5 py-3 font-bold">
+                            <span><i class="fa-solid fa-shoe-prints mr-2 text-[#BE0F34]"></i>Steps</span>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform group-open:rotate-180"></i>
+                        </summary>
+                        <div class="px-5 pb-5 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label for="steps-count" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">STEPS (PEDOMETER / PHONE)</label>
+                                <input type="number" id="steps-count" inputmode="numeric" min="0" max="200000" step="1" placeholder="8500"
+                                       class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                            </div>
                         </div>
-                        <div>
-                            <label for="lifts-sets" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">SETS</label>
-                            <input type="number" id="lifts-sets" inputmode="numeric" min="1" max="100" step="1" required placeholder="3"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="lifts-reps" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">REPS PER SET</label>
-                            <input type="number" id="lifts-reps" inputmode="numeric" min="1" max="1000" step="1" required placeholder="8"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="lifts-weight" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">WEIGHT (LB)</label>
-                            <input type="number" id="lifts-weight" inputmode="decimal" min="0" max="2000" step="0.5" required placeholder="135"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="lifts-notes" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">NOTES</label>
-                            <input type="text" id="lifts-notes" maxlength="280" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                    </div>
-                    <button type="submit" id="lifts-save-btn"
-                            class="inline-flex items-center justify-center px-6 py-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl transition-all active:scale-[0.985]">
-                        Save lift
-                    </button>
-                    <p id="lifts-status" class="text-sm text-[#414042]/70 min-h-[1.25rem]"></p>
+                    </details>
+
                     <datalist id="lifts-exercise-options">
                         <option value="Bench Press"></option>
                         <option value="Incline Bench Press"></option>
@@ -210,75 +215,25 @@
                         <option value="Seated Cable Row"></option>
                         <option value="Calf Raise"></option>
                     </datalist>
-                </form>
-                <div id="lifts-summary" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4"></div>
-                <p id="lifts-empty" class="text-sm text-[#414042]/70">Nothing logged yet.</p>
-                <ul id="lifts-list" class="space-y-3"></ul>
-            </section>
 
-            <section id="tracker-golf" class="bg-white border border-[#E6E7E8] rounded-3xl p-6 sm:p-8 border-t-4" style="border-top-color:#D9E364">
-                <h2 class="text-lg font-bold mb-1">Golf</h2>
-                <p class="text-sm text-[#414042]/70 mb-4">Holes played (1–18) and your score for the round.</p>
-                <form id="golf-form" class="space-y-5">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label for="golf-date" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">DATE</label>
-                            <input type="date" id="golf-date" required
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="golf-holes" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">HOLES PLAYED</label>
-                            <input type="number" id="golf-holes" inputmode="numeric" min="1" max="18" step="1" required value="18" list="golf-holes-options"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="golf-score" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">SCORE FOR THE ROUND</label>
-                            <input type="number" id="golf-score" inputmode="numeric" min="1" max="300" step="1" required placeholder="92"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="golf-course" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">COURSE</label>
-                            <input type="text" id="golf-course" maxlength="120" placeholder="Optional"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                    </div>
-                    <button type="submit" id="golf-save-btn"
-                            class="inline-flex items-center justify-center px-6 py-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl transition-all active:scale-[0.985]">
-                        Save round
+                    <button type="submit" id="progress-save-btn"
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl transition-all active:scale-[0.985]">
+                        Save
                     </button>
-                    <p id="golf-status" class="text-sm text-[#414042]/70 min-h-[1.25rem]"></p>
-                    <datalist id="golf-holes-options"><option value="9"></option><option value="18"></option></datalist>
+                    <p id="progress-status" class="text-sm text-[#414042]/70 min-h-[1.25rem]"></p>
                 </form>
-                <div id="golf-summary" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4"></div>
-                <p id="golf-empty" class="text-sm text-[#414042]/70">Nothing logged yet.</p>
-                <ul id="golf-list" class="space-y-3"></ul>
-            </section>
 
-            <section id="tracker-steps" class="bg-white border border-[#E6E7E8] rounded-3xl p-6 sm:p-8 border-t-4" style="border-top-color:#BE0F34">
-                <h2 class="text-lg font-bold mb-1">Steps</h2>
-                <p class="text-sm text-[#414042]/70 mb-4">Enter the step count from your pedometer or phone for the day.</p>
-                <form id="steps-form" class="space-y-5">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label for="steps-date" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">DATE</label>
-                            <input type="date" id="steps-date" required
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                        <div>
-                            <label for="steps-count" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">STEPS</label>
-                            <input type="number" id="steps-count" inputmode="numeric" min="0" max="200000" step="1" required placeholder="8500"
-                                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
-                        </div>
-                    </div>
-                    <button type="submit" id="steps-save-btn"
-                            class="inline-flex items-center justify-center px-6 py-3 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl transition-all active:scale-[0.985]">
-                        Save steps
-                    </button>
-                    <p id="steps-status" class="text-sm text-[#414042]/70 min-h-[1.25rem]"></p>
-                </form>
-                <div id="steps-summary" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4"></div>
-                <p id="steps-empty" class="text-sm text-[#414042]/70">Nothing logged yet.</p>
-                <ul id="steps-list" class="space-y-3"></ul>
+                <div class="border-t border-[#E6E7E8] mt-6 pt-6">
+                    <h3 class="text-base font-bold mb-3">Summary</h3>
+                    <div id="progress-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+                    <p id="progress-tracker-note" class="hidden mt-3 text-xs text-[#414042]/70"></p>
+                </div>
+
+                <div class="border-t border-[#E6E7E8] mt-6 pt-6">
+                    <h3 class="text-base font-bold mb-3">Recent history</h3>
+                    <p id="progress-empty" class="text-sm text-[#414042]/70">Nothing logged yet. Save your first entry above.</p>
+                    <ul id="progress-list" class="space-y-3"></ul>
+                </div>
             </section>
         </div>
     </main>
@@ -354,7 +309,6 @@
     <script src="../js/supabase-client.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/progress.js"></script>
-    <script src="../js/progress-trackers.js"></script>
     <script>
         function showToast(message) {
             const toast = document.getElementById('toast');
@@ -373,10 +327,8 @@
         window.onload = async function () {
             await FFAuth.initAuth();
             await FFProgress.initProgressPage();
-            if (window.FFProgressTrackers) await FFProgressTrackers.init();
             FFAuth.onAuthChange(() => {
                 FFProgress.initProgressPage();
-                if (window.FFProgressTrackers) FFProgressTrackers.init();
             });
         };
     </script>
