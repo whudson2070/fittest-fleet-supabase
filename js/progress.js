@@ -105,7 +105,7 @@
     liftSeq += 1;
     const n = liftSeq;
     const row = document.createElement('div');
-    row.className = 'lift-row relative grid grid-cols-2 sm:grid-cols-6 gap-3 bg-[#E6E7E8]/30 border border-[#E6E7E8] rounded-2xl p-4';
+    row.className = 'lift-row relative grid grid-cols-2 sm:grid-cols-5 gap-3 bg-[#E6E7E8]/30 border border-[#E6E7E8] rounded-2xl p-4';
 
     const make = (type, cls, attrs) => {
       const i = document.createElement('input');
@@ -121,6 +121,7 @@
     const reps = liftField('REPS', make('number', 'reps', { inputmode: 'numeric', min: '1', max: '1000', step: '1', placeholder: '8' }));
     const wt = liftField('WEIGHT (LB)', make('number', 'weight', { inputmode: 'decimal', min: '0', max: '2000', step: '0.5', placeholder: '135' }));
     const notes = liftField('NOTES', make('text', 'notes', { maxlength: '280', placeholder: 'Optional' }));
+    notes.className = 'col-span-2 sm:col-span-5';
     row.append(ex, sets, reps, wt, notes);
 
     if (rows.children.length > 0) {
