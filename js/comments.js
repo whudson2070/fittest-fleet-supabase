@@ -598,6 +598,25 @@
     return pillarToCategory[pillar] || 'General';
   }
 
+  function scrollToNewComment(id) {
+    // Wait for the card to be in the DOM (render may lag a frame).
+    let tries = 0;
+    const attempt = () => {
+      const card = document.querySelector(`[data-comment-id="${id}"]`);
+      if (!card) {
+        if (tries++ < 20) return setTimeout(attempt, 100);
+        const section = document.getElementById('community');
+        if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.style.transition = 'box-shadow 0.4s ease';
+      card.style.boxShadow = '0 0 0 4px #BE0F34';
+      setTimeout(() => { card.style.boxShadow = ''; }, 2500);
+    };
+    attempt();
+  }
+
   async function acceptDailyChallenge() {
     if (typeof global.showToast === 'function') {
       global.showToast("Challenge accepted! You've taken a powerful step today. 💪");
@@ -629,16 +648,29 @@
       const message = challenge
         ? `I accepted today’s challenge: ${challenge}. Who’s with me?`
         : "I accepted today’s challenge! Committing to show up for myself and encourage at least one person in this amazing community. Who’s with me?";
-      const { error } = await client.from('comments').insert({
-        user_id: user.id,
-        display_name: `${name} (via Challenge)`,
-        category,
-        message,
-        likes: 0,
-      });
+      const { data, error } = await client
+        .from('comments')
+        .insert({
+          user_id: user.id,
+          display_name: `${name} (via Challenge)`,
+          category,
+          message,
+          likes: 0,
+        })
+        .select()
+        .single();
       if (error) {
         console.error('[comments] challenge post failed', error);
       } else {
+        if (data) {
+          await upsertLocal(data);
+          if (currentFilter !== 'all' && currentFilter !== data.category) {
+            filterComments(data.category || 'all');
+          } else {
+            applyFilterAndRender();
+          }
+          scrollToNewComment(data.id);
+        }
         refreshEngagementTracker();
       }
     }, 1000);
