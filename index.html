@@ -419,10 +419,10 @@
                     </div>
                 </div>
                 <div class="md:ml-8">
-                    <button type="button" onclick="acceptDailyChallenge()"
-                            class="whitespace-nowrap bg-white text-[#BE0F34] hover:bg-[#D9E364] hover:text-[#414042] font-bold px-8 py-3.5 rounded-2xl flex items-center gap-x-3 transition-all active:scale-[0.985]">
+                    <button type="button" id="accept-challenge-btn" onclick="acceptDailyChallenge()"
+                            class="disabled:opacity-80 disabled:cursor-default whitespace-nowrap bg-white text-[#BE0F34] hover:bg-[#D9E364] hover:text-[#414042] font-bold px-8 py-3.5 rounded-2xl flex items-center gap-x-3 transition-all active:scale-[0.985]">
                         <i class="fa-solid fa-handshake"></i>
-                        <span>Accept Today’s Challenge</span>
+                        <span id="accept-challenge-label">Accept Today’s Challenge</span>
                     </button>
                 </div>
             </div>

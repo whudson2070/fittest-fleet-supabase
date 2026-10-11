@@ -617,13 +617,97 @@
     attempt();
   }
 
-  async function acceptDailyChallenge() {
-    if (typeof global.showToast === 'function') {
-      global.showToast("Challenge accepted! You've taken a powerful step today. 💪");
-    }
+  // ---- Accept Today's Challenge: duplicate protection ----
+  let challengeInFlight = false;
 
+  function easternDateKey(date) {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(date || new Date());
+    const m = {};
+    parts.forEach((p) => { m[p.type] = p.value; });
+    return `${m.year}-${m.month}-${m.day}`;
+  }
+
+  function challengeStorageKey(userId) {
+    return `ffChallengeAccepted:${userId}:${easternDateKey()}`;
+  }
+
+  function todaysChallengeMessage() {
+    const api = global.FFDailyChallenge;
+    const challenge = api && typeof api.challengeForDate === 'function' ? api.challengeForDate(new Date()) : '';
+    return challenge
+      ? `I accepted today’s challenge: ${challenge}. Who’s with me?`
+      : "I accepted today’s challenge! Committing to show up for myself and encourage at least one person in this amazing community. Who’s with me?";
+  }
+
+  function setChallengeButton(state) {
+    const btn = document.getElementById('accept-challenge-btn');
+    const label = document.getElementById('accept-challenge-label');
+    if (!btn) return;
+    if (state === 'accepted') {
+      btn.disabled = true;
+      if (label) label.textContent = 'Challenge accepted ✓';
+    } else if (state === 'pending') {
+      btn.disabled = true;
+      if (label) label.textContent = 'Accepting…';
+    } else {
+      btn.disabled = false;
+      if (label) label.textContent = 'Accept Today’s Challenge';
+    }
+  }
+
+  /** Returns today's (Eastern) challenge comment id for the user, true if only known locally, or null. */
+  async function findTodaysChallengeComment(user) {
+    const client = global.ffSupabase;
+    const todayKey = easternDateKey();
+    if (client) {
+      try {
+        const since = new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString();
+        const { data, error } = await client
+          .from('comments')
+          .select('id, created_at, message')
+          .eq('user_id', user.id)
+          .like('display_name', '%(via Challenge)')
+          .gte('created_at', since)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        const msg = todaysChallengeMessage();
+        const hit = (data || []).find(
+          (c) => easternDateKey(new Date(c.created_at)) === todayKey && c.message === msg
+        );
+        if (hit) {
+          try { localStorage.setItem(challengeStorageKey(user.id), String(hit.id)); } catch (_) {}
+          return hit.id;
+        }
+        try { localStorage.removeItem(challengeStorageKey(user.id)); } catch (_) {}
+        return null;
+      } catch (err) {
+        console.warn('[comments] challenge check failed, using local fallback', err);
+      }
+    }
+    try {
+      const stored = localStorage.getItem(challengeStorageKey(user.id));
+      if (stored) return stored === 'true' ? true : stored;
+    } catch (_) {}
+    return null;
+  }
+
+  async function refreshChallengeButton() {
+    if (challengeInFlight) return;
+    const user = global.FFAuth && global.FFAuth.getCurrentUser();
+    if (!user) return setChallengeButton('ready');
+    const existing = await findTodaysChallengeComment(user);
+    if (challengeInFlight) return;
+    setChallengeButton(existing ? 'accepted' : 'ready');
+  }
+
+  async function acceptDailyChallenge() {
     const user = global.FFAuth && global.FFAuth.getCurrentUser();
     if (!user) {
+      if (typeof global.showToast === 'function') {
+        global.showToast("Challenge accepted! You've taken a powerful step today. 💪");
+      }
       setTimeout(() => {
         if (global.FFAuth) global.FFAuth.openAuthModal('signin');
       }, 800);
@@ -632,22 +716,37 @@
 
     const client = global.ffSupabase;
     if (!client) return;
+    if (challengeInFlight) return;
+    challengeInFlight = true;
+    setChallengeButton('pending');
 
-    setTimeout(async () => {
+    try {
+      const existing = await findTodaysChallengeComment(user);
+      if (existing) {
+        if (typeof global.showToast === 'function') {
+          global.showToast("You've already accepted today's challenge! 💪");
+        }
+        setChallengeButton('accepted');
+        if (existing !== true) {
+          const local = comments.find((c) => String(c.id) === String(existing));
+          if (local && currentFilter !== 'all' && currentFilter !== local.category) {
+            filterComments(local.category || 'all');
+          }
+          scrollToNewComment(existing);
+        }
+        return;
+      }
+
+      if (typeof global.showToast === 'function') {
+        global.showToast("Challenge accepted! You've taken a powerful step today. 💪");
+      }
+      await new Promise((r) => setTimeout(r, 1000));
+
       const name = global.FFAuth.getDisplayName() || 'You';
-      const challengeApi = global.FFDailyChallenge;
-      const challenge =
-        challengeApi && typeof challengeApi.challengeForDate === 'function'
-          ? challengeApi.challengeForDate(new Date())
-          : '';
-      const pillar =
-        challengeApi && typeof challengeApi.pillarForDate === 'function'
-          ? challengeApi.pillarForDate(new Date())
-          : '';
+      const api = global.FFDailyChallenge;
+      const pillar = api && typeof api.pillarForDate === 'function' ? api.pillarForDate(new Date()) : '';
       const category = categoryForChallengePillar(pillar);
-      const message = challenge
-        ? `I accepted today’s challenge: ${challenge}. Who’s with me?`
-        : "I accepted today’s challenge! Committing to show up for myself and encourage at least one person in this amazing community. Who’s with me?";
+      const message = todaysChallengeMessage();
       const { data, error } = await client
         .from('comments')
         .insert({
@@ -661,19 +760,27 @@
         .single();
       if (error) {
         console.error('[comments] challenge post failed', error);
-      } else {
-        if (data) {
-          await upsertLocal(data);
-          if (currentFilter !== 'all' && currentFilter !== data.category) {
-            filterComments(data.category || 'all');
-          } else {
-            applyFilterAndRender();
-          }
-          scrollToNewComment(data.id);
-        }
-        refreshEngagementTracker();
+        setChallengeButton('ready');
+        return;
       }
-    }, 1000);
+      try { localStorage.setItem(challengeStorageKey(user.id), data ? String(data.id) : 'true'); } catch (_) {}
+      setChallengeButton('accepted');
+      if (data) {
+        await upsertLocal(data);
+        if (currentFilter !== 'all' && currentFilter !== data.category) {
+          filterComments(data.category || 'all');
+        } else {
+          applyFilterAndRender();
+        }
+        scrollToNewComment(data.id);
+      }
+      refreshEngagementTracker();
+    } catch (err) {
+      console.error('[comments] challenge accept failed', err);
+      setChallengeButton('ready');
+    } finally {
+      challengeInFlight = false;
+    }
   }
 
 
@@ -695,6 +802,7 @@
     const el = document.getElementById('final-cta-engagement');
     if (!el) return;
 
+    refreshChallengeButton();
     const requestId = ++engagementRequest;
     const personal = document.getElementById('final-cta-personal-engagement');
     const user = global.FFAuth && global.FFAuth.getCurrentUser();
@@ -778,6 +886,7 @@
     encourageComment,
     scrollToCommunityWithFilter,
     acceptDailyChallenge,
+    refreshChallengeButton,
     refreshEngagementTracker,
     updateCommentAuthor,
   };
