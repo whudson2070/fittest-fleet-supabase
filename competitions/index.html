@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitions • Fittest Fleet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/brand.css">
+    <style>
+        details > summary::-webkit-details-marker { display: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Arial:wght@400;700&display=swap');
+        body { font-family: Arial, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .brand-logo { font-weight: 900; letter-spacing: -0.05em; line-height: 1; }
+        .nav-link { transition: color 0.2s ease; }
+        .nav-link:hover { color: #BE0F34; }
+        .modal { animation: modalPopIn 0.2s ease-out forwards; }
+        @keyframes modalPopIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        input[type="number"] { appearance: textfield; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="date"] { -webkit-appearance: none; appearance: none; background-color: #fff; min-height: 2.875rem; line-height: 1.25rem; display: block; }
+        input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+            .comp-head h2 { color: inherit; font-size: 1.5rem; margin-bottom: 0; }
+        main h1 { margin-bottom: 0; }
+        main h2, main h3 { margin-bottom: 0; }
+    </style>
+</head>
+<body class="bg-[#E6E7E8]/40 text-[#414042] min-h-screen flex flex-col">
+    <nav class="bg-white border-b border-[#E6E7E8] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-20">
+                <a href="../index.html" class="flex items-center group">
+                    <div class="brand-logo text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                    <div class="ml-3">
+                        <div class="font-bold text-lg tracking-tight text-[#414042]">Fittest Fleet</div>
+                        <div class="text-[10px] text-[#414042]/60 -mt-1">Community Wellness</div>
+                    </div>
+                </a>
+                <div class="flex items-center gap-x-3">
+                    <a href="../index.html#community" class="hidden sm:inline text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                    <a href="../run-runner/" class="hidden sm:inline text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
+                    <a href="../profile.html" data-signed-in-nav class="hidden text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Profile</a>
+                    <a href="../progress/" data-signed-in-nav class="hidden text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Progress</a>
+                    <span class="hidden sm:inline text-sm font-semibold text-[#BE0F34]">Competitions</span>
+                    <div class="hidden sm:block"><div id="auth-signed-out" class="hidden sm:flex items-center gap-x-2">
+                        <button type="button" id="auth-open-signin" class="px-4 py-2 text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Sign in</button>
+                        <button type="button" id="auth-open-signup" class="inline-flex items-center justify-center px-5 py-2.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full">Join</button>
+                    </div></div>
+                    <div id="auth-signed-in" class="hidden flex items-center gap-x-3">
+                        <a href="../profile.html" class="hidden sm:inline-flex items-center gap-x-2 text-sm text-[#414042]/80 hover:text-[#BE0F34]">
+                            <img id="auth-user-avatar" class="hidden w-8 h-8 rounded-full object-cover ring-2 ring-[#E6E7E8]" alt="">
+                            <i id="auth-user-icon" class="fa-solid fa-user-circle text-[#BE0F34] text-xl"></i>
+                            <span id="auth-user-label" class="font-semibold"></span>
+                        </a>
+                        <button type="button" id="auth-signout-btn" class="px-4 py-2 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full">Sign out</button>
+                    </div>
+                    <button type="button" id="auth-mobile-signin" class="sm:hidden hidden px-3 py-2 text-sm font-semibold">Sign in</button>
+                    <button type="button" id="auth-mobile-signup" class="sm:hidden hidden px-3 py-2 text-sm font-semibold text-[#BE0F34]">Join</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 w-full">
+        <section class="bg-white border-b border-[#E6E7E8]">
+            <div class="max-w-6xl mx-auto px-6 py-12 sm:py-16">
+                <div id="comp-test-banner" role="status" class="mb-4 flex items-center gap-x-3 bg-[#BE0F34] text-white font-bold text-lg sm:text-xl px-5 py-3 rounded-2xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Test Challenges / Not Active
+                </div>
+                <div id="comp-preview-banner" class="hidden mb-6 inline-flex items-center gap-x-2 bg-[#D9E364] text-[#414042] text-xs font-bold tracking-wider px-4 py-2 rounded-full">
+                    <i class="fa-solid fa-flask"></i> EXAMPLE DATA: PREVIEW ONLY, NOT REAL MEMBERS
+                </div>
+                <p class="text-xs font-semibold tracking-wider text-[#BE0F34] mb-2">FITTEST FLEET COMPETITIONS • <span id="comp-season-name">SEASON 1</span></p>
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight">Three challenges. One season.</h1>
+                <p class="mt-3 text-lg text-[#414042]/70 max-w-2xl">Lose a percentage of your body weight, rack up exercise points, build nutrition discipline, or take on all three. All three competitions run on the same dates and are scored from what you log on your <a href="../progress/" class="text-[#BE0F34] underline underline-offset-2">Progress</a> page.</p>
+                <div class="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-end">
+                    <div class="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 sm:gap-3 text-sm">
+                        <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">SEASON</div><div id="comp-dates" class="font-bold">—</div></div>
+                        <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">JOIN BY</div><div id="comp-join-by" class="font-bold">—</div></div>
+                        <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">LENGTH</div><div class="font-bold">6 weeks</div></div>
+                    </div>
+                    <div class="bg-[#414042] text-white rounded-3xl px-6 py-4 justify-self-start">
+                        <div id="comp-countdown-label" class="text-[10px] font-semibold tracking-wider text-white/60 mb-1">STARTS IN</div>
+                        <div class="flex gap-4 text-center" id="comp-countdown">
+                            <div><div class="text-3xl font-bold tabular-nums" data-cd="d">0</div><div class="text-[10px] text-white/60">DAYS</div></div>
+                            <div><div class="text-3xl font-bold tabular-nums" data-cd="h">0</div><div class="text-[10px] text-white/60">HRS</div></div>
+                            <div><div class="text-3xl font-bold tabular-nums" data-cd="m">0</div><div class="text-[10px] text-white/60">MIN</div></div>
+                            <div><div class="text-3xl font-bold tabular-nums" data-cd="s">0</div><div class="text-[10px] text-white/60">SEC</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="max-w-6xl mx-auto px-6 py-10 space-y-8">
+            <section id="comp-standing" class="bg-white border border-[#E6E7E8] rounded-3xl p-6 sm:p-8">
+                <h2 class="text-lg font-bold mb-4" style="font-size:1.125rem;margin-bottom:1rem">Your standing</h2>
+                <div id="comp-standing-body" class="text-sm text-[#414042]/70">Loading…</div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <!-- Weight loss -->
+                <section class="bg-white border border-[#E6E7E8] rounded-3xl overflow-hidden flex flex-col">
+                    <div class="comp-head lg:min-h-[15rem] flex flex-col justify-between bg-[#BE0F34] text-white px-6 py-6">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-[10px] font-semibold tracking-wider text-white/70">SUSTAINABLE WEIGHT LOSS</p>
+                                <h2 class="text-xl font-bold mt-1 leading-tight"><i class="fa-solid fa-scale-balanced mr-2"></i>Weight Loss Challenge</h2>
+                                <p class="text-sm text-white/80 mt-1">Ranked by percent of starting body weight lost.</p>
+                            </div>
+                            <div class="text-right shrink-0"><div id="wl-entrants" class="text-2xl font-bold">—</div><div class="text-[10px] text-white/70">ENTRANTS</div></div>
+                        </div>
+                        <button type="button" data-join="weight" class="comp-join mt-5 self-start inline-flex items-center justify-center px-6 py-2.5 bg-white text-[#BE0F34] hover:bg-[#E6E7E8] text-sm font-bold rounded-full">Join Weight Loss Challenge</button>
+                    </div>
+                    <div class="px-6 py-6 flex-1 flex flex-col gap-6">
+                        <div>
+                            <h3 class="text-sm font-bold tracking-wider mb-3">LEADERBOARD</h3>
+                            <table class="w-full text-sm">
+                                <thead><tr class="text-left text-[10px] tracking-wider text-[#414042]/60 border-b border-[#E6E7E8]">
+                                    <th class="py-2 w-10">#</th><th class="py-2">MEMBER</th><th class="py-2 text-right">% LOST</th><th class="py-2 text-right">WEIGH-INS</th></tr></thead>
+                                <tbody id="wl-board"></tbody>
+                            </table>
+                            <p id="wl-empty" class="hidden text-sm text-[#414042]/60 py-4">No entrants yet. Be the first to join.</p>
+                            <p class="mt-3 text-xs text-[#414042]/60"><i class="fa-solid fa-lock mr-1"></i>Only percentages are shown. Body weights stay private.</p>
+                        </div>
+                        <div class="border-t border-[#E6E7E8] pt-6">
+                            <h3 class="text-sm font-bold tracking-wider mb-3">HOW IT WORKS</h3>
+                            <ol class="list-decimal pl-5 space-y-2 text-sm text-[#414042]/80" id="wl-rules">
+                                <li>Join by the end of week 1 (<span data-join-by></span>).</li>
+                                <li>Your <strong>starting weight</strong> is your first weigh-in logged on the Progress page during week 1.</li>
+                                <li>Your <strong>current weight</strong> is your most recent weigh-in during the season.</li>
+                                <li><strong>% lost = (starting weight − current weight) ÷ starting weight × 100</strong>, rounded to one decimal.</li>
+                                <li>Log at least <strong>one weigh-in every week</strong> (Monday–Sunday) to stay eligible. Members who miss a week are listed below eligible members.</li>
+                                <li>If you weigh more than you started, you show <strong>0.0%</strong>. There are no negative scores.</li>
+                                <li>Ties go to the member whose latest weigh-in came first.</li>
+                            </ol>
+                            <div class="mt-4 bg-[#BE0F34]/5 border border-[#BE0F34]/20 rounded-2xl px-5 py-4 text-sm">
+                                <div class="text-[10px] font-bold tracking-wider text-[#BE0F34] mb-1">EXAMPLE</div>
+                                Sam starts at 200 lb and ends at 188 lb: 12 ÷ 200 = <strong>6.0% lost</strong>. Jordan starts at 150 lb and ends at 141 lb: 9 ÷ 150 = <strong>6.0% lost</strong>. Same score, so it's fair at any size. If Jordan's last weigh-in was earlier, Jordan wins the tie.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Exercise -->
+                <section class="bg-white border border-[#E6E7E8] rounded-3xl overflow-hidden flex flex-col">
+                    <div class="comp-head lg:min-h-[15rem] flex flex-col justify-between bg-[#5594CF] text-white px-6 py-6">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-[10px] font-semibold tracking-wider text-white/80">PURPOSEFUL MOVEMENT</p>
+                                <h2 class="text-xl font-bold mt-1 leading-tight"><i class="fa-solid fa-person-running mr-2"></i>Exercise Challenge</h2>
+                                <p class="text-sm text-white/90 mt-1">Earn points for every activity you log.</p>
+                            </div>
+                            <div class="text-right shrink-0"><div id="ex-entrants" class="text-2xl font-bold">—</div><div class="text-[10px] text-white/80">ENTRANTS</div></div>
+                        </div>
+                        <button type="button" data-join="exercise" class="comp-join mt-5 self-start inline-flex items-center justify-center px-6 py-2.5 bg-white text-[#5594CF] hover:bg-[#E6E7E8] text-sm font-bold rounded-full">Join Exercise Challenge</button>
+                    </div>
+                    <div class="px-6 py-6 flex-1 flex flex-col gap-6">
+                        <div>
+                            <h3 class="text-sm font-bold tracking-wider mb-3">LEADERBOARD</h3>
+                            <table class="w-full text-sm">
+                                <thead><tr class="text-left text-[10px] tracking-wider text-[#414042]/60 border-b border-[#E6E7E8]">
+                                    <th class="py-2 w-10">#</th><th class="py-2">MEMBER</th><th class="py-2 text-right">POINTS</th><th class="py-2 text-right">ACTIVE DAYS</th></tr></thead>
+                                <tbody id="ex-board"></tbody>
+                            </table>
+                            <p id="ex-empty" class="hidden text-sm text-[#414042]/60 py-4">No entrants yet. Be the first to join.</p>
+                        </div>
+                        <div class="border-t border-[#E6E7E8] pt-6">
+                            <h3 class="text-sm font-bold tracking-wider mb-3">HOW IT WORKS</h3>
+                            <ol class="list-decimal pl-5 space-y-2 text-sm text-[#414042]/80">
+                                <li>Join by the end of week 1 (<span data-join-by></span>). Activity logged from the first day of the season counts.</li>
+                                <li>Log activity on the Progress page. Points are counted per day using the table below.</li>
+                                <li>Each activity has a daily cap, and you can earn at most <strong>20 points per day</strong>.</li>
+                                <li>An <strong>active day</strong> is any day you earn at least 1 point.</li>
+                                <li>Most points at the end of the season wins. Ties go to the member with more active days.</li>
+                            </ol>
+                            <table class="mt-4 w-full text-sm border border-[#E6E7E8] rounded-2xl overflow-hidden">
+                                <thead class="bg-[#5594CF]/10 text-[10px] tracking-wider text-left"><tr><th class="px-4 py-2">ACTIVITY</th><th class="px-4 py-2">POINTS</th><th class="px-4 py-2 text-right">DAILY MAX</th></tr></thead>
+                                <tbody class="divide-y divide-[#E6E7E8]">
+                                    <tr><td class="px-4 py-2">Walking / running</td><td class="px-4 py-2">1 per mile</td><td class="px-4 py-2 text-right">8</td></tr>
+                                    <tr><td class="px-4 py-2">Cycling</td><td class="px-4 py-2">1 per 3 miles</td><td class="px-4 py-2 text-right">8</td></tr>
+                                    <tr><td class="px-4 py-2">Steps (pedometer)</td><td class="px-4 py-2">1 per 2,000 steps</td><td class="px-4 py-2 text-right">6</td></tr>
+                                    <tr><td class="px-4 py-2">Weight lifting</td><td class="px-4 py-2">1 per set</td><td class="px-4 py-2 text-right">8</td></tr>
+                                    <tr><td class="px-4 py-2">Yoga</td><td class="px-4 py-2">1 per 15 minutes</td><td class="px-4 py-2 text-right">4</td></tr>
+                                    <tr><td class="px-4 py-2">Push-ups + squats</td><td class="px-4 py-2">1 per 50 reps</td><td class="px-4 py-2 text-right">4</td></tr>
+                                    <tr><td class="px-4 py-2">Golf</td><td class="px-4 py-2">1 per 9 holes</td><td class="px-4 py-2 text-right">4</td></tr>
+                                    <tr class="bg-[#E6E7E8]/40 font-bold"><td class="px-4 py-2" colspan="2">Total per day</td><td class="px-4 py-2 text-right">20</td></tr>
+                                </tbody>
+                            </table>
+                            <p class="mt-2 text-xs text-[#414042]/60">Partial units round down (2.7 miles = 2 points).</p>
+                            <div class="mt-4 bg-[#5594CF]/10 border border-[#5594CF]/30 rounded-2xl px-5 py-4 text-sm">
+                                <div class="text-[10px] font-bold tracking-wider text-[#5594CF] mb-1">EXAMPLE</div>
+                                On Tuesday, Alex walks 3.5 miles (3), logs 9,000 steps (4) and does 5 sets of bench press (5): <strong>12 points</strong>. On Saturday, Alex rides 30 miles: 30 ÷ 3 = 10, capped at <strong>8 points</strong>. Week total so far: 20 points over 2 active days.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Nutrition -->
+                <section class="bg-white border border-[#E6E7E8] rounded-3xl overflow-hidden flex flex-col">
+                    <div class="comp-head lg:min-h-[15rem] flex flex-col justify-between bg-[#D9E364] text-[#414042] px-6 py-6">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-[10px] font-semibold tracking-wider text-[#414042]/80">NUTRITIONAL DISCIPLINE</p>
+                                <h2 class="text-xl font-bold mt-1 leading-tight"><i class="fa-solid fa-apple-whole mr-2"></i>Nutritional Discipline Challenge</h2>
+                                <p class="text-sm text-[#414042]/90 mt-1">Earn points for logging and staying within daily targets.</p>
+                            </div>
+                            <div class="text-right shrink-0"><div id="nu-entrants" class="text-2xl font-bold">—</div><div class="text-[10px] text-[#414042]/80">ENTRANTS</div></div>
+                        </div>
+                        <button type="button" data-join="nutrition" class="comp-join mt-5 self-start inline-flex items-center justify-center px-6 py-2.5 bg-[#414042] text-white hover:bg-black text-sm font-bold rounded-full">Join Nutrition Challenge</button>
+                    </div>
+                    <div class="px-6 py-6 flex-1 flex flex-col gap-6">
+                        <div>
+                            <h3 class="text-sm font-bold tracking-wider mb-3">LEADERBOARD</h3>
+                            <table class="w-full text-sm">
+                                <thead><tr class="text-left text-[10px] tracking-wider text-[#414042]/60 border-b border-[#E6E7E8]">
+                                    <th class="py-2 w-10">#</th><th class="py-2">MEMBER</th><th class="py-2 text-right">POINTS</th><th class="py-2 text-right">LOGGED DAYS</th></tr></thead>
+                                <tbody id="nu-board"></tbody>
+                            </table>
+                            <p id="nu-empty" class="hidden text-sm text-[#414042]/60 py-4">No entrants yet. Be the first to join.</p>
+                            <p class="mt-3 text-xs text-[#414042]/60"><i class="fa-solid fa-lock mr-1"></i>Only points are shown. Calories, carbs and sugars stay private.</p>
+                        </div>
+                        <div class="border-t border-[#E6E7E8] pt-6">
+                            <h3 class="text-sm font-bold tracking-wider mb-3">HOW IT WORKS</h3>
+                            <ol class="list-decimal pl-5 space-y-2 text-sm text-[#414042]/80">
+                                <li>Join by the end of week 1 (<span data-join-by></span>). Days logged from the first day of the season count.</li>
+                                <li>Log <strong>calories, carbohydrates and sugars</strong> in your Progress check-in. If you check in more than once a day, that day's entries are added together.</li>
+                                <li>Points are counted per day using the table below. A target only scores if that field was logged, so a blank never counts as zero.</li>
+                                <li>Each line has a daily cap, and you can earn at most <strong>20 points per day</strong>.</li>
+                                <li>A <strong>logged day</strong> is any day you earn at least 1 point.</li>
+                                <li>Most points at the end of the season wins. Ties go to the member with more logged days, then the longest streak of consecutive logged days.</li>
+                            </ol>
+                            <table class="mt-4 w-full text-sm border border-[#E6E7E8] rounded-2xl overflow-hidden">
+                                <thead class="bg-[#D9E364]/40 text-[10px] tracking-wider text-left"><tr><th class="px-4 py-2">DAILY HABIT</th><th class="px-4 py-2">POINTS</th><th class="px-4 py-2 text-right">DAILY MAX</th></tr></thead>
+                                <tbody class="divide-y divide-[#E6E7E8]">
+                                    <tr><td class="px-4 py-2">Log it</td><td class="px-4 py-2">2 per field logged (calories, carbs, sugars)</td><td class="px-4 py-2 text-right">6</td></tr>
+                                    <tr><td class="px-4 py-2">Calories in range</td><td class="px-4 py-2">4 for 1,200–2,500 calories</td><td class="px-4 py-2 text-right">4</td></tr>
+                                    <tr><td class="px-4 py-2">Carbs in check</td><td class="px-4 py-2">4 for 200 g or less</td><td class="px-4 py-2 text-right">4</td></tr>
+                                    <tr><td class="px-4 py-2">Low sugar</td><td class="px-4 py-2">6 for 25 g or less, 3 for 26–36 g</td><td class="px-4 py-2 text-right">6</td></tr>
+                                    <tr class="bg-[#E6E7E8]/40 font-bold"><td class="px-4 py-2" colspan="2">Total per day</td><td class="px-4 py-2 text-right">20</td></tr>
+                                </tbody>
+                            </table>
+                            <p class="mt-2 text-xs text-[#414042]/60">Targets follow general adult guidelines (American Heart Association sugar limits). They're not medical advice.</p>
+                            <div class="mt-4 bg-[#D9E364]/30 border border-[#D9E364] rounded-2xl px-5 py-4 text-sm">
+                                <div class="text-[10px] font-bold tracking-wider text-[#414042] mb-1">EXAMPLE</div>
+                                On Monday, Jamie logs 1,850 calories, 180 g carbs and 22 g sugars: 6 + 4 + 4 + 6 = <strong>20 points</strong>. On Tuesday, Jamie logs only calories (2,700) and sugars (40 g): 4 for logging, nothing for targets = <strong>4 points</strong>. Two logged days, 24 points.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-[#414042] text-white mt-auto">
+        <div class="max-w-7xl mx-auto px-6 py-8 text-sm text-white/70">
+            <div class="flex flex-col sm:flex-row justify-between gap-2">
+                <div>
+                    <div>© 2026 Fittest Fleet. All rights reserved.</div>
+                    <div>Built with encouragement at the core.</div>
+                </div>
+                <a href="../index.html" class="text-white/80 hover:text-white">Home</a>
+            </div>
+            <div class="border-t border-white/20 mt-6 pt-4 text-[10px] text-white/50">
+                <div>People first. • Continuous improvement.</div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="auth-modal" class="hidden fixed inset-0 z-[110] items-center justify-center p-4">
+        <div id="auth-modal-backdrop" class="absolute inset-0 bg-black/40"></div>
+        <div class="modal relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-[#E6E7E8]">
+            <button type="button" id="auth-close-btn" class="absolute top-4 right-4 w-9 h-9 rounded-full hover:bg-[#E6E7E8] text-[#414042]" aria-label="Close">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <h3 id="auth-modal-title" class="text-2xl font-bold tracking-tight mb-1">Welcome back</h3>
+            <p class="text-sm text-[#414042]/70 mb-6">Join the live Fittest Fleet community.</p>
+            <div id="auth-error" class="hidden mb-4 text-sm text-[#BE0F34] bg-[#BE0F34]/10 rounded-2xl px-4 py-3"></div>
+            <form id="auth-form" class="space-y-4">
+                <div id="auth-name-wrap" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5" for="auth-display-name">DISPLAY NAME</label>
+                        <input type="text" id="auth-display-name" placeholder="Maria T."
+                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5" for="auth-job-title">Job Title</label>
+                        <input type="text" id="auth-job-title" maxlength="120" autocomplete="organization-title" placeholder="Fleet coordinator"
+                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5" for="auth-location">Location</label>
+                        <input type="text" id="auth-location" maxlength="120" autocomplete="address-level2" placeholder="City, State"
+                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">EMAIL</label>
+                    <input type="email" id="auth-email" required autocomplete="email" placeholder="you@example.com"
+                           class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">PASSWORD</label>
+                    <input type="password" id="auth-password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"
+                           class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+                </div>
+                <button type="submit" id="auth-submit-btn"
+                        class="w-full py-3.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl">
+                    Sign in
+                </button>
+            </form>
+            <p id="auth-toggle-hint" class="mt-5 text-center text-sm text-[#414042]/70"></p>
+        </div>
+    </div>
+
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#414042] text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-x-3 text-sm font-medium z-[100]">
+        <i class="fa-solid fa-check-circle text-[#D9E364]"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/competitions.js"></script>
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            if (!toast || !toastMsg) return;
+            toastMsg.textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            setTimeout(() => {
+                toast.classList.remove('flex');
+                toast.classList.add('hidden');
+            }, 4200);
+        }
+        window.showToast = showToast;
+
+        window.onload = async function () {
+            await FFAuth.initAuth();
+            await FFCompetitions.init();
+            FFAuth.onAuthChange(() => {
+                FFCompetitions.init();
+            });
+        };
+    </script>
+</body>
+</html>
