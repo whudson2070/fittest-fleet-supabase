@@ -22,7 +22,9 @@
     { key: 'cycling_miles', label: 'Miles cycled', unit: 'mi', summary: 'total', optional: true },
     { key: 'calories', label: 'Calories', unit: '', summary: 'total', integer: true },
     { key: 'carbohydrates', label: 'Carbohydrates', unit: 'g', summary: 'total' },
-    { key: 'sugars', label: 'Sugars', unit: 'g', summary: 'total' },
+    { key: 'sugars', label: 'Added sugars', unit: 'g', summary: 'total' },
+    { key: 'protein_g', label: 'Protein', unit: 'g', summary: 'total', optional: true },
+    { key: 'fiber_g', label: 'Fiber', unit: 'g', summary: 'total', optional: true },
   ];
 
   const TRACKERS = {
@@ -397,7 +399,9 @@
 
   const trackersAvailable = { lifts: true, golf: true, steps: true };
   const CHECKIN_BASE_COLS = 'id, checked_in_on, created_at, weight, pushups, squats, yoga_minutes, miles, calories, carbohydrates, sugars';
-  const CYCLING_MSG = 'Cycling miles will save once the cycling column is set up; the rest of your check-in was saved.';
+  const CYCLING_MSG = 'Cycling, protein and fiber will save once those columns are set up (run sql/progress-trackers.sql); the rest of your check-in was saved.';
+  const OPTIONAL_COLS = ['cycling_miles', 'protein_g', 'fiber_g'];
+  const missingOptional = (error) => OPTIONAL_COLS.some((c) => isMissingColumn(error, c));
   let cyclingAvailable = true;
   function isMissingColumn(error, col) {
     if (!error) return false;
@@ -407,10 +411,10 @@
   function insertRows(client, job, userId) {
     const rows = job.rows.map((r) => Object.assign({ user_id: userId }, r));
     return client.from(job.table).insert(rows).then(async (res) => {
-      if (job.kind === 'checkin' && res.error && isMissingColumn(res.error, 'cycling_miles')) {
+      if (job.kind === 'checkin' && res.error && missingOptional(res.error)) {
         cyclingAvailable = false;
-        const hadCycling = rows.some((r) => r.cycling_miles != null);
-        const stripped = rows.map((r) => { const c = Object.assign({}, r); delete c.cycling_miles; return c; });
+        const hadCycling = rows.some((r) => OPTIONAL_COLS.some((c) => r[c] != null));
+        const stripped = rows.map((r) => { const c = Object.assign({}, r); OPTIONAL_COLS.forEach((k) => delete c[k]); return c; });
         if (!Object.keys(stripped[0]).some((k) => k !== 'user_id' && k !== 'checked_in_on' && stripped[0][k] != null)) {
           return { error: { message: CYCLING_MSG.split(';')[0] + '.' }, cyclingOnly: true };
         }
@@ -438,8 +442,8 @@
       .order('checked_in_on', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(500);
-    const checkinQ = checkinQuery(CHECKIN_BASE_COLS + ', cycling_miles').then(async (res) => {
-      if (res.error && isMissingColumn(res.error, 'cycling_miles')) {
+    const checkinQ = checkinQuery(CHECKIN_BASE_COLS + ', ' + OPTIONAL_COLS.join(', ')).then(async (res) => {
+      if (res.error && missingOptional(res.error)) {
         cyclingAvailable = false;
         return checkinQuery(CHECKIN_BASE_COLS);
       }

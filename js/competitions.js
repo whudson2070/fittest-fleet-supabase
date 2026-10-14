@@ -34,12 +34,12 @@
       { display_name: 'Sam P.', points: 198, active_days: 18 }
     ],
     nutrition: [
-      { display_name: 'Angela M.', points: 712, logged_days: 40 },
-      { display_name: 'Priya S.', points: 655, logged_days: 38, me: true },
-      { display_name: 'Tom B.', points: 590, logged_days: 36 },
-      { display_name: 'Maria T.', points: 534, logged_days: 33 },
-      { display_name: 'Nina K.', points: 402, logged_days: 27 },
-      { display_name: 'Chris L.', points: 288, logged_days: 19 }
+      { display_name: 'Angela M.', points: 605, logged_days: 40 },
+      { display_name: 'Priya S.', points: 557, logged_days: 38, me: true },
+      { display_name: 'Tom B.', points: 502, logged_days: 36 },
+      { display_name: 'Maria T.', points: 454, logged_days: 33 },
+      { display_name: 'Nina K.', points: 342, logged_days: 27 },
+      { display_name: 'Chris L.', points: 245, logged_days: 19 }
     ],
     entrants: { weight: 7, exercise: 7, nutrition: 6 }
   };
@@ -147,7 +147,7 @@
       card('#5594CF', 'EXERCISE CHALLENGE', me ? '#' + me.rank + ' of ' + e.length + ' • ' + Number(me.points).toLocaleString() + ' pts' : 'Joined',
         me ? me.active_days + ' active days' : 'Log activity on the Progress page to earn points.', joined.exercise || !!me) +
       card('#D9E364', 'NUTRITIONAL DISCIPLINE', mn ? '#' + mn.rank + ' of ' + n.length + ' • ' + Number(mn.points).toLocaleString() + ' pts' : 'Joined',
-        mn ? mn.logged_days + ' logged days' : 'Log calories, carbs and sugars on the Progress page to earn points.', joined.nutrition || !!mn, '#414042') +
+        mn ? mn.logged_days + ' logged days' : 'Log calories, carbs, added sugars, protein and fiber on the Progress page to earn points.', joined.nutrition || !!mn, '#414042') +
       '</div><a href="../progress/" class="inline-block mt-4 text-sm text-[#BE0F34] underline underline-offset-2">Log today on the Progress page →</a>';
   }
 
