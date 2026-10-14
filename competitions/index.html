@@ -174,6 +174,7 @@
                             <ol class="list-decimal pl-5 space-y-2 text-sm text-[#414042]/80">
                                 <li>Join by the end of week 1 (<span data-join-by></span>). Activity logged from the first day of the season counts.</li>
                                 <li>Log activity on the Progress page. Points are counted per day using the table below.</li>
+                                <li>Log miles walked/run or steps (2,500 steps = 1 mile). If you log both, we score whichever earns more.</li>
                                 <li>Each activity has a daily cap, and you can earn at most <strong>20 points per day</strong>.</li>
                                 <li>An <strong>active day</strong> is any day you earn at least 1 point.</li>
                                 <li>Most points at the end of the season wins. Ties go to the member with more active days.</li>
@@ -181,9 +182,8 @@
                             <table class="mt-4 w-full text-sm border border-[#E6E7E8] rounded-2xl overflow-hidden">
                                 <thead class="bg-[#5594CF]/10 text-[10px] tracking-wider text-left"><tr><th class="px-4 py-2">ACTIVITY</th><th class="px-4 py-2">POINTS</th><th class="px-4 py-2 text-right">DAILY MAX</th></tr></thead>
                                 <tbody class="divide-y divide-[#E6E7E8]">
-                                    <tr><td class="px-4 py-2">Walking / running</td><td class="px-4 py-2">1 per mile</td><td class="px-4 py-2 text-right">8</td></tr>
+                                    <tr><td class="px-4 py-2">Walking / running <span class="text-[#414042]/60">or steps</span></td><td class="px-4 py-2">1 per mile (2,500 steps = 1 mile; whichever is more counts)</td><td class="px-4 py-2 text-right">8</td></tr>
                                     <tr><td class="px-4 py-2">Cycling</td><td class="px-4 py-2">1 per 3 miles</td><td class="px-4 py-2 text-right">8</td></tr>
-                                    <tr><td class="px-4 py-2">Steps (pedometer)</td><td class="px-4 py-2">1 per 2,000 steps</td><td class="px-4 py-2 text-right">6</td></tr>
                                     <tr><td class="px-4 py-2">Weight lifting</td><td class="px-4 py-2">1 per set</td><td class="px-4 py-2 text-right">8</td></tr>
                                     <tr><td class="px-4 py-2">Yoga</td><td class="px-4 py-2">1 per 15 minutes</td><td class="px-4 py-2 text-right">4</td></tr>
                                     <tr><td class="px-4 py-2">Push-ups + squats</td><td class="px-4 py-2">1 per 50 reps</td><td class="px-4 py-2 text-right">4</td></tr>
@@ -191,10 +191,10 @@
                                     <tr class="bg-[#E6E7E8]/40 font-bold"><td class="px-4 py-2" colspan="2">Total per day</td><td class="px-4 py-2 text-right">20</td></tr>
                                 </tbody>
                             </table>
-                            <p class="mt-2 text-xs text-[#414042]/60">Partial units round down (2.7 miles = 2 points).</p>
+                            <p class="mt-2 text-xs text-[#414042]/60">Partial units round down (2.7 miles = 2 points). Steps and miles walked/run share one line, so a walk is never counted twice.</p>
                             <div class="mt-4 bg-[#5594CF]/10 border border-[#5594CF]/30 rounded-2xl px-5 py-4 text-sm">
                                 <div class="text-[10px] font-bold tracking-wider text-[#5594CF] mb-1">EXAMPLE</div>
-                                On Tuesday, Alex walks 3.5 miles (3), logs 9,000 steps (4) and does 5 sets of bench press (5): <strong>12 points</strong>. On Saturday, Alex rides 30 miles: 30 ÷ 3 = 10, capped at <strong>8 points</strong>. Week total so far: 20 points over 2 active days.
+                                On Tuesday, Alex logs 3.5 miles walked and 9,000 steps. 9,000 ÷ 2,500 = 3.6 miles, which beats 3.5, so walking scores 3 (not both). Add 5 sets of bench press (5): <strong>8 points</strong>. On Saturday, Alex rides 30 miles: 30 ÷ 3 = 10, capped at <strong>8 points</strong>. Week total so far: 16 points over 2 active days.
                             </div>
                         </div>
                     </div>

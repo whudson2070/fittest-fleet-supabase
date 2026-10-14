@@ -114,8 +114,21 @@ language sql stable security definer set search_path = public as $$
   order by 1, 3;
 $$;
 
+-- Steps table (normally created by sql/progress-trackers.sql). Created here too, with the same shape,
+-- so this file still runs if progress-trackers.sql hasn't been run yet. Safe to re-run.
+create table if not exists public.progress_steps (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  walked_on date not null default (timezone('utc', now()))::date,
+  steps integer not null check (steps between 0 and 200000),
+  created_at timestamptz not null default now()
+);
+alter table public.progress_steps enable row level security;
+
 -- Exercise leaderboard. Daily points (each line capped), then a 20-point cap per day:
---  miles walked/run: 1 per mile (max 8) | cycling: 1 per 3 miles (max 8) | steps: 1 per 2,000 (max 6)
+--  walking: per day, distance = greatest(sum miles walked/run, sum steps / 2500); 1 per mile (max 8).
+--    Steps and miles are never both counted; whichever earns more wins.
+--  cycling: 1 per 3 miles (max 8)
 --  lifting: 1 per set (max 8) | yoga: 1 per 15 min (max 4) | push-ups + squats: 1 per 50 reps (max 4)
 --  golf: 1 per 9 holes (max 4)
 --  active day = any day with at least 1 point. Ties: more active days ranks higher.
@@ -126,15 +139,15 @@ language sql stable security definer set search_path = public as $$
   ent as (select e.user_id from public.competition_entries e join c on c.id = e.competition_id),
   raw as (
     select p.user_id, p.checked_in_on as d,
-      least(8, floor(coalesce(p.miles, 0)))                         as pts_miles,
+      coalesce(p.miles, 0)::numeric                                 as walk_miles,
       least(8, floor(coalesce(p.cycling_miles, 0) / 3))             as pts_cycle,
-      0 as pts_steps, 0 as pts_lift,
+      0::numeric as steps, 0 as pts_lift,
       least(4, floor(coalesce(p.yoga_minutes, 0) / 15))             as pts_yoga,
       least(4, floor((coalesce(p.pushups, 0) + coalesce(p.squats, 0)) / 50.0)) as pts_body,
       0 as pts_golf
     from public.progress_checkins p join ent using (user_id)
     union all
-    select s.user_id, s.walked_on, 0, 0, least(6, floor(s.steps / 2000.0)), 0, 0, 0, 0
+    select s.user_id, s.walked_on, 0, 0, coalesce(s.steps, 0)::numeric, 0, 0, 0, 0
     from public.progress_steps s join ent using (user_id)
     union all
     select l.user_id, l.performed_on, 0, 0, 0, l.sets, 0, 0, 0
@@ -146,7 +159,7 @@ language sql stable security definer set search_path = public as $$
   daily as (
     select r.user_id, r.d,
       least(20,
-        least(8, sum(pts_miles)) + least(8, sum(pts_cycle)) + least(6, sum(pts_steps)) +
+        least(8, floor(greatest(sum(walk_miles), sum(steps) / 2500.0))) + least(8, sum(pts_cycle)) +
         least(8, sum(pts_lift))  + least(4, sum(pts_yoga))  + least(4, sum(pts_body)) +
         least(4, sum(pts_golf)))::int as pts
     from raw r, c
