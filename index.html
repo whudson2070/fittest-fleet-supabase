@@ -422,7 +422,7 @@
                 </div>
                 <div class="md:ml-8">
                     <button type="button" id="accept-challenge-btn" onclick="acceptDailyChallenge()"
-                            class="disabled:opacity-80 disabled:cursor-default whitespace-nowrap bg-white text-[#BE0F34] hover:bg-[#D9E364] hover:text-[#414042] font-bold px-8 py-3.5 rounded-2xl flex items-center gap-x-3 transition-all active:scale-[0.985]">
+                            class="w-full md:w-auto justify-center disabled:opacity-80 disabled:cursor-default whitespace-nowrap bg-white text-[#BE0F34] hover:bg-[#D9E364] hover:text-[#414042] font-bold px-8 py-3.5 rounded-2xl flex items-center gap-x-3 transition-all active:scale-[0.985]">
                         <i class="fa-solid fa-handshake"></i>
                         <span id="accept-challenge-label">Accept Today’s Challenge</span>
                     </button>
@@ -476,10 +476,10 @@
                               class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-3xl px-5 py-4 text-sm outline-none resize-y min-h-[100px]"></textarea>
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <p class="text-xs text-[#414042]/60">Live shared posts via Supabase. Be kind and encouraging.</p>
+                <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <p class="text-xs text-[#414042]/60 text-center sm:text-left">Live shared posts via Supabase. Be kind and encouraging.</p>
                     <button type="submit"
-                            class="px-10 py-3.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl flex items-center gap-x-2 transition-all active:scale-[0.985]">
+                            class="w-full sm:w-auto justify-center whitespace-nowrap px-10 py-3.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl flex items-center gap-x-2 transition-all active:scale-[0.985]">
                         <span>Post to Community</span>
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>

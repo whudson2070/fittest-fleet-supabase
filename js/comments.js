@@ -95,7 +95,7 @@
               <img src="${comment.avatar}" alt="${safeName}" class="${avatarSize} rounded-full ring-2 ring-[#E6E7E8]">
             </div>
             <div class="flex-1 min-w-0">
-              <div class="flex items-start justify-between gap-x-3 mb-1">
+              <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 mb-1">
                 <div class="min-w-0">
                   <span class="font-bold text-sm">${safeName}</span>
                   ${authorDetailsHtml(comment)}
@@ -116,15 +116,15 @@
             <img src="${comment.avatar}" alt="${safeName}" class="${avatarSize} rounded-full ring-2 ring-[#E6E7E8]">
           </div>
           <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between mb-1">
-              <div class="flex items-center gap-x-3 min-w-0">
+            <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 mb-1">
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
                 <div class="min-w-0">
                   <span class="font-bold">${safeName}</span>
                   ${authorDetailsHtml(comment)}
                 </div>
                 ${safeTimestamp ? `<span class="text-xs text-[#414042]/50 flex-shrink-0">${safeTimestamp}</span>` : ''}
               </div>
-              <span class="category-badge ${categoryColor} ${categoryTextColor}">${safeCategory}</span>
+              <span class="category-badge flex-shrink-0 ${categoryColor} ${categoryTextColor}">${safeCategory}</span>
             </div>
             <div class="text-[#414042]/90 leading-relaxed mb-4">${safeMessage}</div>
             <div class="flex items-center gap-x-2">
