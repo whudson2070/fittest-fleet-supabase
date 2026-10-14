@@ -1,5 +1,5 @@
 /**
- * Progress page: one unified tracker (check-in incl. steps + cycling, weight lifting, golf).
+ * Progress page: one unified tracker (check-in, Purposeful Movement incl. steps + cycling, weight lifting, golf).
  * Steps live in the Check-in section but still save to progress_steps; cycling_miles is a
  * nullable progress_checkins column (sql/progress-trackers.sql). Missing column => saved without it.
  * Depends on: window.ffSupabase, window.FFAuth.
