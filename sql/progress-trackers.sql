@@ -77,4 +77,14 @@ alter table public.progress_checkins drop constraint if exists progress_checkins
 alter table public.progress_checkins add constraint progress_checkins_cycling_miles_check
   check (cycling_miles is null or (cycling_miles >= 0 and cycling_miles <= 1000));
 
+-- Nutrition: optional protein and fiber (grams) on daily check-ins. Safe to re-run.
+alter table public.progress_checkins add column if not exists protein_g numeric;
+alter table public.progress_checkins add column if not exists fiber_g numeric;
+alter table public.progress_checkins drop constraint if exists progress_checkins_protein_g_check;
+alter table public.progress_checkins add constraint progress_checkins_protein_g_check
+  check (protein_g is null or (protein_g >= 0 and protein_g <= 2000));
+alter table public.progress_checkins drop constraint if exists progress_checkins_fiber_g_check;
+alter table public.progress_checkins add constraint progress_checkins_fiber_g_check
+  check (fiber_g is null or (fiber_g >= 0 and fiber_g <= 1000));
+
 notify pgrst, 'reload schema';

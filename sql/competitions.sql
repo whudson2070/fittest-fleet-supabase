@@ -1,5 +1,5 @@
 -- Fittest Fleet competitions: Weight Loss Challenge (% of body weight lost) + Exercise Challenge (points)
--- + Nutritional Discipline Challenge (points from calories / carbohydrates / sugars check-in fields).
+-- + Nutritional Discipline Challenge (points from calories / carbohydrates / added sugars / protein / fiber check-in fields).
 -- Idempotent: safe to re-run. Requires progress-checkins.sql, progress-trackers.sql and profiles-and-avatars.sql first.
 -- Public leaderboards expose ONLY display name, percent / points and counts. Raw body weights and nutrition values are never returned.
 
@@ -166,10 +166,14 @@ language sql stable security definer set search_path = public as $$
   order by 1, 3;
 $$;
 
--- Nutritional Discipline leaderboard. Uses ONLY progress_checkins.calories / carbohydrates / sugars.
+-- Nutritional Discipline leaderboard. Uses ONLY progress_checkins.calories / carbohydrates / sugars (added sugars) / protein_g / fiber_g.
+-- Requires protein_g + fiber_g columns: run sql/progress-trackers.sql first.
 -- Multiple check-ins on one day are summed per field. A target scores only if that field was logged that day.
---  log it: 2 per field logged (max 6) | calories 1,200-2,500: 4 | carbs <= 200 g: 4
---  sugars <= 25 g: 6, 26-36 g: 3 | 20-point cap per day
+--  log it: 1 per field logged (calories, carbs, added sugars, protein, fiber; max 5)
+--  calories 0-1,200: 4 | 1,201-1,600: 3 | 1,601-2,000: 2 | 2,001-3,000: 1 | >3,000: 0
+--  carbs g 0-50: 4 | 51-75: 3 | 76-100: 2 | 101-200: 1 | >200: 0
+--  added sugars g 0-25: 4 | 26-35: 3 | 36-45: 2 | 46-75: 1 | >75: 0
+--  protein / fiber: log points only | 17-point max per day
 --  logged day = any day with at least 1 point. Ties: more logged days, then longest streak of consecutive logged days.
 create or replace function public.get_nutrition_leaderboard(p_competition_id text)
 returns table (rank bigint, user_id uuid, display_name text, points integer, logged_days integer)
@@ -178,17 +182,19 @@ language sql stable security definer set search_path = public as $$
   ent as (select e.user_id from public.competition_entries e join c on c.id = e.competition_id),
   day as (
     select p.user_id, p.checked_in_on as d,
-      sum(p.calories) as cal, sum(p.carbohydrates) as carb, sum(p.sugars) as sug
+      sum(p.calories) as cal, sum(p.carbohydrates) as carb, sum(p.sugars) as sug,
+      sum(p.protein_g) as pro, sum(p.fiber_g) as fib
     from public.progress_checkins p join ent using (user_id), c
     where p.checked_in_on between c.start_date and least(c.end_date, (timezone('utc', now()))::date)
     group by p.user_id, p.checked_in_on
   ),
   daily as (
-    select user_id, d, least(20,
-      2 * ((cal is not null)::int + (carb is not null)::int + (sug is not null)::int)
-      + case when cal between 1200 and 2500 then 4 else 0 end
-      + case when carb <= 200 then 4 else 0 end
-      + case when sug <= 25 then 6 when sug <= 36 then 3 else 0 end)::int as pts
+    select user_id, d, least(17,
+      (cal is not null)::int + (carb is not null)::int + (sug is not null)::int
+      + (pro is not null)::int + (fib is not null)::int
+      + case when cal <= 1200 then 4 when cal <= 1600 then 3 when cal <= 2000 then 2 when cal <= 3000 then 1 else 0 end
+      + case when carb <= 50 then 4 when carb <= 75 then 3 when carb <= 100 then 2 when carb <= 200 then 1 else 0 end
+      + case when sug <= 25 then 4 when sug <= 35 then 3 when sug <= 45 then 2 when sug <= 75 then 1 else 0 end)::int as pts
     from day
   ),
   runs as (
