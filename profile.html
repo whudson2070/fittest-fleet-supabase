@@ -74,30 +74,30 @@
 </head>
 <body class="bg-[#E6E7E8]/40 text-[#414042] min-h-screen flex flex-col">
     <nav class="bg-white border-b border-[#E6E7E8] sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between h-20">
                 <a href="index.html" class="flex items-center group">
-                    <div class="brand-logo text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                    <div class="brand-logo text-4xl sm:text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
                     <div class="ml-3">
                         <div class="font-bold text-lg tracking-tight text-[#414042]">Fittest Fleet</div>
                         <div class="text-[10px] text-[#414042]/60 -mt-1">Community Wellness</div>
                     </div>
                 </a>
-                <div class="flex items-center gap-x-3">
+                <div class="flex items-center gap-x-2 sm:gap-x-3">
                     <a href="index.html#community" class="hidden sm:inline text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
                     <a href="run-runner/" class="hidden sm:inline text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
                     <a href="progress/" data-signed-in-nav class="hidden text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Progress</a>
-                    <div id="auth-signed-out" class="hidden sm:flex items-center gap-x-2">
+                    <div class="hidden sm:block"><div id="auth-signed-out" class="hidden sm:flex items-center gap-x-2">
                         <button type="button" id="auth-open-signin" class="px-4 py-2 text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Sign in</button>
                         <button type="button" id="auth-open-signup" class="inline-flex items-center justify-center px-5 py-2.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full">Join</button>
-                    </div>
+                    </div></div>
                     <div id="auth-signed-in" class="hidden flex items-center gap-x-3">
                         <a href="profile.html" class="hidden sm:inline-flex items-center gap-x-2 text-sm text-[#414042]/80 hover:text-[#BE0F34]">
                             <img id="auth-user-avatar" class="hidden w-8 h-8 rounded-full object-cover ring-2 ring-[#E6E7E8]" alt="">
                             <i id="auth-user-icon" class="fa-solid fa-user-circle text-[#BE0F34] text-xl"></i>
                             <span id="auth-user-label" class="font-semibold"></span>
                         </a>
-                        <button type="button" id="auth-signout-btn" class="px-4 py-2 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full">Sign out</button>
+                        <button type="button" id="auth-signout-btn" class="whitespace-nowrap px-3 sm:px-4 py-2 text-sm font-semibold border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full">Sign out</button>
                     </div>
                     <button type="button" id="auth-mobile-signin" class="sm:hidden hidden px-3 py-2 text-sm font-semibold">Sign in</button>
                     <button type="button" id="auth-mobile-signup" class="sm:hidden hidden px-3 py-2 text-sm font-semibold text-[#BE0F34]">Join</button>
