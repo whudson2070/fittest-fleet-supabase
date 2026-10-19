@@ -34,12 +34,12 @@
       { display_name: 'Sam P.', points: 198, active_days: 18 }
     ],
     nutrition: [
-      { display_name: 'Angela M.', points: 605, logged_days: 40 },
-      { display_name: 'Priya S.', points: 557, logged_days: 38, me: true },
-      { display_name: 'Tom B.', points: 502, logged_days: 36 },
-      { display_name: 'Maria T.', points: 454, logged_days: 33 },
-      { display_name: 'Nina K.', points: 342, logged_days: 27 },
-      { display_name: 'Chris L.', points: 245, logged_days: 19 }
+      { display_name: 'Angela M.', points: 890, logged_days: 40 },
+      { display_name: 'Priya S.', points: 819, logged_days: 38, me: true },
+      { display_name: 'Tom B.', points: 738, logged_days: 36 },
+      { display_name: 'Maria T.', points: 668, logged_days: 33 },
+      { display_name: 'Nina K.', points: 503, logged_days: 27 },
+      { display_name: 'Chris L.', points: 360, logged_days: 19 }
     ],
     entrants: { weight: 7, exercise: 7, nutrition: 6 }
   };

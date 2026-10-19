@@ -186,7 +186,8 @@ $$;
 --  calories 0-1,200: 4 | 1,201-1,600: 3 | 1,601-2,000: 2 | 2,001-3,000: 1 | >3,000: 0
 --  carbs g 0-50: 4 | 51-75: 3 | 76-100: 2 | 101-200: 1 | >200: 0
 --  added sugars g 0-25: 4 | 26-35: 3 | 36-45: 2 | 46-75: 1 | >75: 0
---  protein / fiber: log points only | 17-point max per day
+--  protein g 100+: 4 | 75-99: 3 | 50-74: 2 | 25-49: 1 | <25: 0
+--  fiber g 30+: 4 | 25-29: 3 | 20-24: 2 | 10-19: 1 | <10: 0 | 25-point max per day
 --  logged day = any day with at least 1 point. Ties: more logged days, then longest streak of consecutive logged days.
 create or replace function public.get_nutrition_leaderboard(p_competition_id text)
 returns table (rank bigint, user_id uuid, display_name text, points integer, logged_days integer)
@@ -202,12 +203,14 @@ language sql stable security definer set search_path = public as $$
     group by p.user_id, p.checked_in_on
   ),
   daily as (
-    select user_id, d, least(17,
+    select user_id, d, least(25,
       (cal is not null)::int + (carb is not null)::int + (sug is not null)::int
       + (pro is not null)::int + (fib is not null)::int
       + case when cal <= 1200 then 4 when cal <= 1600 then 3 when cal <= 2000 then 2 when cal <= 3000 then 1 else 0 end
       + case when carb <= 50 then 4 when carb <= 75 then 3 when carb <= 100 then 2 when carb <= 200 then 1 else 0 end
-      + case when sug <= 25 then 4 when sug <= 35 then 3 when sug <= 45 then 2 when sug <= 75 then 1 else 0 end)::int as pts
+      + case when sug <= 25 then 4 when sug <= 35 then 3 when sug <= 45 then 2 when sug <= 75 then 1 else 0 end
+      + case when pro >= 100 then 4 when pro >= 75 then 3 when pro >= 50 then 2 when pro >= 25 then 1 else 0 end
+      + case when fib >= 30 then 4 when fib >= 25 then 3 when fib >= 20 then 2 when fib >= 10 then 1 else 0 end)::int as pts
     from day
   ),
   runs as (
