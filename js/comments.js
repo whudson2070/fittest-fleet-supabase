@@ -575,18 +575,26 @@
   }
 
   function scrollToCommunityWithFilter(category) {
-    const communitySection = document.getElementById('community');
-    if (communitySection) {
-      communitySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Set the pillar filter and form category right away (no delayed second jump).
+    const select = document.getElementById('comment-category');
+    if (select && Array.from(select.options).some((o) => o.value === category)) select.value = category;
+    filterComments(category);
+
+    // Scroll so the "Share with the Community" heading sits just below the sticky header.
+    const target = document.getElementById('share-community-heading') || document.getElementById('community');
+    if (target) {
+      const nav = document.querySelector('nav.sticky, nav');
+      const navH = nav ? nav.getBoundingClientRect().height : 0;
+      const top = target.getBoundingClientRect().top + global.scrollY - navH - 16;
+      global.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
     }
 
-    setTimeout(() => {
-      const select = document.getElementById('comment-category');
-      if (select) select.value = category;
-      filterComments(category);
-      const messageBox = document.getElementById('comment-message');
-      if (messageBox) messageBox.focus();
-    }, 900);
+    // Focus the message box without scrolling again (only when the form is usable, i.e. signed in).
+    const form = document.getElementById('comment-form');
+    const messageBox = document.getElementById('comment-message');
+    if (messageBox && form && !form.classList.contains('pointer-events-none')) {
+      try { messageBox.focus({ preventScroll: true }); } catch (e) { /* older browsers */ }
+    }
   }
 
   function categoryForChallengePillar(pillar) {
