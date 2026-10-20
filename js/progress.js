@@ -224,8 +224,9 @@
     const sorted = rows.slice().sort((a, b) =>
       String(b.checked_in_on || '').localeCompare(String(a.checked_in_on || '')) ||
       String(b.created_at || '').localeCompare(String(a.created_at || '')));
+    // Only fields with at least one real logged value get a card (blank inputs save as null).
     const cards = FIELDS.filter((f) => !f.optional || cyclingAvailable).map((field) => {
-      let display = '—';
+      let display = null;
       if (field.summary === 'latest') {
         const found = sorted.find((r) => r[field.key] != null && r[field.key] !== '');
         if (found) display = withUnit(found[field.key], field);
@@ -239,8 +240,9 @@
         });
         if (any) display = withUnit(total, field);
       }
+      if (display == null) return null;
       return card((field.summary === 'latest' ? 'LATEST ' : 'TOTAL ') + field.label.toUpperCase(), display, '#BE0F34');
-    });
+    }).filter(Boolean);
     if (cyclingAvailable) {
       const cutoff = isoDaysAgo(6);
       let c7 = 0;
@@ -251,7 +253,7 @@
         anyC = true;
         if (String(r.checked_in_on) >= cutoff) c7 += n;
       });
-      cards.push(card('MILES CYCLED · 7 DAYS', anyC ? fmt(c7) + ' mi' : '—', '#BE0F34'));
+      if (anyC) cards.push(card('MILES CYCLED · 7 DAYS', fmt(c7) + ' mi', '#BE0F34'));
     }
     return cards;
   }
@@ -310,11 +312,15 @@
   function renderSummary(data) {
     const root = el('progress-summary');
     if (!root) return;
-    root.replaceChildren.apply(root, []
+    const cards = []
       .concat(checkinCards(data.checkins))
       .concat(liftCards(data.lifts))
       .concat(golfCards(data.golf))
-      .concat(stepCards(data.steps)));
+      .concat(stepCards(data.steps));
+    root.replaceChildren.apply(root, cards);
+    root.classList.toggle('hidden', !cards.length);
+    const empty = el('progress-summary-empty');
+    if (empty) empty.classList.toggle('hidden', cards.length > 0);
   }
 
   const TYPE_STYLE = {
