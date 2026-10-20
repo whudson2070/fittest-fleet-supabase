@@ -40,8 +40,12 @@ $$;
 -- The former monthly-workouts RPC is no longer part of the public stats surface.
 drop function if exists public.get_workouts_completed_this_month();
 
--- Count Progress check-ins with at least one logged workout activity.
--- A check-in counts once, even when it includes multiple activity types.
+-- Count logged workout activities from the Progress page:
+--  * each check-in with at least one workout (push-ups, squats, yoga, miles walked/run, miles cycled) counts once
+--  * each weight-lifting entry (progress_lifts) counts once
+--  * each golf round (progress_golf_rounds) counts once
+-- Steps are not counted here (they're a daily total, often saved with the same check-in); they feed Miles instead.
+-- Requires sql/progress-trackers.sql (tables + cycling_miles column).
 create or replace function public.get_workout_activity_count()
 returns bigint
 language sql
@@ -49,12 +53,16 @@ security definer
 set search_path = public
 stable
 as $$
-  select count(*)::bigint
-  from public.progress_checkins as checkin
-  where coalesce(checkin.pushups, 0) > 0
-     or coalesce(checkin.squats, 0) > 0
-     or coalesce(checkin.yoga_minutes, 0) > 0
-     or coalesce(checkin.miles, 0) > 0;
+  select
+    (select count(*)
+       from public.progress_checkins as checkin
+      where coalesce(checkin.pushups, 0) > 0
+         or coalesce(checkin.squats, 0) > 0
+         or coalesce(checkin.yoga_minutes, 0) > 0
+         or coalesce(checkin.miles, 0) > 0
+         or coalesce(checkin.cycling_miles, 0) > 0)
+    + (select count(*) from public.progress_lifts)
+    + (select count(*) from public.progress_golf_rounds);
 $$;
 
 -- Sum push-ups across all Progress check-ins owned by registered users.
@@ -69,7 +77,9 @@ as $$
   from public.progress_checkins as checkin;
 $$;
 
--- Sum miles across all Progress check-ins owned by registered users.
+-- Total miles traversed, aggregate only:
+--  walking/running per user per day = greatest(miles walked/run, steps / 2500), so a walk is never counted twice
+--  (same rule as the Exercise Challenge), plus all miles cycled.
 create or replace function public.get_total_miles()
 returns numeric
 language sql
@@ -77,8 +87,17 @@ security definer
 set search_path = public
 stable
 as $$
-  select coalesce(sum(checkin.miles), 0::numeric)
-  from public.progress_checkins as checkin;
+  with walk as (
+    select user_id, d, greatest(sum(m), sum(s) / 2500.0) as mi
+    from (
+      select user_id, checked_in_on as d, coalesce(miles, 0)::numeric as m, 0::numeric as s from public.progress_checkins
+      union all
+      select user_id, walked_on, 0, coalesce(steps, 0)::numeric from public.progress_steps
+    ) x
+    group by user_id, d
+  )
+  select coalesce((select sum(mi) from walk), 0::numeric)
+       + coalesce((select sum(cycling_miles) from public.progress_checkins), 0::numeric);
 $$;
 
 -- Sum yoga minutes and present the registered-user total as hours.

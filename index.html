@@ -752,6 +752,14 @@
             if (window.FFRunRunnerScores) FFRunRunnerScores.loadLeaderboard();
             if (window.FFDailyChallenge) FFDailyChallenge.render();
 
+            // Refresh public stats when returning to the page (e.g. Back from Progress after a save; bfcache restores).
+            const refreshStats = () => {
+                if (window.FFMembers) FFMembers.loadMemberCount();
+                if (window.FFTrustBar) FFTrustBar.loadStats();
+            };
+            window.addEventListener('pageshow', (e) => { if (e.persisted) refreshStats(); });
+            document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshStats(); });
+
             console.log('%c[Fittest Fleet] Supabase auth + realtime comments ready.', 'color:#BE0F34');
         }
 
