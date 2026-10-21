@@ -320,7 +320,7 @@
     }
     if (weightGoal === 'gain') {
       const ws = weightSeries(rows);
-      if (ws.length) {
+      if (ws.length >= 2) { // need two weigh-ins before a change means anything
         const change = Number(ws[ws.length - 1].weight) - Number(ws[0].weight);
         const c = card('WEIGHT GAINED', signed(Math.round(change * 10) / 10) + ' lb', '#5594CF');
         const at = cards.findIndex((x) => x.firstChild && x.firstChild.textContent === 'LATEST WEIGHT');

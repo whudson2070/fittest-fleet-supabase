@@ -600,6 +600,13 @@ function createMidiBgm(getBytes) {
     }
   }
 
+  // Best effort: save an unsaved finished/in-progress run when the tab is hidden or closed.
+  window.addEventListener("pagehide", function () {
+    if ((state.mode === "over" || state.mode === "play") && Math.floor(Number(state.score) || 0) > 0) {
+      persistRunScore();
+    }
+  });
+
   function startGame() {
     runScorePersisted = false;
     state.mode = "play";
@@ -800,6 +807,10 @@ function createMidiBgm(getBytes) {
         localStorage.setItem(HS_KEY, String(highScore));
       } catch (_) {}
     }
+    // Save as soon as the run is truly over (no continue available), so the score
+    // is kept even if the player restarts with Space or closes the tab.
+    // persistRunScore() is guarded, so later Restart/Return clicks don't save twice.
+    if (state.continueCharges <= 0) persistRunScore();
     const p = state.player;
     for (let i = 0; i < 24; i++) {
       const a = Math.random() * Math.PI * 2;
@@ -919,6 +930,7 @@ function createMidiBgm(getBytes) {
       // Space restarts only when no continue charges remain.
       // While the dispatcher screen is up, Y continues and N restarts.
       if (state.continueCharges <= 0) {
+        persistRunScore();
         startGame();
         doJump();
       }

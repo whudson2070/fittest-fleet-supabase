@@ -77,6 +77,16 @@
     return 'bg-[#414042]';
   }
 
+  function deleteButtonHtml(comment, isReply) {
+    const user = global.FFAuth && global.FFAuth.getCurrentUser && global.FFAuth.getCurrentUser();
+    if (!user || !comment.user_id || comment.user_id !== user.id) return '';
+    const label = isReply ? 'Delete reply' : 'Delete post';
+    return `<button type="button" data-delete-id="${comment.id}" aria-label="${label}" title="${label}"
+              class="delete-btn flex items-center gap-x-1.5 ${isReply ? 'mt-1 px-0 py-0.5 text-xs' : 'px-3 py-1.5 text-sm border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full'} font-semibold text-[#414042]/60 hover:text-[#BE0F34] transition-all">
+              <i class="fa-solid fa-trash-can"></i><span>Delete</span>
+            </button>`;
+  }
+
   function renderCommentCard(comment, isReply) {
     const categoryColor = getCategoryColor(comment.category);
     const categoryTextColor =
@@ -103,6 +113,7 @@
                 ${safeTimestamp ? `<span class="text-xs text-[#414042]/50 flex-shrink-0">${safeTimestamp}</span>` : ''}
               </div>
               <div class="text-[#414042]/90 text-sm leading-relaxed">${safeMessage}</div>
+              ${deleteButtonHtml(comment, true)}
             </div>
           </div>
         </article>
@@ -139,6 +150,7 @@
                 <i class="fa-solid fa-reply"></i>
                 <span>Reply</span>
               </button>
+              ${deleteButtonHtml(comment, false)}
             </div>
             <form data-reply-form="${comment.id}" class="hidden mt-4 rounded-2xl border border-[#E6E7E8] bg-[#F8F8F8] p-4">
               <label for="reply-message-${comment.id}" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">YOUR REPLY</label>
@@ -203,6 +215,9 @@
       btn.addEventListener('click', () => {
         encourageComment(btn.getAttribute('data-encourage-id'), btn);
       });
+    });
+    container.querySelectorAll('[data-delete-id]').forEach((btn) => {
+      btn.addEventListener('click', () => deleteComment(btn.getAttribute('data-delete-id'), btn));
     });
     container.querySelectorAll('[data-reply-id]').forEach((btn) => {
       btn.addEventListener('click', () => toggleReplyForm(btn.getAttribute('data-reply-id')));
@@ -542,7 +557,23 @@
       }, 600);
     }
 
-    const { error } = await client.from('comments').update({ likes: nextLikes }).eq('id', id);
+    // Preferred: SECURITY DEFINER function (sql/comments-security.sql) bumps the
+    // total and records the click server-side. Fallback keeps Encourage working
+    // until that SQL has been run.
+    let error = null;
+    let recordedServerSide = false;
+    const rpc = await client.rpc('encourage_comment', { p_comment_id: id });
+    if (!rpc.error) {
+      recordedServerSide = true;
+      if (typeof rpc.data === 'number') {
+        comment.likes = rpc.data;
+        if (countSpan) countSpan.textContent = rpc.data;
+      }
+    } else if (rpc.error.code === 'PGRST202' || /encourage_comment/.test(rpc.error.message || '')) {
+      ({ error } = await client.from('comments').update({ likes: nextLikes }).eq('id', id));
+    } else {
+      error = rpc.error;
+    }
 
     if (error) {
       console.error('[comments] like failed', error);
@@ -556,7 +587,9 @@
 
     // comments.likes is only a total. Record this user's click when it is
     // on someone else's post so the final CTA can count real encourage clicks.
-    if (comment.user_id && comment.user_id !== user.id) {
+    if (recordedServerSide) {
+      refreshEngagementTracker();
+    } else if (comment.user_id && comment.user_id !== user.id) {
       const { error: encourageError } = await client.from('encouragements').insert({
         user_id: user.id,
         comment_id: id,
@@ -572,6 +605,31 @@
         global.showToast("You just made someone's day brighter!");
       }
     }
+  }
+
+  async function deleteComment(id, buttonElement) {
+    const user = global.FFAuth && global.FFAuth.getCurrentUser();
+    const client = global.ffSupabase;
+    const comment = comments.find((c) => c.id === id);
+    if (!user || !client || !comment || comment.user_id !== user.id) return;
+    const isReply = !!comment.parent_id;
+    const ok = global.confirm(isReply
+      ? 'Delete this reply? This cannot be undone.'
+      : 'Delete this post? Replies to it will be deleted too. This cannot be undone.');
+    if (!ok) return;
+    if (buttonElement) buttonElement.disabled = true;
+    const { error } = await client.from('comments').delete().eq('id', id).eq('user_id', user.id);
+    if (error) {
+      console.error('[comments] delete failed', error);
+      if (buttonElement) buttonElement.disabled = false;
+      if (typeof global.showToast === 'function') global.showToast(error.message || 'Could not delete. Please try again.');
+      return;
+    }
+    removeLocal(id);
+    comments = comments.filter((c) => c.parent_id !== id);
+    applyFilterAndRender();
+    refreshEngagementTracker();
+    if (typeof global.showToast === 'function') global.showToast(isReply ? 'Reply deleted.' : 'Post deleted.');
   }
 
   function scrollToCommunityWithFilter(category) {
@@ -856,6 +914,10 @@
   }
 
   async function initComments() {
+    // Re-render on sign in/out so Delete buttons match the current user.
+    if (global.FFAuth && typeof global.FFAuth.onAuthChange === 'function') {
+      global.FFAuth.onAuthChange(() => { if (comments.length) applyFilterAndRender(); });
+    }
     // Wire filter buttons (IDs may contain spaces)
     document.querySelectorAll('.filter-btn').forEach((btn) => {
       btn.addEventListener('click', () => {

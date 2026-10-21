@@ -134,7 +134,19 @@
     }
 
     modal.dataset.mode = mode || 'signin';
-    if (modal.dataset.mode === 'signup') {
+    const pwInput = document.getElementById('auth-password');
+    const pwWrap = pwInput ? pwInput.parentElement : null;
+    if (pwWrap) pwWrap.classList.toggle('hidden', modal.dataset.mode === 'reset');
+    if (pwInput) {
+      if (modal.dataset.mode === 'reset') pwInput.removeAttribute('required');
+      else pwInput.setAttribute('required', '');
+    }
+    if (modal.dataset.mode === 'reset') {
+      if (title) title.textContent = 'Reset your password';
+      if (submitBtn) submitBtn.textContent = 'Send reset link';
+      if (toggleHint) toggleHint.innerHTML = 'Remembered it? <button type="button" id="auth-switch-btn" class="text-[#BE0F34] font-semibold underline">Back to sign in</button>';
+      if (nameWrap) nameWrap.classList.add('hidden');
+    } else if (modal.dataset.mode === 'signup') {
       if (title) title.textContent = 'Create your account';
       if (submitBtn) submitBtn.textContent = 'Sign up';
       if (toggleHint) toggleHint.innerHTML = 'Already have an account? <button type="button" id="auth-switch-btn" class="text-[#BE0F34] font-semibold underline">Sign in</button>';
@@ -142,16 +154,18 @@
     } else {
       if (title) title.textContent = 'Welcome back';
       if (submitBtn) submitBtn.textContent = 'Sign in';
-      if (toggleHint) toggleHint.innerHTML = 'New here? <button type="button" id="auth-switch-btn" class="text-[#BE0F34] font-semibold underline">Create an account</button>';
+      if (toggleHint) toggleHint.innerHTML = '<button type="button" id="auth-forgot-btn" class="block mx-auto mb-3 text-[#414042]/80 hover:text-[#BE0F34] font-semibold underline">Forgot password?</button>New here? <button type="button" id="auth-switch-btn" class="text-[#BE0F34] font-semibold underline">Create an account</button>';
       if (nameWrap) nameWrap.classList.add('hidden');
     }
 
     const switchBtn = document.getElementById('auth-switch-btn');
     if (switchBtn) {
       switchBtn.addEventListener('click', () => {
-        openAuthModal(modal.dataset.mode === 'signup' ? 'signin' : 'signup');
+        openAuthModal(modal.dataset.mode === 'signin' ? 'signup' : 'signin');
       });
     }
+    const forgotBtn = document.getElementById('auth-forgot-btn');
+    if (forgotBtn) forgotBtn.addEventListener('click', () => openAuthModal('reset'));
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -169,6 +183,78 @@
     if (!errEl) return;
     errEl.textContent = msg;
     errEl.classList.remove('hidden');
+  }
+
+  function friendlyAuthError(err) {
+    const msg = String((err && err.message) || '');
+    if ((err && err.status === 429) || /for security purposes|rate limit|too many/i.test(msg)) {
+      return 'Too many attempts in a short time. Please wait about a minute, then try again.';
+    }
+    if (/invalid login credentials/i.test(msg)) {
+      return 'That email and password don’t match. Try again, or use “Forgot password?”.';
+    }
+    if (/email not confirmed/i.test(msg)) {
+      return 'Please confirm your email first. Check your inbox (and spam) for the confirmation link.';
+    }
+    return msg || 'Something went wrong. Please try again.';
+  }
+
+  async function sendPasswordReset(email) {
+    const client = global.ffSupabase;
+    if (!client) throw new Error('Supabase is not configured.');
+    const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: EMAIL_REDIRECT_TO });
+    if (error) throw error;
+  }
+
+  // Set-new-password screen shown when the user returns from the recovery email.
+  function showRecoveryScreen() {
+    if (document.getElementById('auth-recovery-modal')) return;
+    const wrap = document.createElement('div');
+    wrap.id = 'auth-recovery-modal';
+    wrap.className = 'fixed inset-0 z-[120] flex items-center justify-center p-4';
+    wrap.innerHTML = `
+      <div class="absolute inset-0 bg-black/40"></div>
+      <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-[#E6E7E8]" role="dialog" aria-modal="true" aria-labelledby="auth-recovery-title">
+        <h3 id="auth-recovery-title" class="text-2xl font-bold tracking-tight mb-1">Set a new password</h3>
+        <p class="text-sm text-[#414042]/70 mb-6">Choose a new password for your Fittest Fleet account.</p>
+        <div id="auth-recovery-error" class="hidden mb-4 text-sm text-[#BE0F34] bg-[#BE0F34]/10 rounded-2xl px-4 py-3"></div>
+        <form id="auth-recovery-form" class="space-y-4">
+          <div>
+            <label for="auth-new-password" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">NEW PASSWORD</label>
+            <input type="password" id="auth-new-password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters"
+                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+          </div>
+          <div>
+            <label for="auth-new-password2" class="block text-xs font-semibold tracking-wider text-[#414042]/70 mb-1.5">CONFIRM NEW PASSWORD</label>
+            <input type="password" id="auth-new-password2" required minlength="6" autocomplete="new-password"
+                   class="w-full border border-[#E6E7E8] focus:border-[#BE0F34] rounded-2xl px-5 py-3 text-sm outline-none">
+          </div>
+          <button type="submit" id="auth-recovery-submit" class="w-full py-3.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-bold rounded-2xl transition-all">Save new password</button>
+        </form>
+      </div>`;
+    document.body.appendChild(wrap);
+    const form = wrap.querySelector('#auth-recovery-form');
+    const errEl = wrap.querySelector('#auth-recovery-error');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const a = wrap.querySelector('#auth-new-password').value;
+      const b = wrap.querySelector('#auth-new-password2').value;
+      const showErr = (m) => { errEl.textContent = m; errEl.classList.remove('hidden'); };
+      if (a.length < 6) return showErr('Password must be at least 6 characters.');
+      if (a !== b) return showErr('The two passwords don’t match.');
+      const btn = wrap.querySelector('#auth-recovery-submit');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try {
+        const { error } = await global.ffSupabase.auth.updateUser({ password: a });
+        if (error) throw error;
+        wrap.remove();
+        if (typeof global.showToast === 'function') global.showToast('Password updated. You’re signed in.');
+      } catch (err) {
+        showErr(friendlyAuthError(err));
+        btn.disabled = false; btn.textContent = 'Save new password';
+      }
+    });
+    setTimeout(() => wrap.querySelector('#auth-new-password')?.focus(), 50);
   }
 
   function blankToNull(value) {
@@ -211,6 +297,14 @@
     });
     if (error) throw error;
 
+    // Supabase hides whether an email is registered: for an existing account it
+    // returns a user with no identities and sends no email.
+    if (data && data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      const dup = new Error('If you already have an account, sign in or reset your password.');
+      dup.code = 'ff_existing_account';
+      throw dup;
+    }
+
     // When a session exists, write the profile now. If email confirmation is on,
     // the handle_new_user_profile trigger copies the same metadata instead.
     if (data && data.session && data.user) {
@@ -244,6 +338,24 @@
     const name = (document.getElementById('auth-display-name') || {}).value || '';
     const jobTitle = (document.getElementById('auth-job-title') || {}).value || '';
     const location = (document.getElementById('auth-location') || {}).value || '';
+
+    if (mode === 'reset') {
+      if (!email.trim()) { showAuthError('Enter your email address.'); return; }
+      const btn = document.getElementById('auth-submit-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+      try {
+        await sendPasswordReset(email.trim());
+        closeAuthModal();
+        if (typeof global.showToast === 'function') {
+          global.showToast('If that email has an account, a reset link is on its way. Check your inbox (and spam).');
+        }
+      } catch (err) {
+        showAuthError(friendlyAuthError(err));
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Send reset link'; }
+      }
+      return;
+    }
 
     if (!email.trim() || !password) {
       showAuthError('Email and password are required.');
@@ -287,7 +399,7 @@
         }
       }
     } catch (err) {
-      showAuthError(err.message || 'Authentication failed.');
+      showAuthError(err && err.code === 'ff_existing_account' ? err.message : friendlyAuthError(err));
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -345,9 +457,19 @@
     displayNameHint = getDisplayNameFromUser(currentUser);
     updateAuthUI();
     notify();
-    announceAuthCallback();
+    if (authCallback.type === 'recovery' && currentUser) {
+      showRecoveryScreen();
+    } else {
+      announceAuthCallback();
+    }
+
+    // Clear the leftover "#" (or token fragment) after an email-link redirect.
+    if ((authCallback.hasSessionGrant || authCallback.error || global.location.href.endsWith('#')) && global.history && global.history.replaceState) {
+      global.history.replaceState(global.history.state, '', global.location.pathname + global.location.search);
+    }
 
     client.auth.onAuthStateChange((_event, session) => {
+      if (_event === 'PASSWORD_RECOVERY') showRecoveryScreen();
       currentUser = session ? session.user : null;
       displayNameHint = getDisplayNameFromUser(currentUser);
       updateAuthUI();
