@@ -60,7 +60,7 @@ begin
   if auth.uid() is null then raise exception 'Sign in to join'; end if;
   select * into c from public.competitions where id = p_competition_id;
   if not found then raise exception 'Competition not found'; end if;
-  if (timezone('utc', now()))::date > c.join_deadline then
+  if (timezone('America/New_York', now()))::date > c.join_deadline then
     raise exception 'Joining closed on %', c.join_deadline;
   end if;
   insert into public.competition_entries (competition_id, user_id)
@@ -84,7 +84,7 @@ language sql stable security definer set search_path = public as $$
     join c on c.id = e.competition_id
     join public.progress_checkins p on p.user_id = e.user_id
     where p.weight is not null and p.weight > 0
-      and p.checked_in_on between c.start_date and least(c.end_date, (timezone('utc', now()))::date)
+      and p.checked_in_on between c.start_date and least(c.end_date, (timezone('America/New_York', now()))::date)
   ),
   agg as (
     select w.user_id,
@@ -97,7 +97,7 @@ language sql stable security definer set search_path = public as $$
     from w group by w.user_id
   ),
   weeks_done as (
-    select greatest(1, least(((least((timezone('utc', now()))::date, end_date + 1) - start_date) / 7), (end_date - start_date + 1) / 7))::int as k from c
+    select greatest(1, least(((least((timezone('America/New_York', now()))::date, end_date + 1) - start_date) / 7), (end_date - start_date + 1) / 7))::int as k from c
   ),
   scored as (
     select a.user_id, a.n, a.last_d,
@@ -119,7 +119,7 @@ $$;
 create table if not exists public.progress_steps (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
-  walked_on date not null default (timezone('utc', now()))::date,
+  walked_on date not null default (timezone('America/New_York', now()))::date,
   steps integer not null check (steps between 0 and 200000),
   created_at timestamptz not null default now()
 );
@@ -163,7 +163,7 @@ language sql stable security definer set search_path = public as $$
         least(8, sum(pts_lift))  + least(4, sum(pts_yoga))  + least(4, sum(pts_body)) +
         least(4, sum(pts_golf)))::int as pts
     from raw r, c
-    where r.d between c.start_date and least(c.end_date, (timezone('utc', now()))::date)
+    where r.d between c.start_date and least(c.end_date, (timezone('America/New_York', now()))::date)
     group by r.user_id, r.d
   ),
   tot as (
@@ -201,7 +201,7 @@ language sql stable security definer set search_path = public as $$
       sum(p.calories) as cal, sum(p.carbohydrates) as carb, sum(p.sugars) as sug,
       sum(p.protein_g) as pro, sum(p.fiber_g) as fib
     from public.progress_checkins p join ent using (user_id), c
-    where p.checked_in_on between c.start_date and least(c.end_date, (timezone('utc', now()))::date)
+    where p.checked_in_on between c.start_date and least(c.end_date, (timezone('America/New_York', now()))::date)
     group by p.user_id, p.checked_in_on
   ),
   dayw as (

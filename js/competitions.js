@@ -1,9 +1,18 @@
 // Fittest Fleet competitions page: Weight Loss + Exercise + Nutritional Discipline challenges (same season).
 // Live data comes from sql/competitions.sql RPCs. ?preview=1 (or a missing RPC) shows clearly labeled example data.
 (function () {
-  // Master switch: false = test mode (example data only, joining disabled, "Test Challenges / Not Active" banner).
-  // Set to true (after running sql/competitions.sql) to go live.
-  const COMPETITIONS_ACTIVE = false;
+  // Go-live is automatic and date-based. ONE set of instants drives both the countdown
+  // and activation, all at midnight America/New_York (EDT -04:00 until Nov 1 2am, then EST -05:00).
+  //   before START_AT: test mode (example data, joining disabled, "Test Challenges / Not Active" banner)
+  //   from START_AT:   live (real leaderboards, joining open until JOIN_CLOSES_AT)
+  //   from END_AT:     season complete (final standings, joining closed)
+  const SEASON_TZ = 'America/New_York';
+  const START_AT = Date.parse('2026-10-26T00:00:00-04:00');       // Mon Oct 26, 12:00 AM ET
+  const JOIN_CLOSES_AT = Date.parse('2026-11-02T00:00:00-05:00'); // end of Sun Nov 1 ET
+  const END_AT = Date.parse('2026-12-28T00:00:00-05:00');         // end of Sun Dec 27 ET
+  const isActive = () => Date.now() >= START_AT;
+  const isOver = () => Date.now() >= END_AT;
+  let COMPETITIONS_ACTIVE = isActive();
   const SEASON = {
     name: 'Season 1',
     start: '2026-10-26', end: '2026-12-27', joinBy: '2026-11-01',
@@ -44,8 +53,8 @@
     entrants: { weight: 7, exercise: 7, nutrition: 6 }
   };
 
-  const d = (s) => new Date(s + 'T00:00:00');
-  const fmt = (s, opts) => d(s).toLocaleDateString('en-US', opts || { month: 'short', day: 'numeric', year: 'numeric' });
+  const d = (s) => new Date(s + 'T12:00:00Z'); // calendar date only; formatted in SEASON_TZ
+  const fmt = (s, opts) => d(s).toLocaleDateString('en-US', Object.assign({ timeZone: SEASON_TZ }, opts || { month: 'short', day: 'numeric', year: 'numeric' }));
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const $ = (id) => document.getElementById(id);
 
@@ -57,12 +66,14 @@
   }
 
   function tick() {
-    const now = new Date();
-    const start = d(SEASON.start), end = new Date(d(SEASON.end).getTime() + 86400000);
-    let target = start, label = 'STARTS IN';
-    if (now >= start && now < end) { target = end; label = 'ENDS IN'; }
-    else if (now >= end) { label = 'SEASON COMPLETE'; target = now; }
+    const now = Date.now();
+    // Countdown hit zero while the page is open: switch live in place (no reload).
+    if (!COMPETITIONS_ACTIVE && isActive()) goLive();
+    let target = START_AT, label = 'STARTS IN';
+    if (now >= START_AT && now < END_AT) { target = END_AT; label = SEASON.name.toUpperCase() + ' IS LIVE · ENDS ' + fmt(SEASON.end, { month: 'short', day: 'numeric' }).toUpperCase(); }
+    else if (now >= END_AT) { label = SEASON.name.toUpperCase() + ' COMPLETE · ENDED ' + fmt(SEASON.end, { month: 'short', day: 'numeric' }).toUpperCase(); target = now; }
     $('comp-countdown-label').textContent = label;
+    const cd = $('comp-countdown'); if (cd) cd.classList.toggle('hidden', now >= END_AT);
     let ms = Math.max(0, target - now);
     const parts = { d: Math.floor(ms / 86400000), h: Math.floor(ms / 3600000) % 24, m: Math.floor(ms / 60000) % 60, s: Math.floor(ms / 1000) % 60 };
     Object.keys(parts).forEach((k) => { const el = document.querySelector('[data-cd="' + k + '"]'); if (el) el.textContent = parts[k]; });
@@ -154,15 +165,16 @@
   function renderJoinButtons() {
     document.querySelectorAll('.comp-join').forEach((btn) => {
       const k = btn.dataset.join;
-      const closed = new Date() > new Date(d(SEASON.joinBy).getTime() + 86400000);
+      const closed = Date.now() >= JOIN_CLOSES_AT;
       if (!COMPETITIONS_ACTIVE) { btn.textContent = 'Not active yet'; btn.disabled = true; btn.classList.add('opacity-70', 'cursor-not-allowed'); btn.onclick = null; return; }
       if (joined[k]) { btn.textContent = 'Joined ✓'; btn.disabled = true; btn.classList.add('opacity-80', 'cursor-default'); }
-      else if (closed) { btn.textContent = 'Joining closed'; btn.disabled = true; btn.classList.add('opacity-80', 'cursor-default'); }
+      else if (closed) { btn.textContent = isOver() ? 'Season ended' : 'Joining closed'; btn.disabled = true; btn.classList.add('opacity-80', 'cursor-default'); }
       btn.onclick = () => join(k);
     });
   }
 
   async function join(kind) {
+    if (Date.now() >= JOIN_CLOSES_AT) { window.showToast && showToast('Joining closed on ' + fmt(SEASON.joinBy, { month: 'short', day: 'numeric' }) + '.'); return; }
     if (!COMPETITIONS_ACTIVE) { window.showToast && showToast('Test Challenges / Not Active: joining is disabled.'); return; }
     const user = FFAuth.getCurrentUser();
     if (!user) { FFAuth.openAuthModal('signin'); return; }
@@ -223,7 +235,21 @@
     renderJoinButtons();
   }
 
+  let goingLive = false;
+  async function goLive() {
+    if (goingLive) return;
+    goingLive = true;
+    COMPETITIONS_ACTIVE = true;
+    preview = forcePreview;
+    document.querySelectorAll('.comp-join').forEach((btn) => {
+      btn.disabled = false; btn.classList.remove('opacity-70', 'cursor-not-allowed'); btn.textContent = btn.dataset.label || 'Join';
+    });
+    try { await load(); } finally { goingLive = false; }
+  }
+
   async function init() {
+    COMPETITIONS_ACTIVE = isActive();
+    document.querySelectorAll('.comp-join').forEach((btn) => { if (!btn.dataset.label) btn.dataset.label = btn.textContent.trim(); });
     preview = forcePreview || !COMPETITIONS_ACTIVE;
     renderDates();
     tick();
