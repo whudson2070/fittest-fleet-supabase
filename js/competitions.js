@@ -6,7 +6,7 @@
   const COMPETITIONS_ACTIVE = false;
   const SEASON = {
     name: 'Season 1',
-    start: '2026-10-26', end: '2026-12-06', joinBy: '2026-11-01',
+    start: '2026-10-26', end: '2026-12-27', joinBy: '2026-11-01',
     ids: { weight: '2026-s1-weight', exercise: '2026-s1-exercise', nutrition: '2026-s1-nutrition' }
   };
   const forcePreview = new URLSearchParams(location.search).get('preview') === '1';

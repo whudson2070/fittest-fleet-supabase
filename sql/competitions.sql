@@ -44,11 +44,11 @@ create policy "entries leave own" on public.competition_entries
 grant select on public.competitions to anon, authenticated;
 grant select, delete on public.competition_entries to authenticated;
 
--- Season 1 (6 weeks): Mon Oct 26 2026 - Sun Dec 6 2026, join by Sun Nov 1 2026.
+-- Season 1 (9 weeks): Mon Oct 26 2026 - Sun Dec 27 2026, join by Sun Nov 1 2026.
 insert into public.competitions (id, name, type, start_date, end_date, join_deadline) values
-  ('2026-s1-weight',   'Weight Loss Challenge', 'weight_loss', '2026-10-26', '2026-12-06', '2026-11-01'),
-  ('2026-s1-exercise', 'Exercise Challenge',    'exercise',    '2026-10-26', '2026-12-06', '2026-11-01'),
-  ('2026-s1-nutrition', 'Nutritional Discipline Challenge', 'nutrition', '2026-10-26', '2026-12-06', '2026-11-01')
+  ('2026-s1-weight',   'Weight Loss Challenge', 'weight_loss', '2026-10-26', '2026-12-27', '2026-11-01'),
+  ('2026-s1-exercise', 'Exercise Challenge',    'exercise',    '2026-10-26', '2026-12-27', '2026-11-01'),
+  ('2026-s1-nutrition', 'Nutritional Discipline Challenge', 'nutrition', '2026-10-26', '2026-12-27', '2026-11-01')
 on conflict (id) do update set name = excluded.name, type = excluded.type,
   start_date = excluded.start_date, end_date = excluded.end_date, join_deadline = excluded.join_deadline;
 
