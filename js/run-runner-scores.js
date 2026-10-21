@@ -167,6 +167,7 @@
         .from(TABLE)
         .select('user_id, display_name, score')
         .order('score', { ascending: false })
+        .order('updated_at', { ascending: true }) // ties: whoever reached it first ranks higher
         .limit(3),
       client
         .rpc(TOTALS_FUNCTION)

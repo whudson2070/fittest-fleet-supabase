@@ -788,6 +788,7 @@
             const refreshStats = () => {
                 if (window.FFMembers) FFMembers.loadMemberCount();
                 if (window.FFTrustBar) FFTrustBar.loadStats();
+                if (window.FFRunRunnerScores) FFRunRunnerScores.loadLeaderboard();
             };
             window.addEventListener('pageshow', (e) => { if (e.persisted) refreshStats(); });
             document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshStats(); });
