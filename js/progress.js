@@ -56,6 +56,69 @@
     const t = fmt(value);
     return t && field.unit ? t + ' ' + field.unit : t;
   }
+  /* ---------- weight goal (lose / gain) ---------- */
+  // Stored per user in public.progress_settings.weight_goal (sql/weight-goal.sql), cached in localStorage so the
+  // switch works and is remembered even before the SQL is run. Missing/unknown = 'lose'.
+  let weightGoal = 'lose';
+  let lastData = null;
+  const goalKey = (uid) => 'ff-weight-goal:' + (uid || 'anon');
+  function applyGoalUI() {
+    const b = el('weight-goal-toggle');
+    if (!b) return;
+    const gain = weightGoal === 'gain';
+    b.setAttribute('aria-checked', gain ? 'true' : 'false');
+    b.setAttribute('aria-label', 'Weight goal: ' + (gain ? 'Gain' : 'Loss') + '. Switch to ' + (gain ? 'Loss' : 'Gain'));
+    b.classList.toggle('text-[#BE0F34]', !gain); b.classList.toggle('border-[#BE0F34]/40', !gain);
+    b.classList.toggle('text-[#5594CF]', gain); b.classList.toggle('border-[#5594CF]/50', gain);
+    const track = b.querySelector('.weight-goal-track');
+    if (track) { track.classList.toggle('bg-[#BE0F34]', !gain); track.classList.toggle('bg-[#5594CF]', gain); }
+    const knob = b.querySelector('.weight-goal-knob');
+    if (knob) knob.style.transform = gain ? 'translateX(12px)' : '';
+    const t = b.querySelector('.weight-goal-text');
+    if (t) t.textContent = gain ? 'GAIN' : 'LOSS';
+  }
+  async function loadWeightGoal() {
+    const user = currentUser();
+    try { const v = localStorage.getItem(goalKey(user && user.id)); if (v === 'gain' || v === 'lose') weightGoal = v; } catch (e) { /* storage blocked */ }
+    applyGoalUI();
+    const client = global.ffSupabase;
+    if (!client || !user) return;
+    try {
+      const res = await client.from('progress_settings').select('weight_goal').eq('user_id', user.id).maybeSingle();
+      if (res.error) { console.warn('[progress] weight goal not loaded (run sql/weight-goal.sql?)', res.error.message || res.error); return; }
+      if (res.data && (res.data.weight_goal === 'gain' || res.data.weight_goal === 'lose')) {
+        weightGoal = res.data.weight_goal;
+        try { localStorage.setItem(goalKey(user.id), weightGoal); } catch (e) { /* ignore */ }
+        applyGoalUI();
+      }
+    } catch (e) { console.warn('[progress] weight goal not loaded', e); }
+  }
+  async function setWeightGoal(goal) {
+    weightGoal = goal === 'gain' ? 'gain' : 'lose';
+    const user = currentUser();
+    try { localStorage.setItem(goalKey(user && user.id), weightGoal); } catch (e) { /* ignore */ }
+    applyGoalUI();
+    if (lastData) { renderSummary(lastData); renderHistory(lastData); }
+    const client = global.ffSupabase;
+    if (!client || !user) return;
+    try {
+      const res = await client.from('progress_settings').upsert({ user_id: user.id, weight_goal: weightGoal, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+      if (res.error) console.warn('[progress] weight goal saved on this device only (run sql/weight-goal.sql?)', res.error.message || res.error);
+    } catch (e) { console.warn('[progress] weight goal saved on this device only', e); }
+  }
+  function bindWeightGoal() {
+    const b = el('weight-goal-toggle');
+    if (!b || b.dataset.bound) return;
+    b.dataset.bound = '1';
+    b.addEventListener('click', () => setWeightGoal(weightGoal === 'gain' ? 'lose' : 'gain'));
+  }
+  function weightSeries(rows) {
+    return rows.filter((r) => r.weight != null && r.weight !== '' && Number.isFinite(Number(r.weight)))
+      .slice().sort((a, b) => String(a.checked_in_on || '').localeCompare(String(b.checked_in_on || '')) ||
+        String(a.created_at || '').localeCompare(String(b.created_at || '')));
+  }
+  function signed(n) { return (n > 0 ? '+' : n < 0 ? '−' : '') + fmt(Math.abs(n)); }
+
   function fmtDate(iso) {
     const p = String(iso || '').slice(0, 10).split('-');
     if (p.length !== 3) return String(iso || '');
@@ -255,6 +318,15 @@
       });
       if (anyC) cards.push(card('MILES CYCLED · 7 DAYS', fmt(c7) + ' mi', '#BE0F34'));
     }
+    if (weightGoal === 'gain') {
+      const ws = weightSeries(rows);
+      if (ws.length) {
+        const change = Number(ws[ws.length - 1].weight) - Number(ws[0].weight);
+        const c = card('WEIGHT GAINED', signed(Math.round(change * 10) / 10) + ' lb', '#5594CF');
+        const at = cards.findIndex((x) => x.firstChild && x.firstChild.textContent === 'LATEST WEIGHT');
+        cards.splice(at + 1, 0, c);
+      }
+    }
     return cards;
   }
 
@@ -312,6 +384,7 @@
   function renderSummary(data) {
     const root = el('progress-summary');
     if (!root) return;
+    lastData = data;
     const cards = []
       .concat(checkinCards(data.checkins))
       .concat(liftCards(data.lifts))
@@ -332,10 +405,16 @@
 
   function historyEntries(data) {
     const out = [];
+    const delta = new Map();
+    if (weightGoal === 'gain') {
+      const ws = weightSeries(data.checkins);
+      ws.forEach((r, i) => { if (i > 0) delta.set(r, Math.round((Number(r.weight) - Number(ws[i - 1].weight)) * 10) / 10); });
+    }
     data.checkins.forEach((r) => {
       const parts = [];
       FIELDS.forEach((f) => {
         if (r[f.key] == null || r[f.key] === '') return;
+        if (f.key === 'weight' && delta.has(r)) { parts.push(withUnit(r[f.key], f) + ' (' + signed(delta.get(r)) + ' lb)'); return; }
         parts.push(f.key === 'weight' ? withUnit(r[f.key], f) : f.label + ' ' + withUnit(r[f.key], f));
       });
       out.push({ date: r.checked_in_on, created: r.created_at, type: 'Check-in', text: parts.join(' · ') || 'No numbers recorded' });
@@ -440,6 +519,7 @@
       renderHistory(data);
       return;
     }
+    await loadWeightGoal();
 
     const checkinQuery = (cols) => client
       .from('progress_checkins')
@@ -589,8 +669,10 @@
 
   async function initProgressPage() {
     bindForm();
+    bindWeightGoal();
     const user = currentUser();
     showSignedIn(!!user);
+    await loadWeightGoal();
     if (user) await loadAll();
     else {
       const empty = { checkins: [], lifts: [], golf: [], steps: [] };

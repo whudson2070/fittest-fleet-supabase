@@ -4,8 +4,18 @@
 -- without exposing any individual progress_checkins rows to anon.
 -- Safe to re-run.
 
+-- Weight goals live in progress_settings (full setup + RLS in sql/weight-goal.sql). Created here too, with the
+-- same shape, so this file runs even if weight-goal.sql hasn't been run yet. Safe to re-run.
+create table if not exists public.progress_settings (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  weight_goal text not null default 'lose',
+  updated_at timestamptz not null default now()
+);
+alter table public.progress_settings enable row level security;
+
 -- For each user, compare their earliest and latest non-null weight check-ins.
 -- Only positive losses count; weight gained or unchanged contributes zero.
+-- Users whose weight goal is 'gain' are excluded entirely (no goal row = 'lose').
 create or replace function public.get_total_pounds_lost()
 returns numeric
 language sql
@@ -34,7 +44,11 @@ as $$
     0::numeric
   )
   from first_weights
-  join last_weights using (user_id);
+  join last_weights using (user_id)
+  where not exists (
+    select 1 from public.progress_settings s
+    where s.user_id = first_weights.user_id and s.weight_goal = 'gain'
+  );
 $$;
 
 -- The former monthly-workouts RPC is no longer part of the public stats surface.
