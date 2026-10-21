@@ -12,15 +12,22 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#414042">
     <script>
-        // Stay at the top on fresh loads / reloads. In-page #community clicks
-        // preventDefault (no hash), so the browser was restoring scroll mid-page.
-        // Keep real section deep-links like index.html#community.
+        // Scroll-on-load policy:
+        //  - plain load / reload: always land at the top (even if the URL has a #hash).
+        //  - arriving from another page with a section hash (e.g. /#community):
+        //    scroll to that section below the sticky header (done in initializeWebsite),
+        //    re-scroll once async content settles, then the hash is gone so a refresh lands at top.
+        // The hash is stripped right away so the browser never jumps on its own.
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
         (function () {
             var hash = location.hash || '';
-            if (!/^#[A-Za-z][\w-]*$/.test(hash)) {
-                window.scrollTo(0, 0);
+            var nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+            var isReload = nav ? nav.type === 'reload' : (performance.navigation && performance.navigation.type === 1);
+            window.__ffDeepLink = (!isReload && /^#[A-Za-z][\w-]*$/.test(hash)) ? hash.slice(1) : null;
+            if (hash && /^#[A-Za-z][\w-]*$/.test(hash) && history.replaceState) {
+                history.replaceState(history.state, '', location.pathname + location.search);
             }
+            window.scrollTo(0, 0);
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -725,9 +732,22 @@
             initTailwind();
             initMobileMenu();
 
-            // Fresh load without a section hash: land at top (defeat scroll restoration).
-            // Intentional deep links like #community still scroll via the browser.
-            if (!/^#[A-Za-z][\w-]*$/.test(location.hash || '')) {
+            // Scroll target sits just below the sticky header.
+            const scrollToSection = (el, smooth) => {
+                const nav = document.querySelector('nav.sticky, nav');
+                const navH = nav ? nav.getBoundingClientRect().height : 0;
+                const top = el.getBoundingClientRect().top + window.scrollY - navH - 8;
+                window.scrollTo({ top: Math.max(0, top), behavior: smooth ? 'smooth' : 'auto' });
+            };
+            window.ffScrollToSection = scrollToSection;
+
+            const deepLinkEl = window.__ffDeepLink ? document.getElementById(window.__ffDeepLink) : null;
+            let userScrolled = false;
+            if (deepLinkEl) {
+                ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((ev) =>
+                    window.addEventListener(ev, () => { userScrolled = true; }, { once: true, passive: true }));
+                scrollToSection(deepLinkEl, false);
+            } else {
                 window.scrollTo(0, 0);
             }
 
@@ -738,8 +758,8 @@
                     if (!href || !/^#[A-Za-z][\w-]*$/.test(href)) return;
                     const target = document.querySelector(href);
                     if (target) {
-                        e.preventDefault();
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        e.preventDefault(); // no #hash in the URL, so a refresh lands at the top
+                        scrollToSection(target, true);
                     }
                 });
             });
@@ -758,6 +778,11 @@
             if (window.FFVoicesOfVictory) FFVoicesOfVictory.load();
             if (window.FFRunRunnerScores) FFRunRunnerScores.loadLeaderboard();
             if (window.FFDailyChallenge) FFDailyChallenge.render();
+
+            // Deep link: re-scroll once after comments/stats load and shift the layout.
+            if (deepLinkEl) {
+                setTimeout(() => { if (!userScrolled) scrollToSection(deepLinkEl, false); }, 900);
+            }
 
             // Refresh public stats when returning to the page (e.g. Back from Progress after a save; bfcache restores).
             const refreshStats = () => {
