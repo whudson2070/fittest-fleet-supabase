@@ -38,35 +38,74 @@
 </head>
 <body class="bg-[#E6E7E8]/40 text-[#414042] min-h-screen flex flex-col">
     <nav class="bg-white border-b border-[#E6E7E8] sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto px-6">
             <div class="flex items-center justify-between h-20">
-                <a href="../index.html" class="flex items-center group">
-                    <div class="brand-logo text-4xl sm:text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
-                    <div class="ml-3">
-                        <div class="font-bold text-lg tracking-tight text-[#414042]">Fittest Fleet</div>
-                        <div class="text-[10px] text-[#414042]/60 -mt-1">Community Wellness</div>
+                <div class="flex items-center gap-x-3">
+                    <a href="../index.html" class="flex items-center group">
+                        <div class="brand-logo text-5xl italic font-black text-[#BE0F34] tracking-[-2px] group-hover:text-[#D7153A] transition-colors" style="font-style: italic; transform: skew(-10deg); display: inline-block;">T352</div>
+                        <div class="ml-3">
+                            <div class="font-bold text-lg tracking-tight text-[#414042]">Fittest Fleet</div>
+                            <div class="text-[10px] text-[#414042]/60 -mt-1">Community Wellness</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="hidden lg:flex items-center gap-x-6 text-sm font-medium">
+                    <a href="/index.html#pillars" class="nav-link text-[#414042] hover:text-[#BE0F34]">Our Pillars</a>
+                    <a href="/index.html#community" class="nav-link text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                    <a href="../nutritional-discipline/" title="Nutritional Discipline routines" class="nav-link text-[#414042] hover:text-[#414042] hover:border-b-2 hover:border-[#D9E364]">Nutrition</a>
+                    <a href="../sustainable-weight-loss/" title="Sustainable Weight Loss routines" class="nav-link text-[#414042] hover:text-[#BE0F34]">Weight Loss</a>
+                    <a href="../purposeful-movement/" title="Purposeful Movement routines" class="nav-link text-[#414042] hover:text-[#5594CF]">Movement</a>
+                    <a href="../run-runner/" class="nav-link text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
+                    <a href="../competitions/" class="nav-link text-[#414042] hover:text-[#BE0F34]">Competitions</a>
+                    <a href="../progress/" data-signed-in-nav class="nav-link hidden text-[#414042] hover:text-[#BE0F34]">Progress</a>
+                </div>
+
+                <div class="flex items-center gap-x-3">
+                    <!-- Auth: signed out -->
+                    <div id="auth-signed-out" class="hidden sm:flex items-center gap-x-2">
+                        <button type="button" id="auth-open-signin"
+                                class="px-4 py-2 text-sm font-semibold text-[#414042] hover:text-[#BE0F34] transition-colors">
+                            Sign in
+                        </button>
+                        <button type="button" id="auth-open-signup"
+                                class="inline-flex items-center justify-center px-5 py-2.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full transition-all active:scale-[0.985]">
+                            Join
+                        </button>
                     </div>
-                </a>
-                <div class="flex items-center gap-x-2 sm:gap-x-3">
-                    <a href="../index.html#community" class="hidden sm:inline text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
-                    <a href="../run-runner/" class="hidden sm:inline text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
-                    <a href="../profile.html" data-signed-in-nav class="hidden text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Profile</a>
-                    <a href="../progress/" data-signed-in-nav class="hidden text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Progress</a>
-                    <span class="hidden sm:inline text-sm font-semibold text-[#BE0F34]">Competitions</span>
-                    <div class="hidden sm:block"><div id="auth-signed-out" class="hidden sm:flex items-center gap-x-2">
-                        <button type="button" id="auth-open-signin" class="px-4 py-2 text-sm font-semibold text-[#414042] hover:text-[#BE0F34]">Sign in</button>
-                        <button type="button" id="auth-open-signup" class="inline-flex items-center justify-center px-5 py-2.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full">Join</button>
-                    </div></div>
+                    <!-- Auth: signed in -->
                     <div id="auth-signed-in" class="hidden flex items-center gap-x-3">
-                        <a href="../profile.html" class="hidden sm:inline-flex items-center gap-x-2 text-sm text-[#414042]/80 hover:text-[#BE0F34]">
+                        <a href="../profile.html" id="auth-profile-link"
+                           class="hidden sm:inline-flex items-center gap-x-2 text-sm text-[#414042]/80 hover:text-[#BE0F34] transition-colors"
+                           title="Edit profile">
                             <img id="auth-user-avatar" class="hidden w-8 h-8 rounded-full object-cover ring-2 ring-[#E6E7E8]" alt="">
                             <i id="auth-user-icon" class="fa-solid fa-user-circle text-[#BE0F34] text-xl"></i>
                             <span id="auth-user-label" class="font-semibold"></span>
                         </a>
                     </div>
-                    <button type="button" id="auth-mobile-signin" class="sm:hidden hidden px-3 py-2 text-sm font-semibold">Sign in</button>
-                    <button type="button" id="auth-mobile-signup" class="sm:hidden hidden px-3 py-2 text-sm font-semibold text-[#BE0F34]">Join</button>
+
+                    <button id="mobile-menu-btn"
+                            class="lg:hidden w-10 h-10 flex items-center justify-center text-[#414042] hover:text-[#BE0F34]"
+                            aria-label="Open menu">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
                 </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-[#E6E7E8] bg-white">
+            <div class="px-6 py-4 flex flex-col gap-y-3 text-sm font-medium">
+                <a href="/index.html#pillars" class="py-2 text-[#414042] hover:text-[#BE0F34]">Our Pillars</a>
+                <a href="/index.html#community" class="py-2 text-[#414042] hover:text-[#BE0F34]">Community Hub</a>
+                <a href="../nutritional-discipline/" class="py-2 text-[#414042] hover:bg-[#D9E364] hover:text-[#414042]">Nutritional Discipline</a>
+                <a href="../sustainable-weight-loss/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Sustainable Weight Loss</a>
+                <a href="../purposeful-movement/" class="py-2 text-[#414042] hover:text-[#5594CF]">Purposeful Movement</a>
+                <a href="../run-runner/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Run Runner</a>
+                <a href="../competitions/" class="py-2 text-[#414042] hover:text-[#BE0F34]">Competitions</a>
+                <a href="../progress/" data-signed-in-nav class="hidden py-2 text-[#414042] hover:text-[#BE0F34]">Progress</a>
+                <a href="../profile.html" class="py-2 text-[#414042] hover:text-[#BE0F34]">Profile</a>
+                <button type="button" id="auth-mobile-signin" class="py-2 text-left text-[#414042] hover:text-[#BE0F34]">Sign in</button>
+                <button type="button" id="auth-mobile-signup" class="mt-1 w-full text-center py-3 bg-[#BE0F34] text-white rounded-full font-semibold">Join the Community</button>
             </div>
         </div>
     </nav>
@@ -88,7 +127,7 @@
                         <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">SEASON</div><div id="comp-dates" class="font-bold">—</div></div>
                         <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">JOIN BY</div><div id="comp-join-by" class="font-bold">—</div></div>
                         <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">LENGTH</div><div class="font-bold">9 weeks</div></div>
-                        <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">WIN A</div><div class="font-bold">Leann-made custom champion shirt</div></div>
+                        <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">WIN</div><div class="font-bold">LeAnn-made Champion T-Shirt</div></div>
                     </div>
                     <div class="bg-[#414042] text-white rounded-3xl px-6 py-4 justify-self-start">
                         <div id="comp-countdown-label" class="text-[10px] font-semibold tracking-wider text-white/60 mb-1">STARTS IN</div>
@@ -248,7 +287,7 @@
                                     <tr><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2">Calories</td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2"><span class="whitespace-nowrap">4 for 0–1,200</span><br><span class="whitespace-nowrap">3 for 1,201–1,600</span><br><span class="whitespace-nowrap">2 for 1,601–2,000</span><br><span class="whitespace-nowrap">1 for 2,001–3,000</span><br><span class="whitespace-nowrap">0 above 3,000</span></td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2 text-center">4</td></tr>
                                     <tr><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2">Carbohydrates</td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2"><span class="whitespace-nowrap">4 for 0–50 g</span><br><span class="whitespace-nowrap">3 for 51–75 g</span><br><span class="whitespace-nowrap">2 for 76–100 g</span><br><span class="whitespace-nowrap">1 for 101–200 g</span><br><span class="whitespace-nowrap">0 above 200 g</span></td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2 text-center">4</td></tr>
                                     <tr><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2">Added sugars</td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2"><span class="whitespace-nowrap">4 for 0–25 g</span><br><span class="whitespace-nowrap">3 for 26–35 g</span><br><span class="whitespace-nowrap">2 for 36–45 g</span><br><span class="whitespace-nowrap">1 for 46–75 g</span><br><span class="whitespace-nowrap">0 above 75 g</span></td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2 text-center">4</td></tr>
-                                    <tr><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2">Protein</td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2">Ideal protein consumption is 0.36 g per lb of body weight (percentage is calculated automatically)<br><span class="whitespace-nowrap">4 for 100%+</span><br><span class="whitespace-nowrap">3 for 75–99%</span><br><span class="whitespace-nowrap">2 for 50–74%</span><br><span class="whitespace-nowrap">1 for 25–49%</span><br><span class="whitespace-nowrap">0 below 25%</span></td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2 text-center">4</td></tr>
+                                    <tr><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2">Protein</td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2">0.36 grams per lb of body weight<br><span class="whitespace-nowrap">4 for 100%+</span><br><span class="whitespace-nowrap">3 for 75–99%</span><br><span class="whitespace-nowrap">2 for 50–74%</span><br><span class="whitespace-nowrap">1 for 25–49%</span><br><span class="whitespace-nowrap">0 below 25%</span></td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2 text-center">4</td></tr>
                                     <tr><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2">Fiber</td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2"><span class="whitespace-nowrap">4 for 30 g+</span><br><span class="whitespace-nowrap">3 for 25–29 g</span><br><span class="whitespace-nowrap">2 for 20–24 g</span><br><span class="whitespace-nowrap">1 for 10–19 g</span><br><span class="whitespace-nowrap">0 below 10 g</span></td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2 text-center">4</td></tr>
                                     <tr class="bg-[#E6E7E8]/40 font-bold"><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2" colspan="2">Total per day</td><td class="px-3 sm:px-4 lg:px-2 xl:px-3 py-2 text-center">25</td></tr>
                                 </tbody>
@@ -359,6 +398,21 @@
                 FFCompetitions.init();
             });
         };
+    </script>
+    <script>
+        // Mobile menu toggle (same behavior as the homepage header).
+        (function () {
+            var btn = document.getElementById('mobile-menu-btn');
+            var menu = document.getElementById('mobile-menu');
+            if (!btn || !menu) return;
+            btn.addEventListener('click', function () {
+                menu.classList.toggle('hidden');
+                var icon = btn.querySelector('i');
+                var open = !menu.classList.contains('hidden');
+                icon.classList.toggle('fa-bars', !open);
+                icon.classList.toggle('fa-times', open);
+            });
+        })();
     </script>
 </body>
 </html>
