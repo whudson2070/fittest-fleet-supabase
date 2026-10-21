@@ -2514,6 +2514,87 @@ function createMidiBgm(getBytes) {
   document.addEventListener("gesturestart", (e) => e.preventDefault());
   fitCanvas();
   ensureBgm();
+  // ---- Player skin tone from the signed-in user's profile picture ----------
+  // Presets are equipment icons (no faces), so they keep the default skin.
+  // Uploaded photos are sampled once, client-side, and cached per user.
+  const SKIN_DEFAULT = { skin: C.skin, shadow: C.skinShadow };
+  const SKIN_CACHE_PREFIX = "ff-runner-skin:";
+  const PRESET_SKIN = {}; // id -> hex; none of the current presets show skin
+  function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function rgbToHex(r, g, b) { return "#" + [r, g, b].map(function (v) { return Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0"); }).join(""); }
+  function shade(hex, f) { const c = hexToRgb(hex); return rgbToHex(c[0] * f, c[1] * f, c[2] * f); }
+  function applySkin(hex) {
+    if (hex && /^#[0-9a-f]{6}$/i.test(hex)) { C.skin = hex; C.skinShadow = shade(hex, 0.82); }
+    else { C.skin = SKIN_DEFAULT.skin; C.skinShadow = SKIN_DEFAULT.shadow; }
+  }
+  // Standard skin filter: YCbCr ranges (Chai & Ngan) plus a loose RGB sanity rule.
+  function isSkin(r, g, b) {
+    const y = 0.299 * r + 0.587 * g + 0.114 * b;
+    const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+    const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+    return y > 35 && y < 245 && cb >= 77 && cb <= 127 && cr >= 133 && cr <= 173 && r > g && r >= b;
+  }
+  function median(a) { a.sort(function (x, y) { return x - y; }); return a[Math.floor(a.length / 2)]; }
+  function sampleSkinFromUrl(url) {
+    return new Promise(function (resolve) {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      const done = function (v) { clearTimeout(t); resolve(v); };
+      const t = setTimeout(function () { resolve(null); }, 6000);
+      img.onerror = function () { done(null); };
+      img.onload = function () {
+        try {
+          const S = 64;
+          const cv = document.createElement("canvas"); cv.width = S; cv.height = S;
+          const cx2 = cv.getContext("2d", { willReadFrequently: true });
+          // Square center crop (avatars are cropped to a circle around the face).
+          const side = Math.min(img.naturalWidth, img.naturalHeight);
+          cx2.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, S, S);
+          // Face region: central ~60% of the circle, biased slightly upward.
+          const d = cx2.getImageData(Math.round(S * 0.2), Math.round(S * 0.12), Math.round(S * 0.6), Math.round(S * 0.62)).data;
+          const R = [], G = [], B = [];
+          for (let i = 0; i < d.length; i += 4) {
+            if (d[i + 3] < 200) continue;
+            if (isSkin(d[i], d[i + 1], d[i + 2])) { R.push(d[i]); G.push(d[i + 1]); B.push(d[i + 2]); }
+          }
+          const total = d.length / 4;
+          if (R.length < Math.max(40, total * 0.06)) return done(null); // too few skin pixels
+          done(rgbToHex(median(R), median(G), median(B)));
+        } catch (e) { done(null); } // CORS-tainted canvas or decode error
+      };
+      img.src = url;
+    });
+  }
+  async function updateSkinForUser(user) {
+    if (!user) { applySkin(null); return; }
+    const key = SKIN_CACHE_PREFIX + user.id;
+    let url = null;
+    try {
+      if (window.FFProfile && typeof FFProfile.fetchProfile === "function") {
+        const prof = await FFProfile.fetchProfile(user.id);
+        url = prof && prof.avatar_url ? FFProfile.resolveAvatarUrl(prof.avatar_url) : null;
+      }
+    } catch (_) { url = null; }
+    let cached = null;
+    try { cached = JSON.parse(localStorage.getItem(key) || "null"); } catch (_) {}
+    if (cached && cached.url === url) { applySkin(cached.hex); return; }
+    if (cached && !url) { applySkin(cached.hex); return; } // profile fetch failed: use last known
+    let hex = null;
+    if (!url) hex = null;
+    else if (window.FFProfile && FFProfile.isPresetUrl && FFProfile.isPresetUrl(url)) {
+      const id = (url.match(/avatars\/([a-z]+)\.svg/i) || [])[1];
+      hex = (id && PRESET_SKIN[id]) || null;
+    } else {
+      hex = await sampleSkinFromUrl(url);
+    }
+    applySkin(hex);
+    try { localStorage.setItem(key, JSON.stringify({ url: url, hex: hex })); } catch (_) {}
+  }
+  window.FFRunnerSkin = { sampleSkinFromUrl: sampleSkinFromUrl, applySkin: applySkin, current: function () { return [C.skin, C.skinShadow]; } };
+  if (window.FFAuth && typeof FFAuth.onAuthChange === "function") {
+    FFAuth.onAuthChange(function (user) { updateSkinForUser(user).catch(function () { applySkin(null); }); });
+  }
+
   if (window.FFAuth && typeof FFAuth.initAuth === 'function') {
     FFAuth.initAuth().catch(function (err) {
       console.warn('[run-runner] auth init failed', err);
