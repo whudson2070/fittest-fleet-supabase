@@ -82,8 +82,10 @@
     if (!user || !comment.user_id || comment.user_id !== user.id) return '';
     const label = isReply ? 'Delete reply' : 'Delete post';
     return `<button type="button" data-delete-id="${comment.id}" aria-label="${label}" title="${label}"
-              class="delete-btn flex items-center gap-x-1.5 ${isReply ? 'mt-1 px-0 py-0.5 text-xs' : 'px-3 py-1.5 text-sm border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full'} font-semibold text-[#414042]/60 hover:text-[#BE0F34] transition-all">
-              <i class="fa-solid fa-trash-can"></i><span>Delete</span>
+              class="delete-btn flex items-center justify-center gap-x-1.5 ${isReply
+                ? 'w-fit ml-auto sm:ml-0 min-h-[32px] min-w-[32px] px-2 sm:min-h-0 sm:min-w-0 mt-1 sm:px-0 sm:py-0.5 text-xs'
+                : 'ml-auto sm:ml-0 w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 text-sm border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full'} font-semibold text-[#414042]/60 hover:text-[#BE0F34] transition-all">
+              <i class="fa-solid fa-trash-can"></i><span class="${isReply ? '' : 'hidden sm:inline'}">Delete</span>
             </button>`;
   }
 
@@ -138,17 +140,17 @@
               <span class="category-badge flex-shrink-0 ${categoryColor} ${categoryTextColor}">${safeCategory}</span>
             </div>
             <div class="text-[#414042]/90 leading-relaxed mb-4">${safeMessage}</div>
-            <div class="flex items-center gap-x-2">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-x-2">
               <button type="button" data-encourage-id="${comment.id}"
-                      class="encourage-btn flex items-center gap-x-2 px-4 py-1.5 text-sm font-semibold text-[#414042] hover:text-[#BE0F34] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full transition-all">
+                      class="encourage-btn flex items-center gap-x-2 px-3 sm:px-4 py-1.5 min-h-[34px] sm:min-h-0 text-sm font-semibold text-[#414042] hover:text-[#BE0F34] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full transition-all">
                 <i class="fa-solid fa-heart text-[#BE0F34]"></i>
                 <span class="like-count">${comment.likes}</span>
                 <span class="hidden sm:inline text-xs ml-0.5">Encourage</span>
               </button>
               <button type="button" data-reply-id="${comment.id}"
-                      class="reply-btn flex items-center gap-x-2 px-4 py-1.5 text-sm font-semibold text-[#414042] hover:text-[#BE0F34] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full transition-all">
+                      class="reply-btn flex items-center gap-x-2 px-3 sm:px-4 py-1.5 min-h-[34px] sm:min-h-0 text-sm font-semibold text-[#414042] hover:text-[#BE0F34] border border-[#E6E7E8] hover:border-[#BE0F34] rounded-full transition-all">
                 <i class="fa-solid fa-reply"></i>
-                <span>Reply</span>
+                <span class="max-[359px]:sr-only">Reply</span>
               </button>
               ${deleteButtonHtml(comment, false)}
             </div>
