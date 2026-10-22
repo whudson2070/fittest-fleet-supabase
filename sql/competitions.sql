@@ -1,6 +1,7 @@
 -- Fittest Fleet competitions: Weight Loss Challenge (% of body weight lost) + Exercise Challenge (points)
 -- + Nutritional Discipline Challenge (points from calories / carbohydrates / added sugars / protein / fiber check-in fields).
--- Idempotent: safe to re-run. Requires progress-checkins.sql, progress-trackers.sql and profiles-and-avatars.sql first.
+-- Idempotent: safe to re-run. Requires progress-checkins.sql, progress-trackers.sql, weight-goal.sql and profiles-and-avatars.sql first.
+-- Members are entered AUTOMATICALLY from Progress page data (see competition_participants); competition_entries is legacy/unused.
 -- Public leaderboards expose ONLY display name, percent / points and counts. Raw body weights and nutrition values are never returned.
 
 create table if not exists public.competitions (
@@ -52,6 +53,49 @@ insert into public.competitions (id, name, type, start_date, end_date, join_dead
 on conflict (id) do update set name = excluded.name, type = excluded.type,
   start_date = excluded.start_date, end_date = excluded.end_date, join_deadline = excluded.join_deadline;
 
+-- AUTO-ENTRY: members are entered automatically from their Progress page data (no Join button).
+-- Entry cutoff switch: true = a member's FIRST relevant entry must be dated on/before join_deadline (Nov 1 ET).
+-- To drop the cutoff, change "select true" to "select false" and re-run this file.
+create or replace function public.competition_entry_cutoff_enabled()
+returns boolean language sql immutable as $$ select true $$;
+
+-- Participants of a competition, derived from progress data dated start_date .. least(end_date, today ET):
+--  weight_loss: any weigh-in (weight > 0); members whose Progress weight goal is 'gain' are excluded
+--  exercise:    any walking/running miles, cycling, yoga, push-ups/squats, steps, lifting sets or golf holes > 0
+--  nutrition:   any check-in with calories, carbs, added sugars, protein or fiber logged
+-- Internal only (returns user ids): not executable by anon/authenticated; the leaderboards call it.
+create or replace function public.competition_participants(p_competition_id text)
+returns table (user_id uuid, first_entry date)
+language sql stable security definer set search_path = public as $$
+  with c as (select * from public.competitions where id = p_competition_id),
+  src as (
+    select p.user_id, p.checked_in_on as d from public.progress_checkins p, c
+     where c.type = 'weight_loss' and p.weight > 0
+       and not exists (select 1 from public.progress_settings s where s.user_id = p.user_id and s.weight_goal = 'gain')
+    union all
+    select p.user_id, p.checked_in_on from public.progress_checkins p, c
+     where c.type = 'exercise' and (coalesce(p.miles, 0) > 0 or coalesce(p.cycling_miles, 0) > 0 or coalesce(p.yoga_minutes, 0) > 0
+       or coalesce(p.pushups, 0) > 0 or coalesce(p.squats, 0) > 0)
+    union all
+    select s.user_id, s.walked_on from public.progress_steps s, c where c.type = 'exercise' and s.steps > 0
+    union all
+    select l.user_id, l.performed_on from public.progress_lifts l, c where c.type = 'exercise' and coalesce(l.sets, 0) > 0
+    union all
+    select g.user_id, g.played_on from public.progress_golf_rounds g, c where c.type = 'exercise' and coalesce(g.holes, 0) > 0
+    union all
+    select p.user_id, p.checked_in_on from public.progress_checkins p, c
+     where c.type = 'nutrition' and (p.calories is not null or p.carbohydrates is not null or p.sugars is not null
+       or p.protein_g is not null or p.fiber_g is not null)
+  )
+  select src.user_id, min(src.d) as first_entry
+  from src, c
+  where src.d between c.start_date and least(c.end_date, (timezone('America/New_York', now()))::date)
+  group by src.user_id, c.join_deadline
+  having not public.competition_entry_cutoff_enabled() or min(src.d) <= c.join_deadline;
+$$;
+revoke all on function public.competition_participants(text) from public, anon, authenticated;
+
+-- Legacy manual join (no longer used by the site; competition_entries is kept but unused). Left in place, harmless.
 -- Join (signed-in only, before the join deadline).
 create or replace function public.join_competition(p_competition_id text)
 returns void language plpgsql security definer set search_path = public as $$
@@ -68,7 +112,8 @@ begin
 end $$;
 
 -- Weight Loss leaderboard.
---  start weigh-in  = first weigh-in in week 1 (start_date .. join_deadline)
+--  entrants = competition_participants() (auto-entered from weigh-ins; Gain-mode members excluded)
+--  start weigh-in  = first weigh-in of the season (with the entry cutoff on, that is on/before join_deadline)
 --  current weigh-in = most recent weigh-in between start_date and end_date
 --  pct_lost = greatest(0, (start - current) / start * 100), rounded to 1 decimal (gains show 0.0)
 --  eligible = has a start weigh-in AND at least one weigh-in in every competition week completed so far
@@ -80,15 +125,15 @@ language sql stable security definer set search_path = public as $$
   with c as (select * from public.competitions where id = p_competition_id and type = 'weight_loss'),
   w as (
     select e.user_id, p.checked_in_on as d, p.weight, p.created_at
-    from public.competition_entries e
-    join c on c.id = e.competition_id
+    from c
+    join public.competition_participants(c.id) e on true
     join public.progress_checkins p on p.user_id = e.user_id
     where p.weight is not null and p.weight > 0
       and p.checked_in_on between c.start_date and least(c.end_date, (timezone('America/New_York', now()))::date)
   ),
   agg as (
     select w.user_id,
-      (select w2.weight from w w2, c where w2.user_id = w.user_id and w2.d <= c.join_deadline
+      (select w2.weight from w w2 where w2.user_id = w.user_id
         order by w2.d, w2.created_at limit 1) as start_w,
       (select w3.weight from w w3 where w3.user_id = w.user_id order by w3.d desc, w3.created_at desc limit 1) as cur_w,
       max(w.d) as last_d,
@@ -136,7 +181,7 @@ create or replace function public.get_exercise_leaderboard(p_competition_id text
 returns table (rank bigint, user_id uuid, display_name text, points integer, active_days integer)
 language sql stable security definer set search_path = public as $$
   with c as (select * from public.competitions where id = p_competition_id and type = 'exercise'),
-  ent as (select e.user_id from public.competition_entries e join c on c.id = e.competition_id),
+  ent as (select e.user_id from c, public.competition_participants(c.id) e),
   raw as (
     select p.user_id, p.checked_in_on as d,
       coalesce(p.miles, 0)::numeric                                 as walk_miles,
@@ -195,7 +240,7 @@ create or replace function public.get_nutrition_leaderboard(p_competition_id tex
 returns table (rank bigint, user_id uuid, display_name text, points integer, logged_days integer)
 language sql stable security definer set search_path = public as $$
   with c as (select * from public.competitions where id = p_competition_id and type = 'nutrition'),
-  ent as (select e.user_id from public.competition_entries e join c on c.id = e.competition_id),
+  ent as (select e.user_id from c, public.competition_participants(c.id) e),
   day as (
     select p.user_id, p.checked_in_on as d,
       sum(p.calories) as cal, sum(p.carbohydrates) as carb, sum(p.sugars) as sug,
@@ -248,11 +293,11 @@ language sql stable security definer set search_path = public as $$
   order by 1, 3;
 $$;
 
--- Entrant counts (public).
+-- Entrant counts (public), from auto-entry.
 create or replace function public.get_competition_entry_counts()
 returns table (competition_id text, entrants integer)
 language sql stable security definer set search_path = public as $$
-  select competition_id, count(*)::int from public.competition_entries group by competition_id;
+  select c.id, (select count(*)::int from public.competition_participants(c.id)) from public.competitions c;
 $$;
 
 grant execute on function public.join_competition(text) to authenticated;
@@ -260,3 +305,5 @@ grant execute on function public.get_weight_loss_leaderboard(text) to anon, auth
 grant execute on function public.get_exercise_leaderboard(text) to anon, authenticated;
 grant execute on function public.get_competition_entry_counts() to anon, authenticated;
 grant execute on function public.get_nutrition_leaderboard(text) to anon, authenticated;
+
+notify pgrst, 'reload schema';

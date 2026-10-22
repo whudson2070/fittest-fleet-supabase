@@ -125,7 +125,7 @@
                 <div class="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-end">
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-sm">
                         <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">SEASON</div><div id="comp-dates" class="font-bold">—</div></div>
-                        <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">JOIN BY</div><div id="comp-join-by" class="font-bold">—</div></div>
+                        <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">TO ENTER</div><div id="comp-join-by" class="font-bold">—</div></div>
                         <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">LENGTH</div><div class="font-bold">9 weeks</div></div>
                         <div class="bg-[#E6E7E8]/50 rounded-2xl px-3 sm:px-5 py-3"><div class="text-[10px] font-semibold tracking-wider text-[#414042]/60">WIN</div><div class="font-bold">LeAnn-made Champion T-Shirt</div></div>
                     </div>
@@ -160,7 +160,7 @@
                             </div>
                             <div class="text-right shrink-0"><div id="wl-entrants" class="text-2xl font-bold">—</div><div class="text-[10px] text-white/80">ENTRANTS</div></div>
                         </div>
-                        <button type="button" data-join="weight" class="comp-join mt-5 self-start inline-flex items-center justify-center px-6 py-2.5 bg-white text-[#BE0F34] hover:bg-[#E6E7E8] text-sm font-bold rounded-full">Join Weight Loss Challenge</button>
+                        <a href="../progress/" data-log="weight" class="comp-log mt-5 self-start inline-flex items-center justify-center px-6 py-2.5 bg-white text-[#BE0F34] hover:bg-[#E6E7E8] text-sm font-bold rounded-full"><i class="fa-solid fa-pen-to-square mr-2"></i>Log progress</a>
                     </div>
                     <div class="px-6 py-6 flex-1 flex flex-col gap-6">
                         <div>
@@ -170,14 +170,14 @@
                                     <th class="py-2 w-10">#</th><th class="py-2">MEMBER</th><th class="py-2 text-right">% LOST</th><th class="py-2 text-right">WEIGH-INS</th></tr></thead>
                                 <tbody id="wl-board"></tbody>
                             </table>
-                            <p id="wl-empty" class="hidden text-sm text-[#414042]/60 py-4">No entrants yet. Be the first to join.</p>
+                            <p id="wl-empty" class="hidden text-sm text-[#414042]/60 py-4">No entrants yet. Log on the Progress page to enter.</p>
                             <p class="mt-3 text-xs text-[#414042]/60"><i class="fa-solid fa-lock mr-1"></i>Only percentages are shown. Body weights stay private.</p>
                         </div>
                         <div class="border-t border-[#E6E7E8] pt-6">
                             <h3 class="text-sm font-bold tracking-wider mb-3">HOW IT WORKS</h3>
                             <ol class="list-decimal pl-5 space-y-2 text-sm text-[#414042]/80" id="wl-rules">
-                                <li>Join by the end of week 1 (<span data-join-by></span>).</li>
-                                <li>Your <strong>starting weight</strong> is your first weigh-in logged on the Progress page during week 1.</li>
+                                <li>No sign-up needed: you're entered automatically when you log a weigh-in on the Progress page. Your first weigh-in must be by the end of week 1 (<span data-join-by></span>). Members using the Gain weight goal aren't entered.</li>
+                                <li>Your <strong>starting weight</strong> is your first weigh-in logged on the Progress page during the season (week 1).</li>
                                 <li>Your <strong>current weight</strong> is your most recent weigh-in during the season.</li>
                                 <li><strong>% lost = (starting weight − current weight) ÷ starting weight × 100</strong>, rounded to one decimal.</li>
                                 <li>Log at least <strong>one weigh-in every week</strong> (Monday–Sunday) to stay eligible. Members who miss a week are listed below eligible members.</li>
@@ -203,7 +203,7 @@
                             </div>
                             <div class="text-right shrink-0"><div id="ex-entrants" class="text-2xl font-bold">—</div><div class="text-[10px] text-white/80">ENTRANTS</div></div>
                         </div>
-                        <button type="button" data-join="exercise" class="comp-join mt-5 self-start inline-flex items-center justify-center px-6 py-2.5 bg-white text-[#5594CF] hover:bg-[#E6E7E8] text-sm font-bold rounded-full">Join Exercise Challenge</button>
+                        <a href="../progress/" data-log="exercise" class="comp-log mt-5 self-start inline-flex items-center justify-center px-6 py-2.5 bg-white text-[#5594CF] hover:bg-[#E6E7E8] text-sm font-bold rounded-full"><i class="fa-solid fa-pen-to-square mr-2"></i>Log progress</a>
                     </div>
                     <div class="px-6 py-6 flex-1 flex flex-col gap-6">
                         <div>
@@ -213,12 +213,12 @@
                                     <th class="py-2 w-10">#</th><th class="py-2">MEMBER</th><th class="py-2 text-right">POINTS</th><th class="py-2 text-right">ACTIVE DAYS</th></tr></thead>
                                 <tbody id="ex-board"></tbody>
                             </table>
-                            <p id="ex-empty" class="hidden text-sm text-[#414042]/60 py-4">No entrants yet. Be the first to join.</p>
+                            <p id="ex-empty" class="hidden text-sm text-[#414042]/60 py-4">No entrants yet. Log on the Progress page to enter.</p>
                         </div>
                         <div class="border-t border-[#E6E7E8] pt-6">
                             <h3 class="text-sm font-bold tracking-wider mb-3">HOW IT WORKS</h3>
                             <ol class="list-decimal pl-5 space-y-2 text-sm text-[#414042]/80">
-                                <li>Join by the end of week 1 (<span data-join-by></span>). Activity logged from the first day of the season counts.</li>
+                                <li>No sign-up needed: log any activity on the Progress page to enter. Your first entry must be by the end of week 1 (<span data-join-by></span>). Activity logged from the first day of the season counts.</li>
                                 <li>Log activity on the Progress page. Points are counted per day using the table below.</li>
                                 <li>Log miles walked/run or steps (2,500 steps = 1 mile). If you log both, we score whichever earns more.</li>
                                 <li>Each activity has a daily cap, and you can earn at most <strong>20 points per day</strong>.</li>
@@ -257,7 +257,7 @@
                             </div>
                             <div class="text-right shrink-0"><div id="nu-entrants" class="text-2xl font-bold">—</div><div class="text-[10px] text-[#414042]/80">ENTRANTS</div></div>
                         </div>
-                        <button type="button" data-join="nutrition" class="comp-join mt-5 self-start inline-flex items-center justify-center px-6 py-2.5 bg-[#414042] text-white hover:bg-black text-sm font-bold rounded-full">Join Nutrition Challenge</button>
+                        <a href="../progress/" data-log="nutrition" class="comp-log mt-5 self-start inline-flex items-center justify-center px-6 py-2.5 bg-[#414042] text-white hover:bg-black text-sm font-bold rounded-full"><i class="fa-solid fa-pen-to-square mr-2"></i>Log progress</a>
                     </div>
                     <div class="px-6 py-6 flex-1 flex flex-col gap-6">
                         <div>
@@ -267,13 +267,13 @@
                                     <th class="py-2 w-10">#</th><th class="py-2">MEMBER</th><th class="py-2 text-right">POINTS</th><th class="py-2 text-right">LOGGED DAYS</th></tr></thead>
                                 <tbody id="nu-board"></tbody>
                             </table>
-                            <p id="nu-empty" class="hidden text-sm text-[#414042]/60 py-4">No entrants yet. Be the first to join.</p>
+                            <p id="nu-empty" class="hidden text-sm text-[#414042]/60 py-4">No entrants yet. Log on the Progress page to enter.</p>
                             <p class="mt-3 text-xs text-[#414042]/60"><i class="fa-solid fa-lock mr-1"></i>Only points are shown. What you eat stays private.</p>
                         </div>
                         <div class="border-t border-[#E6E7E8] pt-6">
                             <h3 class="text-sm font-bold tracking-wider mb-3">HOW IT WORKS</h3>
                             <ol class="list-decimal pl-5 space-y-2 text-sm text-[#414042]/80">
-                                <li>Join by the end of week 1 (<span data-join-by></span>). Days logged from the first day of the season count.</li>
+                                <li>No sign-up needed: log calories, carbs, added sugars, protein or fiber on the Progress page to enter. Your first entry must be by the end of week 1 (<span data-join-by></span>). Days logged from the first day of the season count.</li>
                                 <li>Log <strong>calories, carbohydrates, added sugars, protein and fiber</strong> in your Progress check-in. If you check in more than once a day, that day's entries are added together.</li>
                                 <li>Points are counted per day using the table below. A target only scores if that field was logged, so a blank never counts as zero.</li>
                                 <li>Each line has a daily cap, and you can earn at most <strong>25 points per day</strong>.</li>

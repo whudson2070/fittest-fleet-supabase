@@ -3,13 +3,17 @@
 (function () {
   // Go-live is automatic and date-based. ONE set of instants drives both the countdown
   // and activation, all at midnight America/New_York (EDT -04:00 until Nov 1 2am, then EST -05:00).
-  //   before START_AT: test mode (example data, joining disabled, "Test Challenges / Not Active" banner)
-  //   from START_AT:   live (real leaderboards, joining open until JOIN_CLOSES_AT)
-  //   from END_AT:     season complete (final standings, joining closed)
+  //   before START_AT: test mode (example data, "Test Challenges / Not Active" banner)
+  //   from START_AT:   live (real leaderboards). No Join button: members are entered automatically by the
+  //                    server (sql/competitions.sql competition_participants) from their Progress page data.
+  //   from END_AT:     season complete (final standings)
+  // ENTRY_CUTOFF mirrors public.competition_entry_cutoff_enabled() in SQL: a member's first relevant entry must be
+  // dated on/before SEASON.joinBy (Nov 1 ET). To drop the rule set both to false (and re-run the SQL).
   const SEASON_TZ = 'America/New_York';
   const START_AT = Date.parse('2026-10-26T00:00:00-04:00');       // Mon Oct 26, 12:00 AM ET
   const JOIN_CLOSES_AT = Date.parse('2026-11-02T00:00:00-05:00'); // end of Sun Nov 1 ET
   const END_AT = Date.parse('2026-12-28T00:00:00-05:00');         // end of Sun Dec 27 ET
+  const ENTRY_CUTOFF = true;
   const isActive = () => Date.now() >= START_AT;
   const isOver = () => Date.now() >= END_AT;
   let COMPETITIONS_ACTIVE = isActive();
@@ -21,7 +25,6 @@
   const forcePreview = new URLSearchParams(location.search).get('preview') === '1';
   let preview = forcePreview || !COMPETITIONS_ACTIVE;
   let timer = null;
-  let joined = { weight: false, exercise: false, nutrition: false };
 
   const EXAMPLE = {
     weight: [
@@ -61,7 +64,8 @@
   function renderDates() {
     $('comp-season-name').textContent = SEASON.name.toUpperCase();
     $('comp-dates').textContent = fmt(SEASON.start, { month: 'short', day: 'numeric' }) + ' – ' + fmt(SEASON.end);
-    $('comp-join-by').textContent = fmt(SEASON.joinBy, { weekday: 'short', month: 'short', day: 'numeric' });
+    $('comp-join-by').textContent = ENTRY_CUTOFF ? 'Log on Progress, first entry by ' + fmt(SEASON.joinBy, { month: 'short', day: 'numeric' }) : 'Log on the Progress page';
+    if (!ENTRY_CUTOFF) document.querySelectorAll('[data-join-by]').forEach((el) => { const li = el.closest('li'); if (li) li.innerHTML = li.innerHTML.replace(/ Your first (weigh-in|entry) must be by the end of week 1 \(<span data-join-by=""><\/span>\)\./, ''); });
     document.querySelectorAll('[data-join-by]').forEach((el) => { el.textContent = fmt(SEASON.joinBy, { weekday: 'long', month: 'short', day: 'numeric' }); });
   }
 
@@ -140,50 +144,29 @@
     const el = $('comp-standing-body');
     const user = window.FFAuth && FFAuth.getCurrentUser();
     if (!user && !preview) {
-      el.innerHTML = '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><p>Sign in to join and see where you rank.</p>' +
+      el.innerHTML = '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><p>Sign in to see where you rank. You are entered automatically when you log on the Progress page.</p>' +
         '<button type="button" id="comp-standing-signin" class="self-start px-6 py-2.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white text-sm font-semibold rounded-full">Sign in</button></div>';
       $('comp-standing-signin').onclick = () => FFAuth.openAuthModal('signin');
       return;
     }
     const isMe = (r) => r.me || (user && r.user_id === user.id);
     const mw = w.find(isMe), me = e.find(isMe), mn = n.find(isMe);
-    const card = (color, title, main, sub, joinedFlag, labelColor) =>
+    const closed = ENTRY_CUTOFF && Date.now() >= JOIN_CLOSES_AT;
+    const notIn = (what) => closed ? 'Not entered. Entry closed ' + fmt(SEASON.joinBy, { month: 'short', day: 'numeric' }) + '.'
+      : 'Not entered yet. Log ' + what + ' on the Progress page to enter' + (ENTRY_CUTOFF ? ' (first entry by ' + fmt(SEASON.joinBy, { month: 'short', day: 'numeric' }) + ')' : '') + '.';
+    const card = (color, title, main, sub, joinedFlag, labelColor, what) =>
       '<div class="rounded-2xl border border-[#E6E7E8] border-l-4 px-5 py-4" style="border-left-color:' + color + '">' +
       '<div class="text-[10px] font-bold tracking-wider" style="color:' + (labelColor || color) + '">' + title + '</div>' +
       (joinedFlag ? '<div class="text-2xl font-bold mt-1 text-[#414042]">' + main + '</div><div class="text-xs text-[#414042]/70 mt-1">' + sub + '</div>'
-                  : '<div class="text-sm mt-1">Not joined yet.</div>') + '</div>';
+                  : '<div class="text-sm mt-1">' + notIn(what) + '</div>') + '</div>';
     el.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">' +
-      card('#BE0F34', 'WEIGHT LOSS CHALLENGE', mw ? '#' + mw.rank + ' of ' + w.length + ' • ' + Number(mw.pct_lost).toFixed(1) + '% lost' : 'Joined',
-        mw ? mw.weigh_ins + ' weigh-ins logged' + (mw.eligible === false ? ' • log a weigh-in this week to become eligible' : ' • eligible') : 'Log a weigh-in on the Progress page during week 1 to set your starting weight.', joined.weight || !!mw) +
-      card('#5594CF', 'EXERCISE CHALLENGE', me ? '#' + me.rank + ' of ' + e.length + ' • ' + Number(me.points).toLocaleString() + ' pts' : 'Joined',
-        me ? me.active_days + ' active days' : 'Log activity on the Progress page to earn points.', joined.exercise || !!me) +
-      card('#D9E364', 'NUTRITIONAL DISCIPLINE', mn ? '#' + mn.rank + ' of ' + n.length + ' • ' + Number(mn.points).toLocaleString() + ' pts' : 'Joined',
-        mn ? mn.logged_days + ' logged days' : 'Log calories, carbs, added sugars, protein and fiber on the Progress page to earn points.', joined.nutrition || !!mn, '#414042') +
+      card('#BE0F34', 'WEIGHT LOSS CHALLENGE', mw ? '#' + mw.rank + ' of ' + w.length + ' • ' + Number(mw.pct_lost).toFixed(1) + '% lost' : '',
+        mw ? mw.weigh_ins + ' weigh-ins logged' + (mw.eligible === false ? ' • log a weigh-in this week to become eligible' : ' • eligible') : '', !!mw, null, 'a weigh-in') +
+      card('#5594CF', 'EXERCISE CHALLENGE', me ? '#' + me.rank + ' of ' + e.length + ' • ' + Number(me.points).toLocaleString() + ' pts' : '',
+        me ? me.active_days + ' active days' : '', !!me, null, 'any activity') +
+      card('#D9E364', 'NUTRITIONAL DISCIPLINE', mn ? '#' + mn.rank + ' of ' + n.length + ' • ' + Number(mn.points).toLocaleString() + ' pts' : '',
+        mn ? mn.logged_days + ' logged days' : '', !!mn, '#414042', 'nutrition') +
       '</div><a href="../progress/" class="inline-block mt-4 text-sm text-[#BE0F34] underline underline-offset-2">Log today on the Progress page →</a>';
-  }
-
-  function renderJoinButtons() {
-    document.querySelectorAll('.comp-join').forEach((btn) => {
-      const k = btn.dataset.join;
-      const closed = Date.now() >= JOIN_CLOSES_AT;
-      if (!COMPETITIONS_ACTIVE) { btn.textContent = 'Not active yet'; btn.disabled = true; btn.classList.add('opacity-70', 'cursor-not-allowed'); btn.onclick = null; return; }
-      if (joined[k]) { btn.textContent = 'Joined ✓'; btn.disabled = true; btn.classList.add('opacity-80', 'cursor-default'); }
-      else if (closed) { btn.textContent = isOver() ? 'Season ended' : 'Joining closed'; btn.disabled = true; btn.classList.add('opacity-80', 'cursor-default'); }
-      btn.onclick = () => join(k);
-    });
-  }
-
-  async function join(kind) {
-    if (Date.now() >= JOIN_CLOSES_AT) { window.showToast && showToast('Joining closed on ' + fmt(SEASON.joinBy, { month: 'short', day: 'numeric' }) + '.'); return; }
-    if (!COMPETITIONS_ACTIVE) { window.showToast && showToast('Test Challenges / Not Active: joining is disabled.'); return; }
-    const user = FFAuth.getCurrentUser();
-    if (!user) { FFAuth.openAuthModal('signin'); return; }
-    if (preview) { window.showToast && showToast('Preview mode: joining is disabled until competitions go live.'); return; }
-    const { error } = await window.ffSupabase.rpc('join_competition', { p_competition_id: SEASON.ids[kind] });
-    if (error) { window.showToast && showToast(error.message || 'Could not join.'); return; }
-    joined[kind] = true;
-    window.showToast && showToast("You're in! Log on the Progress page to score.");
-    await load();
   }
 
   async function loadLive() {
@@ -198,12 +181,6 @@
     if (w.error || e.error || n.error) throw (w.error || e.error || n.error);
     const counts = {};
     (c.data || []).forEach((r) => { counts[r.competition_id] = r.entrants; });
-    const user = FFAuth.getCurrentUser();
-    if (user) {
-      const { data } = await sb.from('competition_entries').select('competition_id').eq('user_id', user.id);
-      const ids = (data || []).map((r) => r.competition_id);
-      joined = { weight: ids.includes(SEASON.ids.weight), exercise: ids.includes(SEASON.ids.exercise), nutrition: ids.includes(SEASON.ids.nutrition) };
-    } else joined = { weight: false, exercise: false, nutrition: false };
     return { weight: w.data || [], exercise: e.data || [], nutrition: n.data || [],
       entrants: { weight: counts[SEASON.ids.weight] || 0, exercise: counts[SEASON.ids.exercise] || 0, nutrition: counts[SEASON.ids.nutrition] || 0 } };
   }
@@ -220,7 +197,6 @@
         nutrition: rankRows(EXAMPLE.nutrition, (r) => r.points),
         entrants: EXAMPLE.entrants
       };
-      joined = { weight: true, exercise: true, nutrition: true };
     }
     $('comp-preview-banner').classList.toggle('hidden', !preview);
     $('comp-preview-banner').classList.toggle('inline-flex', preview);
@@ -232,7 +208,6 @@
     renderExercise(data.exercise);
     renderNutrition(data.nutrition);
     renderStanding(data.weight, data.exercise, data.nutrition);
-    renderJoinButtons();
   }
 
   let goingLive = false;
@@ -241,15 +216,11 @@
     goingLive = true;
     COMPETITIONS_ACTIVE = true;
     preview = forcePreview;
-    document.querySelectorAll('.comp-join').forEach((btn) => {
-      btn.disabled = false; btn.classList.remove('opacity-70', 'cursor-not-allowed'); btn.textContent = btn.dataset.label || 'Join';
-    });
     try { await load(); } finally { goingLive = false; }
   }
 
   async function init() {
     COMPETITIONS_ACTIVE = isActive();
-    document.querySelectorAll('.comp-join').forEach((btn) => { if (!btn.dataset.label) btn.dataset.label = btn.textContent.trim(); });
     preview = forcePreview || !COMPETITIONS_ACTIVE;
     renderDates();
     tick();
