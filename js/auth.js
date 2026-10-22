@@ -8,6 +8,25 @@
   let currentUser = null;
   let displayNameHint = '';
 
+  // Phone-only fit for the auth modals (sign up / sign in / forgot password / set new password).
+  // Desktop (768px+) is untouched. The overlay scrolls when the card is taller than the screen
+  // (small phones, landscape, keyboard open); inputs use 16px so iOS Safari doesn't zoom on focus.
+  (function injectPhoneModalCss() {
+    if (!global.document || document.getElementById('ff-auth-phone-css')) return;
+    const css = '@media (max-width: 767px){' +
+      '#auth-modal,#auth-recovery-modal{align-items:flex-start!important;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:12px!important}' +
+      '#auth-modal>.modal,#auth-recovery-modal>[role=dialog]{margin:auto;flex-shrink:0;padding:28px 20px 24px!important}' +
+      '#auth-modal input,#auth-recovery-modal input{font-size:16px!important}' +
+      '#auth-close-btn{top:8px!important;right:8px!important;width:44px!important;height:44px!important}' +
+      '#auth-error,#auth-recovery-error{overflow-wrap:anywhere}' +
+      '#toast{left:12px!important;right:12px!important;transform:none!important;justify-content:center;text-align:left}' +
+      '}';
+    const style = document.createElement('style');
+    style.id = 'ff-auth-phone-css';
+    style.textContent = css;
+    (document.head || document.documentElement).appendChild(style);
+  })();
+
   // Production site. Confirmation emails must land here, not localhost.
   const EMAIL_REDIRECT_TO = 'https://fittestfleet.com/';
 
