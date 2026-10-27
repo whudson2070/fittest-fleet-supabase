@@ -336,6 +336,7 @@
                     <div class="tip-bullet text-sm">Honor your body’s natural pace</div>
                     <div class="tip-bullet text-sm">Share wins — big or small — here first</div>
                 </div>
+                <a href="competitions/" data-leader="weight" class="flex items-center min-h-[64px] mb-4 rounded-2xl bg-[#BE0F34]/5 px-4 py-3 text-sm text-[#414042] hover:underline" aria-live="polite"><span><i class="fa-solid fa-trophy mr-2 opacity-60"></i>Loading current leader…</span></a>
                 <a href="progress/" data-log="weight"
                         class="pillar-log mt-auto w-full py-3.5 bg-[#BE0F34] hover:bg-[#D7153A] text-white font-semibold rounded-2xl flex items-center justify-center gap-x-2 transition-all active:scale-[0.985]">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -359,6 +360,7 @@
                     <div class="tip-bullet text-sm">Listen to your body every session</div>
                     <div class="tip-bullet text-sm">Accountability partners available</div>
                 </div>
+                <a href="competitions/" data-leader="exercise" class="flex items-center min-h-[64px] mb-4 rounded-2xl bg-[#5594CF]/10 px-4 py-3 text-sm text-[#414042] hover:underline" aria-live="polite"><span><i class="fa-solid fa-trophy mr-2 opacity-60"></i>Loading current leader…</span></a>
                 <a href="progress/" data-log="exercise"
                         class="pillar-log mt-auto w-full py-3.5 bg-[#5594CF] hover:bg-[#4a84b8] text-white font-semibold rounded-2xl flex items-center justify-center gap-x-2 transition-all active:scale-[0.985]">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -382,6 +384,7 @@
                     <div class="tip-bullet text-sm">Meal prep tips from real members</div>
                     <div class="tip-bullet text-sm">Mindful eating practices shared daily</div>
                 </div>
+                <a href="competitions/" data-leader="nutrition" class="flex items-center min-h-[64px] mb-4 rounded-2xl bg-[#D9E364]/30 px-4 py-3 text-sm text-[#414042] hover:underline" aria-live="polite"><span><i class="fa-solid fa-trophy mr-2 opacity-60"></i>Loading current leader…</span></a>
                 <a href="progress/" data-log="nutrition"
                         class="pillar-log mt-auto w-full py-3.5 bg-[#D9E364] hover:bg-[#c5d15a] text-[#414042] font-semibold rounded-2xl flex items-center justify-center gap-x-2 transition-all active:scale-[0.985]">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -664,6 +667,7 @@
     <script src="js/member-count.js"></script>
     <script src="js/trust-bar-stats.js"></script>
     <script src="js/hero-avatars.js"></script>
+    <script src="js/competitions.js"></script>
     <script src="js/voices-of-victory.js"></script>
     <script>
         function initTailwind() {
@@ -775,6 +779,7 @@
             if (window.FFMembers) FFMembers.loadMemberCount();
             if (window.FFTrustBar) FFTrustBar.loadStats();
             if (window.FFHeroAvatars) FFHeroAvatars.loadHeroAvatars();
+            if (window.FFCompetitions && FFCompetitions.renderHomeLeaders) FFCompetitions.renderHomeLeaders();
             if (window.FFVoicesOfVictory) FFVoicesOfVictory.load();
             if (window.FFRunRunnerScores) FFRunRunnerScores.loadLeaderboard();
             if (window.FFDailyChallenge) FFDailyChallenge.render();

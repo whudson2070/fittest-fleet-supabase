@@ -228,5 +228,44 @@
     await load();
   }
 
-  window.FFCompetitions = { init };
+  // Current leader(s) per competition, from the same public leaderboard RPCs and rank logic as the
+  // competitions page (server order + rankRows). Rank-1 rows only; weight loss leaders must be eligible.
+  // Returns empty lists before go-live (never example data).
+  async function getLeaders() {
+    if (!isActive()) return { weight: [], exercise: [], nutrition: [] };
+    const data = await loadLive();
+    const top = (rows, key) => rankRows(rows, key).filter((r) => Number(r.rank) === 1 && r.eligible !== false);
+    return {
+      weight: top(data.weight, (r) => r.eligible + ':' + r.pct_lost),
+      exercise: top(data.exercise, (r) => r.points),
+      nutrition: top(data.nutrition, (r) => r.points)
+    };
+  }
+
+  const SCORE = {
+    weight: (r) => Number(r.pct_lost).toFixed(1) + '% lost',
+    exercise: (r) => Number(r.points).toLocaleString() + ' pts',
+    nutrition: (r) => Number(r.points).toLocaleString() + ' pts'
+  };
+
+  // Homepage pillar cards: fills every [data-leader="weight|exercise|nutrition"] element.
+  async function renderHomeLeaders() {
+    const els = document.querySelectorAll('[data-leader]');
+    if (!els.length) return;
+    let leaders = null;
+    try { leaders = await getLeaders(); } catch (err) { console.warn('[competitions] leaders unavailable', err); }
+    els.forEach((el) => {
+      const rows = leaders ? (leaders[el.getAttribute('data-leader')] || []) : [];
+      const score = SCORE[el.getAttribute('data-leader')];
+      if (!rows.length) {
+        el.innerHTML = '<span><i class="fa-solid fa-trophy mr-2 opacity-60"></i>No leader yet — log progress to take the lead</span>';
+        return;
+      }
+      const names = rows.slice(0, 2).map((r) => esc(r.display_name)).join(' &amp; ') + (rows.length > 2 ? ' +' + (rows.length - 2) + ' more' : '');
+      el.innerHTML = '<span><i class="fa-solid fa-trophy mr-2"></i>' + (rows.length > 1 ? 'Tied for the lead: ' : 'Current leader: ') +
+        '<span class="font-bold">' + names + '</span> – <span class="font-bold tabular-nums">' + score(rows[0]) + '</span></span>';
+    });
+  }
+
+  window.FFCompetitions = { init, getLeaders, renderHomeLeaders };
 })();
