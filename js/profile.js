@@ -23,10 +23,21 @@
     if (typeof global.showToast === 'function') global.showToast(msg);
   }
 
+  // Site root, derived from this script's own URL (js/profile.js -> ../), so relative
+  // preset paths like assets/avatars/x.svg resolve on subpages (e.g. /progress/) too.
+  const SITE_ROOT = (function () {
+    try {
+      const s = document.currentScript && document.currentScript.src;
+      if (s) return new URL('../', s).href;
+    } catch (_) {}
+    return '/';
+  })();
+
   function resolveAvatarUrl(url) {
-    if (!url) return DEFAULT_AVATAR;
-    // Absolute or data URLs stay as-is; relative paths work from site root
-    return url;
+    if (!url) url = DEFAULT_AVATAR;
+    // Absolute, protocol-relative, root-relative, data and blob URLs stay as-is.
+    if (/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(url)) return url;
+    try { return new URL(url, SITE_ROOT).href; } catch (_) { return url; }
   }
 
   function getPresetAvatars() {

@@ -48,12 +48,38 @@
 
   const listeners = [];
 
+  // Header avatar on every page with the shared header: load js/profile.js on demand
+  // (same folder as this script) and let FFProfile.refreshAuthAvatar fill the button.
+  const AUTH_SCRIPT_SRC = (global.document && document.currentScript && document.currentScript.src) || '';
+  let profileScriptPromise = null;
+  function loadProfileScript() {
+    if (global.FFProfile) return Promise.resolve(global.FFProfile);
+    if (profileScriptPromise) return profileScriptPromise;
+    profileScriptPromise = new Promise((resolve) => {
+      let src;
+      try { src = new URL('profile.js', AUTH_SCRIPT_SRC || global.location.href).href; } catch (_) { return resolve(null); }
+      const el = document.createElement('script');
+      el.src = src;
+      el.onload = () => resolve(global.FFProfile || null);
+      el.onerror = () => resolve(null);
+      document.head.appendChild(el);
+    });
+    return profileScriptPromise;
+  }
+  function refreshHeaderAvatar(user) {
+    if (!user || !global.document || !document.getElementById('auth-user-avatar')) return;
+    loadProfileScript().then((P) => {
+      if (P && typeof P.refreshAuthAvatar === 'function') P.refreshAuthAvatar();
+    });
+  }
+
   function onAuthChange(cb) {
     listeners.push(cb);
     if (currentUser !== undefined) cb(currentUser);
   }
 
   function notify() {
+    try { refreshHeaderAvatar(currentUser); } catch (_) {}
     listeners.forEach((cb) => {
       try {
         cb(currentUser);
