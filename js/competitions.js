@@ -64,7 +64,7 @@
   function renderDates() {
     $('comp-season-name').textContent = SEASON.name.toUpperCase();
     $('comp-dates').textContent = fmt(SEASON.start, { month: 'short', day: 'numeric' }) + ' – ' + fmt(SEASON.end);
-    $('comp-join-by').textContent = ENTRY_CUTOFF ? 'Log on Progress, first entry by ' + fmt(SEASON.joinBy, { month: 'short', day: 'numeric' }) : 'Log on the Progress page';
+    $('comp-join-by').textContent = ENTRY_CUTOFF ? 'Log Progress, by ' + fmt(SEASON.joinBy, { month: 'short', day: 'numeric' }) : 'Log on the Progress page';
     if (!ENTRY_CUTOFF) document.querySelectorAll('[data-join-by]').forEach((el) => { const li = el.closest('li'); if (li) li.innerHTML = li.innerHTML.replace(/ Your first (weigh-in|entry) must be by the end of week 1 \(<span data-join-by=""><\/span>\)\./, ''); });
     document.querySelectorAll('[data-join-by]').forEach((el) => { el.textContent = fmt(SEASON.joinBy, { weekday: 'long', month: 'short', day: 'numeric' }); });
   }
