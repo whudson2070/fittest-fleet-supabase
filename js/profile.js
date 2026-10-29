@@ -231,6 +231,13 @@
     }
     const icon = document.getElementById('auth-user-icon');
     if (icon) icon.classList.add('hidden');
+    const mImg = document.getElementById('auth-mobile-avatar-img');
+    if (mImg) {
+      mImg.src = resolveAvatarUrl(avatarUrl) || DEFAULT_AVATAR;
+      mImg.classList.remove('hidden');
+    }
+    const mIcon = document.getElementById('auth-mobile-avatar-icon');
+    if (mIcon) mIcon.classList.add('hidden');
   }
 
   async function refreshAuthAvatar() {

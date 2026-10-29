@@ -106,7 +106,26 @@
     return displayNameHint || getDisplayNameFromUser(currentUser);
   }
 
+  // Phones (<640px): avatar-only link to the profile page, injected next to the menu button.
+  function ensureMobileAvatar() {
+    const wrap = document.getElementById('auth-signed-in');
+    const link = document.getElementById('auth-profile-link');
+    if (!wrap || !link || document.getElementById('auth-mobile-avatar')) return;
+    const a = document.createElement('a');
+    a.id = 'auth-mobile-avatar';
+    a.href = link.getAttribute('href');
+    a.title = 'Edit profile';
+    a.setAttribute('aria-label', 'Your profile');
+    a.className = 'sm:hidden inline-flex items-center justify-center w-8 h-8 shrink-0';
+    a.innerHTML = '<img id="auth-mobile-avatar-img" class="hidden w-8 h-8 rounded-full object-cover ring-2 ring-[#E6E7E8]" alt="">' +
+      '<i id="auth-mobile-avatar-icon" class="fa-solid fa-user-circle text-[#BE0F34] text-2xl"></i>';
+    link.insertAdjacentElement('afterend', a);
+    // Tighter spacing on phones so the header stays on one line at 320px.
+    if (wrap.classList.contains('gap-x-3')) { wrap.classList.remove('gap-x-3'); wrap.classList.add('gap-x-1.5', 'sm:gap-x-3'); }
+  }
+
   function updateAuthUI() {
+    try { ensureMobileAvatar(); } catch (_) {}
     const signedOut = document.getElementById('auth-signed-out');
     const signedIn = document.getElementById('auth-signed-in');
     const userLabel = document.getElementById('auth-user-label');
@@ -157,6 +176,10 @@
       }
       const avatarIcon = document.getElementById('auth-user-icon');
       if (avatarIcon) avatarIcon.classList.remove('hidden');
+      const mImg = document.getElementById('auth-mobile-avatar-img');
+      if (mImg) { mImg.classList.add('hidden'); mImg.removeAttribute('src'); }
+      const mIcon = document.getElementById('auth-mobile-avatar-icon');
+      if (mIcon) mIcon.classList.remove('hidden');
     }
 
     document.querySelectorAll('[data-signed-in-nav]').forEach((el) => {
