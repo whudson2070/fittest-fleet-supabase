@@ -57,7 +57,7 @@ on conflict (id) do update set name = excluded.name, type = excluded.type,
 -- Entry cutoff switch: true = a member's FIRST relevant entry must be dated on/before join_deadline (Nov 1 ET).
 -- To drop the cutoff, change "select true" to "select false" and re-run this file.
 create or replace function public.competition_entry_cutoff_enabled()
-returns boolean language sql immutable as $$ select true $$;
+returns boolean language sql immutable as $$ select false $$;
 
 -- Participants of a competition, derived from progress data dated start_date .. least(end_date, today ET):
 --  weight_loss: any weigh-in (weight > 0); members whose Progress weight goal is 'gain' are excluded

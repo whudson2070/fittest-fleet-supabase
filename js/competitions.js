@@ -13,7 +13,7 @@
   const START_AT = Date.parse('2026-10-26T00:00:00-04:00');       // Mon Oct 26, 12:00 AM ET
   const JOIN_CLOSES_AT = Date.parse('2026-11-02T00:00:00-05:00'); // end of Sun Nov 1 ET
   const END_AT = Date.parse('2026-12-28T00:00:00-05:00');         // end of Sun Dec 27 ET
-  const ENTRY_CUTOFF = true;
+  const ENTRY_CUTOFF = false; // Nov 10: entry open all season
   const isActive = () => Date.now() >= START_AT;
   const isOver = () => Date.now() >= END_AT;
   let COMPETITIONS_ACTIVE = isActive();
